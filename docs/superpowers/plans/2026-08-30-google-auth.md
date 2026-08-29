@@ -24,6 +24,7 @@
 - Use existing semantic theme tokens; do not add raw colors or manual dark-mode color overrides.
 - Do not add or remove source comments.
 - Project-specific `AGENTS.md` overrides generic plan advice: the assigned `developer` must not dispatch workers and must not commit implementation changes; the coordinator needs a working-tree diff for the review loop.
+- Approved baseline exception: `npm run test:agents` currently passes 16 of 17 tests and fails only the skill discovery-collision check because project skill directories and the user's global `~/.agents/skills` are both visible. Do not alter harness/global configuration; require the same result with no new failure.
 
 ---
 
@@ -745,7 +746,7 @@ Run:
 npm run test:agents
 ```
 
-Expected: PASS.
+Expected: 16 tests PASS and only the pre-existing discovery-collision test FAILS for the same Devin/Antigravity duplicate skill-source reason observed at baseline. Any different or additional failure is a regression.
 
 - [ ] **Step 5: Check the final patch for formatting and scope**
 

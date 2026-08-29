@@ -184,6 +184,12 @@ A complete Google consent/callback cannot be automated honestly without real pro
 
 Install the Playwright Chromium binary locally before its first run when needed; do not commit browser binaries.
 
+## Baseline verification exception
+
+Before implementation, `npm run build` passed, `npm run lint` passed with two pre-existing warnings in agent-roster scripts, and `npm run test:agents` passed 16 of 17 tests. The sole failure was the environment-dependent discovery-collision test reporting both project-specific skill directories and the user's global `~/.agents/skills` source for Devin and Antigravity.
+
+The user explicitly approved treating that exact `test:agents` failure as a pre-existing baseline rather than widening the authentication task into global harness configuration. Final verification must show no additional agent-test failure and must preserve the same 16-pass/1-fail result and collision reason. Any different or additional failure is a regression.
+
 ## README setup instructions
 
 Document, without values:
@@ -204,4 +210,4 @@ Explain that `npx auth secret` can generate `AUTH_SECRET`, that `.env.local` is 
 - An authenticated request to `/login` redirects to `/`.
 - Missing credentials produce a safe, usable configuration state without exposing or fabricating secrets.
 - No Credentials provider, database, global SessionProvider, Proxy, dynamic redirect, or secret file is introduced.
-- App E2E tests, lint, production build, and agent-roster tests pass, with the real-provider smoke test explicitly pending until credentials are supplied.
+- App E2E tests, lint, and the production build pass. Agent-roster tests introduce no regression beyond the explicitly approved 16-pass/1-fail discovery-collision baseline, and the real-provider smoke test remains pending until credentials are supplied.
