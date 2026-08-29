@@ -147,8 +147,8 @@ my-app/
 │  │  └─ globals.css
 │  ├─ components/
 │  │  └─ ui/                    # общие UI-примитивы
+│  ├─ auth.ts                   # конфигурация Auth.js (v5)
 │  ├─ lib/
-│  │  ├─ auth.ts                # конфигурация Auth.js
 │  │  ├─ db.ts                  # клиент БД
 │  │  ├─ actions/               # Server Actions по доменам
 │  │  │  ├─ auth.ts
@@ -207,21 +207,18 @@ npx auth secret   # создаёт AUTH_SECRET в .env.local
 
 `AUTH_SECRET` обязателен в production.
 
+> **Примечание:** в `package.json` этого репозитория `next-auth@beta` не указан. Для примеров ниже нужно выполнить `npm install next-auth@beta` и `npx auth secret`. Если планируете Credentials-провайдер из раздела 4.8, дополнительно понадобятся `bcryptjs`, `zod` и уже настроенный клиент БД (Prisma, Drizzle и т.д.).
+
 ### 4.3. Базовая конфигурация Auth.js
 
-Создайте `src/lib/auth.ts`:
+Создайте `src/auth.ts`:
 
 ```ts
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  providers: [
-    Google({
-      clientId: process.env.AUTH_GOOGLE_ID!,
-      clientSecret: process.env.AUTH_GOOGLE_SECRET!,
-    }),
-  ],
+  providers: [Google()],
   pages: {
     signIn: "/login",
   },
@@ -247,7 +244,7 @@ Auth.js v5 использует **inferred env variables**: `AUTH_GOOGLE_ID`, `A
 `src/app/api/auth/[...nextauth]/route.ts`:
 
 ```ts
-import { handlers } from "@/lib/auth";
+import { handlers } from "@/auth";
 
 export const { GET, POST } = handlers;
 ```
@@ -258,21 +255,23 @@ export const { GET, POST } = handlers;
 
 ```ts
 // src/proxy.ts
-export { auth as proxy } from "@/lib/auth";
+export { auth as proxy } from "@/auth";
 ```
 
 Для Next.js 14–15 используйте `src/middleware.ts`:
 
 ```ts
 // src/middleware.ts
-export { auth as middleware } from "@/lib/auth";
+export { auth as middleware } from "@/auth";
 ```
 
-Proxy/Middleware запускается до рендера. Настройте `matcher`, чтобы исключить статику и API:
+Proxy/Middleware запускается до рендера. Настройте `matcher`, чтобы исключить статику, API и служебные файлы:
 
 ```ts
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|.*\\.png$).*)"],
+  matcher: [
+    "/((?!api|_next/static|_next/image|favicon\\.ico|sitemap\\.xml|robots\\.txt|.*\\.png$).*)",
+  ],
 };
 ```
 
@@ -281,7 +280,7 @@ export const config = {
 #### В Server Component
 
 ```tsx
-import { auth } from "@/lib/auth";
+import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 
 export default async function DashboardPage() {
@@ -310,12 +309,54 @@ export default function AuthButton() {
 }
 ```
 
-Client components должны быть обёрнуты в `SessionProvider` (обычно в корневом layout или отдельном клиентском обёрточном компоненте).
+`SessionProvider` — это клиентский контекст, поэтому его нельзя импортировать напрямую в корневой `layout.tsx`, который является Server Component. Вынесите его в отдельный клиентский файл и импортируйте в layout. Можно сразу передать начальную сессию с сервера, чтобы избежать лишнего клиентского запроса:
+
+```tsx
+// src/app/providers.tsx
+"use client";
+
+import { ReactNode } from "react";
+import type { Session } from "next-auth";
+import { SessionProvider } from "next-auth/react";
+
+export function Providers({
+  children,
+  session,
+}: {
+  children: ReactNode;
+  session?: Session | null;
+}) {
+  return <SessionProvider session={session}>{children}</SessionProvider>;
+}
+```
+
+```tsx
+// src/app/layout.tsx
+import { auth } from "@/auth";
+import { Providers } from "@/app/providers";
+import type { ReactNode } from "react";
+
+export default async function RootLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  const session = await auth();
+
+  return (
+    <html lang="ru">
+      <body>
+        <Providers session={session}>{children}</Providers>
+      </body>
+    </html>
+  );
+}
+```
 
 #### В Route Handler
 
 ```ts
-import { auth } from "@/lib/auth";
+import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 
 export const GET = auth(function GET(req) {
@@ -332,7 +373,7 @@ export const GET = auth(function GET(req) {
 Задайте кастомный путь:
 
 ```ts
-// src/lib/auth.ts
+// src/auth.ts
 pages: {
   signIn: '/login',
   error: '/auth/error',
@@ -346,31 +387,47 @@ pages: {
 ```ts
 "use server";
 
-import { signIn } from "@/lib/auth";
+import { signIn } from "@/auth";
 import { AuthError } from "next-auth";
-import { isRedirectError } from "next/navigation";
+import { unstable_rethrow } from "next/navigation";
 
 export type LoginState = { error?: string } | undefined;
+
+// Параметр `redirectTo` нельзя собирать из недоверенного ввода
+// (query string, скрытые поля формы и т.д.) без валидации.
+// Разрешены только same-origin пути: начинаются с `/` и не с `//`.
+function safeRedirect(redirect?: string | null) {
+  if (redirect && redirect.startsWith("/") && !redirect.startsWith("//")) {
+    return redirect;
+  }
+  return "/dashboard";
+}
 
 export async function login(
   prevState: LoginState,
   formData: FormData,
 ): Promise<LoginState> {
   try {
+    const email = formData.get("email")?.toString() ?? "";
+    const password = formData.get("password")?.toString() ?? "";
+
     await signIn("credentials", {
-      email: formData.get("email") as string,
-      password: formData.get("password") as string,
-      redirectTo: "/dashboard",
+      email,
+      password,
+      redirectTo: safeRedirect("/dashboard"),
     });
   } catch (error) {
-    // `signIn` при успехе бросает NEXT_REDIRECT — его нужно прокинуть дальше
-    if (isRedirectError(error)) throw error;
+    // `signIn` при успехе бросает NEXT_REDIRECT — сначала прокидываем его обратно Next.js,
+    // а затем обрабатываем уже прикладные ошибки (например, AuthError).
+    unstable_rethrow(error);
 
     if (error instanceof AuthError) {
       return { error: "Invalid email or password" };
     }
 
-    throw error;
+    // Не выбрасывайте неизвестные ошибки наружу — это может утекать детали БД/ORM.
+    console.error("Login error:", error);
+    return { error: "Something went wrong" };
   }
 }
 ```
@@ -407,14 +464,25 @@ export default function LoginPage() {
 
 #### Вариант B: клиентская кнопка OAuth
 
+> **Предупреждение:** `redirectTo` нельзя брать из query string, параметров URL или скрытых полей без валидации — это открывает возможность open-redirect атак. Используйте helper, который допускает только same-origin пути (`/...`, но не `//...` или полные URL).
+
 ```tsx
 "use client";
 
 import { signIn } from "next-auth/react";
 
-export function GoogleSignIn() {
+function safeRedirect(redirect?: string | null) {
+  if (redirect && redirect.startsWith("/") && !redirect.startsWith("//")) {
+    return redirect;
+  }
+  return "/dashboard";
+}
+
+export function GoogleSignIn({ redirectTo }: { redirectTo?: string }) {
   return (
-    <button onClick={() => signIn("google", { callbackUrl: "/dashboard" })}>
+    <button
+      onClick={() => signIn("google", { redirectTo: safeRedirect(redirectTo) })}
+    >
       Sign in with Google
     </button>
   );
@@ -423,8 +491,12 @@ export function GoogleSignIn() {
 
 ### 4.8. Credentials-провайдер (email + пароль)
 
+Код размещается в `src/auth.ts`. В Auth.js v5 расширение типов удобно держать в том же файле:
+
 ```ts
-import NextAuth from "next-auth";
+// src/auth.ts
+import NextAuth, { type DefaultSession } from "next-auth";
+import "next-auth/jwt";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
@@ -433,6 +505,24 @@ const schema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
 });
+
+declare module "next-auth" {
+  interface User {
+    id: string;
+    role?: string;
+  }
+
+  interface Session {
+    user: { id: string; role?: string } & DefaultSession["user"];
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    id?: string;
+    role?: string;
+  }
+}
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   session: { strategy: "jwt" },
@@ -447,6 +537,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const parsed = schema.safeParse(credentials);
         if (!parsed.success) return null;
 
+        // db — ваш клиент БД, например Prisma/Drizzle
         const user = await db.user.findUnique({
           where: { email: parsed.data.email },
         });
@@ -474,8 +565,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return token;
     },
     session({ session, token }) {
-      session.user.id = token.id as string;
-      session.user.role = token.role as string;
+      if (typeof token.id === "string") {
+        session.user.id = token.id;
+      }
+      if (typeof token.role === "string") {
+        session.user.role = token.role;
+      }
       return session;
     },
   },
@@ -485,33 +580,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 });
 ```
 
-> **Важно:** `bcryptjs` — удобная dev-зависимость. Для production рассмотрите `argon2` или `scrypt`.
+> **Важно:** `bcryptjs` — runtime-зависимость (не `devDependencies`), которая выполняет хеширование в рантайме. Для production рассмотрите `argon2` или нативный `crypto.scrypt`.
 
-### 4.9. Расширение типов пользователя
+### 4.9. Расширение типов внутри `auth.ts`
 
-Добавьте `next-auth.d.ts`:
+Auth.js v5 рекомендует расширять типы в том же файле, где находится конфигурация — `src/auth.ts`. Module augmentation `declare module "next-auth"` и `declare module "next-auth/jwt"` (см. листинг `src/auth.ts` в разделе 4.8) добавляет поля `id` и `role` к `User`, `Session` и `JWT`.
 
-```ts
-import "next-auth";
+Отдельный `next-auth.d.ts` не нужен: во-первых, `tsconfig.json` часто не включает `.d.ts` файлы, во-вторых, расширение внутри `auth.ts` гарантирует, что TypeScript увидит изменения везде, где используется `auth()`, `useSession()` и `SessionProvider`.
 
-declare module "next-auth" {
-  interface User {
-    id: string;
-    role?: string;
-  }
-
-  interface Session {
-    user: User;
-  }
-}
-
-declare module "next-auth/jwt" {
-  interface JWT {
-    id?: string;
-    role?: string;
-  }
-}
-```
+Важно: файл с расширением должен быть включён в `tsconfig.json` (`"include": ["**/*.ts", "**/*.tsx"]`), иначе TypeScript может его не подхватить.
 
 ### 4.10. Чек-лист безопасности авторизации
 
@@ -523,13 +600,101 @@ declare module "next-auth/jwt" {
 - Для production по возможности используйте OAuth / Passkey вместо Credentials.
 - Защищайте маршруты на уровне Proxy/Middleware, чтобы не показывать приватный UI неавторизованным пользователям.
 
+### 4.11. Прерывания авторизации в Next.js 16 (experimental)
+
+Next.js 16 предлагает экспериментальные механизмы `unauthorized()` (401) и `forbidden()` (403). Чтобы их использовать, включите `experimental.authInterrupts` в `next.config.ts`.
+
+> **Важно:** `authInterrupts` — экспериментальный API и не должен быть единственной границей авторизации. Продолжайте проверять сессию через `auth()`, `proxy.ts` и внутри Server Actions / Route Handlers.
+
+Рядом с защищёнными маршрутами создайте файлы `unauthorized.tsx` / `forbidden.tsx`. Next.js ищет ближайший файл с таким именем в дереве сегментов маршрута; если в текущем сегменте файла нет, используется корневой fallback. Эти файлы отрисуются автоматически, когда функция бросает соответствующее исключение.
+
+```ts
+// next.config.ts
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  experimental: {
+    authInterrupts: true,
+  },
+};
+
+export default nextConfig;
+```
+
+```tsx
+// src/app/dashboard/page.tsx
+import { auth } from "@/auth";
+import { unauthorized } from "next/navigation";
+
+export default async function DashboardPage() {
+  const session = await auth();
+
+  if (!session) {
+    unauthorized();
+  }
+
+  return <h1>Dashboard</h1>;
+}
+```
+
+```tsx
+// src/app/admin/page.tsx
+import { auth } from "@/auth";
+import { forbidden, unauthorized } from "next/navigation";
+
+export default async function AdminPage() {
+  const session = await auth();
+
+  // Сначала проверяем аутентификацию (401), затем — авторизацию (403).
+  if (!session) {
+    unauthorized();
+  }
+
+  if (session.user?.role !== "admin") {
+    forbidden();
+  }
+
+  return <h1>Admin</h1>;
+}
+```
+
+```tsx
+// src/app/unauthorized.tsx
+import Link from "next/link";
+
+export default function Unauthorized() {
+  return (
+    <main>
+      <h1>401 — Не авторизован</h1>
+      <p>
+        Пожалуйста, <Link href="/login">войдите</Link>, чтобы продолжить.
+      </p>
+    </main>
+  );
+}
+```
+
+```tsx
+// src/app/forbidden.tsx
+export default function Forbidden() {
+  return (
+    <main>
+      <h1>403 — Доступ запрещён</h1>
+      <p>У вас недостаточно прав для просмотра этой страницы.</p>
+    </main>
+  );
+}
+```
+
+> **Важно:** `unauthorized()` и `forbidden()` бросают ошибки. Обычно их не нужно оборачивать в `try/catch` — пусть исключение дойдёт до Next.js, чтобы отрисовался `unauthorized.tsx` / `forbidden.tsx`. `unstable_rethrow` нужен только если вызов находится внутри существующего `try/catch` (например, рядом с `signIn` в Server Action): тогда первым делом вызовите `unstable_rethrow(error)`, иначе Next.js не сможет поймать прерывание. Ссылки на официальную документацию — в разделе 7 (Источники).
+
 ---
 
 ## 5. Итоговые рекомендации
 
 1. **Инициализация**: `npx create-next-app@latest` с дефолтами (`--yes` или интерактивный режим). Это даёт TypeScript, ESLint, Tailwind, App Router, Turbopack и `@/*`.
 2. **Архитектура**: стройте на App Router, Server Components, Server Actions и streaming. Используйте `src/`, группы маршрутов `(auth)`/`(main)`, private folders `_components` и shared `components/ui` + `lib/`.
-3. **Авторизация**: используйте **Auth.js v5** — единый `auth.ts`, Route Handler `app/api/auth/[...nextauth]/route.ts`, `proxy.ts` (или `middleware.ts` для старых версий), `auth()` для защиты и `pages: { signIn: '/login' }` для кастомной страницы входа.
+3. **Авторизация**: используйте **Auth.js v5** — единый `auth.ts` (включая расширение типов `declare module`), Route Handler `app/api/auth/[...nextauth]/route.ts`, `proxy.ts` (или `middleware.ts` для старых версий), `auth()` для защиты и `pages: { signIn: '/login' }` для кастомной страницы входа.
 4. **Credentials**: только если действительно нужны email+пароль. Хешируйте пароли, валидируйте `Zod`, расширяйте JWT/Session типы.
 5. **Правило большого пальца**: делайте как можно больше на сервере (Server Components, Server Actions), а интерактивность выносьте в минимальные Client Components.
 
@@ -653,3 +818,15 @@ npx create-next-app@latest /tmp/nextjs-scaffold --yes --typescript --tailwind --
 - Auth.js — Protecting resources: https://authjs.dev/getting-started/session-management/protecting
 - Auth.js — Custom pages: https://authjs.dev/getting-started/session-management/custom-pages
 - Auth.js — Credentials provider: https://authjs.dev/getting-started/providers/credentials
+- Next.js — Proxy guide: https://nextjs.org/docs/app/getting-started/proxy
+- Next.js — `unstable_rethrow`: https://nextjs.org/docs/app/api-reference/functions/unstable_rethrow
+- Next.js — `authInterrupts`: https://nextjs.org/docs/app/api-reference/config/next-config-js/authInterrupts
+- Next.js — `unauthorized`: https://nextjs.org/docs/app/api-reference/functions/unauthorized
+- Next.js — `unauthorized.js` file: https://nextjs.org/docs/app/api-reference/file-conventions/unauthorized
+- Next.js — `forbidden`: https://nextjs.org/docs/app/api-reference/functions/forbidden
+- Next.js — `forbidden.js` file: https://nextjs.org/docs/app/api-reference/file-conventions/forbidden
+- Auth.js — Session management: https://authjs.dev/getting-started/session-management
+- Auth.js — Login: https://authjs.dev/getting-started/session-management/login
+- Auth.js — Get Session: https://authjs.dev/getting-started/session-management/get-session
+- Auth.js — TypeScript: https://authjs.dev/getting-started/typescript
+- Auth.js — Next.js reference: https://authjs.dev/reference/nextjs
