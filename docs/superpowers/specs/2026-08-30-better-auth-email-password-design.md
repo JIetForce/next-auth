@@ -49,7 +49,8 @@ Verified compatibility at design time: `better-auth@1.7.2` declares peer ranges 
 - Auth library: Better Auth `1.7.2`, pinned exactly.
 - ORM: Prisma `7.10.0`, pinned exactly. The `prisma` CLI package's `latest` dist-tag has advanced to `8.0.0-rc.12` (a release candidate); `7.10.0` is the last stable 7.x release and is installable via `npm install prisma@7.10.0 @prisma/client@7.10.0 @prisma/adapter-pg@7.10.0`. Do not install `prisma@latest`.
 - Database: Supabase Postgres, accessed through the pooled connection string.
-- Email transport: Mailpit as the sole mail server (local, E2E, and deployment). No external email provider is configured. The transport abstraction remains so a provider can be added later by swapping one module.
+- Email transport: authenticated SMTP, configured entirely through environment variables. Gmail with an App Password is the documented default because it requires no domain, no paid service, and nothing installed. Any other authenticated SMTP account is a drop-in replacement.
+- No mail server, container, or background service is installed for this project. Tests capture mail to a file instead (see § Email infrastructure).
 - Configuration boundary stays at `src/auth.ts`, matching the existing documented file ownership.
 - Auth route moves from `src/app/api/auth/[...nextauth]/route.ts` to `src/app/api/auth/[...all]/route.ts`.
 - Sessions are database-backed. The JWT cookie strategy is removed.
@@ -77,7 +78,7 @@ These are known, decided, and must not be re-litigated during implementation. Th
 
 **Supabase inactivity pause.** Supabase free-tier projects pause after seven days of inactivity and require a manual restore from the dashboard. The obvious mitigation does not work: GitHub disables scheduled workflows after 60 days without repository activity, and only commits reset that timer, so a keep-alive cron dies before the project it protects. No workflow is added. The operational procedure is instead explicit: while the repository is under active development the pause will not trigger; once development stops, the project must be restored manually before the application is shared, or the database moved to a host that wakes on demand.
 
-**Email deliverability is explicitly not a requirement.** No custom domain will be purchased. Mail is sent through a free SMTP provider (Brevo's free tier, 300/day, needs only a verified sender address, not a domain) or any authenticated SMTP account. Messages will frequently land in spam because the sender is unauthenticated; this is accepted and must not be designed around. Locally and in E2E the transport points at Mailpit instead. `src/lib/email/client.ts` is the only module that knows which transport is in use.
+**No custom domain will be purchased, and no mail service will be installed.** Mail is sent through the owner's own Gmail account over authenticated SMTP with an App Password. This works without a domain precisely because nothing is being relayed on behalf of a domain the sender does not control: the message is an ordinary Gmail message, signed by Google's own SPF and DKIM, so deliverability is normal rather than degraded. The cost is a ~500 recipient/day cap and a personal address in the `From` header, both acceptable here. A third-party relay such as Brevo was rejected: it cannot authenticate a `gmail.com` sender, rewrites the `From` address to stay compliant, and lands in spam as a result. `src/lib/email/client.ts` is the only module that knows which transport is in use, so replacing Gmail later is an environment change.
 
 **Better Auth minor releases can break.** Version 1.7.0 shipped more than fifteen breaking changes and required schema regeneration. The project does not follow strict semver on minors and releases roughly weekly. The version is pinned exactly, upgrades are deliberate and reviewed, and no upgrade is performed as a side effect of unrelated work.
 
@@ -153,7 +154,7 @@ src/
     (auth)/
       login/                             # Google form plus new credentials form
       register/                          # new
-      verify-email/                      # new: check-your-inbox (Mailpit UI), resend
+      verify-email/                      # new: check-your-inbox, spam notice, resend
       reset-password/                    # new: request form
       reset-password/[token]/            # new: set new password
 ```
@@ -179,7 +180,12 @@ Unexpected library or runtime errors still propagate to the Next.js error bounda
 
 `src/lib/email/client.ts` exposes one function: `sendEmail({ to, subject, text, html })`. It is `server-only`.
 
-It selects a transport from environment configuration. Today the sole transport is SMTP to a Mailpit instance, used in local development, E2E, and deployment. Mailpit accepts mail for any address, stores it, and exposes a web UI (port `8025`) and REST API. No external email provider is configured. Swapping to a real provider later (Resend, Brevo, or any SMTP/HTTP API) replaces this module only. No caller changes.
+It selects a transport from environment configuration, and has exactly two modes:
+
+- **Capture.** When `EMAIL_CAPTURE_FILE` is set, the message is appended to that file as one JSON object per line and nothing is sent. This is how E2E reads verification links, and how a developer can work with no mail account at all. It requires no server, no container, and no external service.
+- **Send.** Otherwise the message goes out over authenticated SMTP using `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD` and `EMAIL_FROM`.
+
+The precedence matters: capture is opt-in through an explicit variable, so a deployment that simply lacks SMTP configuration throws rather than silently swallowing a verification message. Swapping Gmail for any other provider replaces the five variables; swapping SMTP for an HTTP API replaces this module. No caller changes either way.
 
 Templates are plain functions returning subject and body. Every link is built from a server-owned base URL; no link target derives from request input.
 
@@ -192,7 +198,7 @@ When email configuration is absent the module fails loudly at send time and the 
 3. It calls `auth.api.signUpEmail`.
 4. `sendOnSignUp` dispatches the verification message.
 5. Because `autoSignIn` is `false` and `requireEmailVerification` is `true`, no session is created.
-6. The browser lands on `/verify-email`, which instructs the user to check the Mailpit web UI (port `8025`) for the verification message and offers a rate-limited resend.
+6. The browser lands on `/verify-email`, which names the spam folder and offers a rate-limited resend.
 7. The emailed link hits the Better Auth handler, marks the address verified, and redirects to `/login`.
 
 Registration responses are uniform whether or not the address already exists. Better Auth's built-in enumeration resistance returns a synthetic `200` with no session token when the email is already registered (active because `requireEmailVerification: true` and `autoSignIn: false`), and the UI never distinguishes the two cases.
@@ -242,8 +248,10 @@ BETTER_AUTH_SECRET        # session and token encryption
 BETTER_AUTH_URL           # server-owned base URL for emailed links
 GOOGLE_CLIENT_ID
 GOOGLE_CLIENT_SECRET
-SMTP_HOST / SMTP_PORT / EMAIL_FROM        # Mailpit: localhost:1025
-SMTP_USER / SMTP_PASSWORD                 # optional; unset for Mailpit, set for any authenticated SMTP
+SMTP_HOST / SMTP_PORT                     # Gmail: smtp.gmail.com : 587
+SMTP_USER / SMTP_PASSWORD                 # the Gmail address and its 16-character App Password
+EMAIL_FROM                                # same Gmail address
+EMAIL_CAPTURE_FILE                        # tests only; when set, mail is written here and never sent
 ```
 
 `AUTH_GOOGLE_ID` and `AUTH_GOOGLE_SECRET` are renamed. `AUTH_SECRET` may be reused as `BETTER_AUTH_SECRET`, but existing sessions are invalidated regardless, because the session model itself changes.
@@ -276,7 +284,7 @@ New specs:
 - Google linking refused against an unverified local account;
 - existing anonymous, authenticated, profile, redirect, and logout contracts, still green.
 
-Mailpit is the mail sink for local and E2E runs. Its REST API listens on port `8025`: `GET /api/v1/messages` lists messages, `GET /api/v1/message/{id}` fetches a full message body, `DELETE /api/v1/messages` clears the mailbox. A Playwright helper fetches the message whose `To` matches the test user, extracts the verification or reset link from the body, and calls `DELETE /api/v1/messages` in `globalSetup` or `beforeEach` to reset state. No test sends real mail, uses real credentials, or persists authenticated `storageState`.
+Tests never send mail and never contact a mail server. `playwright.config.ts` sets `EMAIL_CAPTURE_FILE` for the child server, putting the transport in capture mode; `globalSetup` truncates that file. A Playwright helper polls it, parses the last JSON line whose `to` matches the test user, and extracts the verification link. No test sends real mail, uses real credentials, or persists authenticated `storageState`.
 
 ## Security properties
 
@@ -314,7 +322,7 @@ Each stage is a full cycle through `developer`, then `verifier`, then the three 
 
 1. Database, Prisma, Supabase connection, generated schema and first migration.
 2. Better Auth replaces Auth.js. Google sign-in works on the new stack. DAL exports unchanged. E2E seam replaced and existing specs green.
-3. SMTP transport, templates, Mailpit wiring.
+3. SMTP transport, templates, and the file-capture test mode.
 4. Registration, email verification, and email/password sign-in.
 5. Password recovery.
 6. Account linking, `/login` messaging, documentation rewrite.

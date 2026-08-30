@@ -52,7 +52,7 @@ What the plan actually needs is two *separate databases*: one for development wh
 
 **Do not run a containerised Postgres beside a local one.** A container publishing `*:5432` and a local server bound to `127.0.0.1:5432` and `[::1]:5432` both start successfully, but `localhost` resolves to the specific binds first. Every connection then reaches the local server while `docker compose ps` reports the container healthy, and migrations land in a database nobody inspects.
 
-If a previous run of this task already created `docker-compose.yml` with Postgres services, remove those services now (`docker compose down` first) and keep only non-conflicting ones. Mailpit, added in the registration plan on ports 1025/8025, does not conflict and may stay in Docker.
+If a previous run of this task already created `docker-compose.yml`, remove it (`docker compose down` first). Nothing in this project needs a container: Postgres is the machine's own server, and the registration plan's mail transport is a file in tests and the owner's Gmail in delivery.
 
 - [ ] **Step 1: Confirm which Postgres answers on this machine**
 

@@ -6,7 +6,7 @@
 
 **Architecture:** Better Auth owns the whole flow; the application supplies only a transport and four screens. `emailAndPassword` with `requireEmailVerification: true` and `autoSignIn: false` means sign-up creates no session, so an unconfirmed address cannot sign in. Server Actions call `auth.api.*` in-process, which bypasses Better Auth's built-in rate limiter, so each action guards itself.
 
-**Tech Stack:** Next.js 16.3.3, React 19.2.8, Better Auth 1.7.2, Prisma 7.10.0, nodemailer, Mailpit.
+**Tech Stack:** Next.js 16.3.3, React 19.2.8, Better Auth 1.7.2, Prisma 7.10.0, nodemailer. No mail server or background service is installed.
 
 **Spec:** `docs/superpowers/specs/2026-08-30-better-auth-email-password-design.md`
 
@@ -26,63 +26,67 @@
 
 ---
 
-### Task 9: Mailpit and the SMTP transport module
+### Task 9: SMTP transport with a file-capture test mode
 
 **Files:**
-- Modify: `docker-compose.yml`
 - Create: `src/lib/email/client.ts`
-- Modify: `.env.example`, `.env.local` (untracked), `package.json`
+- Modify: `.env.example`, `.env.local` (untracked), `package.json`, `.gitignore`
 
 **Interfaces:**
 - Consumes: nothing from earlier tasks.
 - Produces: `sendEmail({ to, subject, text }): Promise<void>` from `@/lib/email/client`. Task 10 calls it.
 
-- [ ] **Step 1: Provide Mailpit**
+**Nothing is installed for this task.** No container, no mail server, no background service. Sending uses the
+owner's own Gmail over authenticated SMTP; testing writes to a file. If a previous run of this task created a
+`docker-compose.yml` or installed Mailpit, undo both: `brew services stop mailpit && brew uninstall mailpit`,
+and delete the compose file.
 
-Postgres is **not** containerised in this project (see Task 1 of the migration plan). Mailpit is the only service that is, and its ports do not collide with anything.
-
-Create `docker-compose.yml` if it does not exist, or append under an existing `services:` key — it must contain Mailpit and nothing else:
-
-```yaml
-services:
-  mailpit:
-    image: axllent/mailpit
-    container_name: next-auth-mailpit
-    ports:
-      - "1025:1025"
-      - "8025:8025"
-```
-
-Port `1025` is SMTP; `8025` serves both the web UI and the REST API. If Docker is unavailable, `brew install mailpit && mailpit` provides the same two ports and the rest of this plan is unchanged.
-
-- [ ] **Step 2: Install nodemailer**
+- [ ] **Step 1: Install nodemailer**
 
 Run: `npm install --save-exact nodemailer@7.0.9 && npm install --save-exact --save-dev @types/nodemailer@7.0.4`
 
-If either exact version 404s, install the current one and pin whatever resolves — but record the resolved version in the commit message.
-
-- [ ] **Step 3: Add the mail variables**
+- [ ] **Step 2: Add the mail variables**
 
 Append to `.env.example`:
 
 ```bash
-SMTP_HOST="localhost"
-SMTP_PORT="1025"
-EMAIL_FROM="no-reply@localhost"
-# Optional. Leave unset for Mailpit; set both for an authenticated SMTP account.
+# Gmail over authenticated SMTP. Works without a domain because the message is an
+# ordinary Gmail message signed by Google's own SPF/DKIM — nothing is relayed on
+# behalf of a domain the sender does not control.
+SMTP_HOST="smtp.gmail.com"
+SMTP_PORT="587"
 SMTP_USER=""
 SMTP_PASSWORD=""
+EMAIL_FROM=""
+# Tests only. When set, mail is appended here as JSON lines and never sent.
+EMAIL_CAPTURE_FILE=""
 ```
 
-Copy the same keys into `.env.local` by hand. Do not print the file.
+Append to `.gitignore`:
 
-- [ ] **Step 4: Write the transport**
+```gitignore
 
-`auth` is optional so the same module drives Mailpit (no credentials) and any authenticated SMTP account (Brevo, Gmail app password, anything else) with no code change.
+# captured mail from E2E runs
+/.next/mail.log
+```
+
+**The human must supply `SMTP_USER`, `SMTP_PASSWORD` and `EMAIL_FROM` in `.env.local` themselves.** The
+password is a Google App Password, which requires 2-Step Verification on that account; it is generated in the
+Google account UI. Do not ask for the value, do not print `.env.local`, and do not attempt to create the
+credential. If those three are empty, say so and continue — every step below except Step 5 works without them.
+
+- [ ] **Step 3: Write the transport**
+
+Two modes, and capture is opt-in. A deployment that simply lacks SMTP configuration must throw rather than
+silently swallow a verification message, so the capture branch is entered only when `EMAIL_CAPTURE_FILE` is
+explicitly set.
 
 ```ts
 // src/lib/email/client.ts
 import "server-only";
+
+import { appendFile, mkdir } from "node:fs/promises";
+import { dirname } from "node:path";
 
 import nodemailer from "nodemailer";
 
@@ -91,6 +95,11 @@ export type SendEmailInput = {
   subject: string;
   text: string;
 };
+
+async function captureEmail(path: string, message: SendEmailInput) {
+  await mkdir(dirname(path), { recursive: true });
+  await appendFile(path, `${JSON.stringify({ ...message, at: Date.now() })}\n`, "utf8");
+}
 
 function createTransport() {
   const host = process.env.SMTP_HOST?.trim();
@@ -106,51 +115,57 @@ function createTransport() {
   return nodemailer.createTransport({
     host,
     port,
+    // 465 is implicit TLS; 587 negotiates STARTTLS, which Gmail advertises.
     secure: port === 465,
     auth: user && pass ? { user, pass } : undefined,
   });
 }
 
-export async function sendEmail({ to, subject, text }: SendEmailInput) {
+export async function sendEmail(message: SendEmailInput) {
+  const capturePath = process.env.EMAIL_CAPTURE_FILE?.trim();
+
+  if (capturePath) {
+    await captureEmail(capturePath, message);
+    return;
+  }
+
   const from = process.env.EMAIL_FROM?.trim();
 
   if (!from) {
     throw new Error("EMAIL_FROM is required to send email");
   }
 
-  await createTransport().sendMail({ from, to, subject, text });
+  await createTransport().sendMail({ from, ...message });
 }
 ```
 
-- [ ] **Step 5: Verify a message actually reaches Mailpit**
+- [ ] **Step 4: Verify capture mode works with no configuration at all**
 
-Run: `docker compose up -d mailpit`  (or `mailpit` if installed via Homebrew)
-
-Run:
 ```bash
-node --input-type=module -e "
-import nodemailer from 'nodemailer';
-const t = nodemailer.createTransport({ host: 'localhost', port: 1025 });
-await t.sendMail({ from: 'no-reply@localhost', to: 'probe@example.invalid', subject: 'probe', text: 'probe' });
-console.log('sent');
+EMAIL_CAPTURE_FILE=.next/probe-mail.log node --input-type=module -e "
+process.env.EMAIL_CAPTURE_FILE = '.next/probe-mail.log';
+const { sendEmail } = await import('./src/lib/email/client.ts');
+await sendEmail({ to: 'probe@example.invalid', subject: 'probe', text: 'hello' });
+console.log('captured');
 "
+cat .next/probe-mail.log && rm -f .next/probe-mail.log
 ```
-Expected: `sent`
 
-Run: `curl -s http://localhost:8025/api/v1/messages | head -c 200`
-Expected: JSON containing the `probe` message.
+Expected: `captured`, then one JSON line containing `probe@example.invalid`. If the import fails because Node
+cannot load TypeScript directly, skip this probe — Task 15's E2E run proves the same path.
 
-Run: `curl -s -X DELETE http://localhost:8025/api/v1/messages -o /dev/null -w '%{http_code}\n'`
-Expected: `200` — the mailbox is now empty again.
+- [ ] **Step 5: Verify real delivery (only if the human supplied credentials)**
+
+With `SMTP_USER`, `SMTP_PASSWORD` and `EMAIL_FROM` set in `.env.local` and `EMAIL_CAPTURE_FILE` empty, send one
+message to the owner's own address and confirm it arrives, checking the spam folder too. If the credentials are
+absent, record that this step was skipped rather than reporting it as passed.
 
 - [ ] **Step 6: Commit**
 
 ```bash
-git add docker-compose.yml src/lib/email/client.ts .env.example package.json package-lock.json
-git commit -m "feat: add an SMTP transport and a local Mailpit mail server"
+git add src/lib/email/client.ts .env.example .gitignore package.json package-lock.json
+git commit -m "feat: add an SMTP transport with a file-capture test mode"
 ```
-
----
 
 ### Task 10: Enable email/password and verification in the auth config
 
@@ -229,8 +244,10 @@ curl -s -X POST http://localhost:3000/api/auth/sign-up/email \
 ```
 Expected: `200`, and the JSON contains `"token": null` — no session, because `autoSignIn` is `false`.
 
-Run: `curl -s http://localhost:8025/api/v1/messages | grep -c probe@example.invalid`
-Expected: `1` — the verification message was sent.
+Run the dev server with `EMAIL_CAPTURE_FILE=.next/mail.log` set, then:
+
+Run: `grep -c probe@example.invalid .next/mail.log`
+Expected: `1` — the verification message was dispatched.
 
 - [ ] **Step 5: Verify the enumeration response is identical**
 
@@ -240,7 +257,7 @@ Expected: `200` again, with the same shape — Better Auth returns a synthetic u
 - [ ] **Step 6: Reset the probe data**
 
 Run: `npx prisma migrate reset --force --skip-seed && npx prisma generate`
-Run: `curl -s -X DELETE http://localhost:8025/api/v1/messages -o /dev/null`
+Run: `rm -f .next/mail.log`
 
 - [ ] **Step 7: Commit**
 
@@ -508,7 +525,7 @@ export default async function RegisterPage() {
 
 - [ ] **Step 4: Verify by hand**
 
-With `npm run dev` and Mailpit running, open `http://localhost:3000/register`, submit a valid address and a 12-character password, and confirm the browser lands on `/verify-email`. Then open `http://localhost:8025` and confirm the message is there.
+With `npm run dev` running and `EMAIL_CAPTURE_FILE=.next/mail.log` set, open `http://localhost:3000/register`, submit a valid address and a 12-character password, and confirm the browser lands on `/verify-email`. Then run `tail -1 .next/mail.log` and confirm the verification message and its link are there.
 
 - [ ] **Step 5: Commit**
 
@@ -650,7 +667,7 @@ export default function VerifyEmailPage() {
 
 - [ ] **Step 4: Verify the link completes the flow**
 
-Register a fresh address, open `http://localhost:8025`, click through to the message, and follow its link. Expected: the browser lands on `/login` and the `user` row now has a truthy `emailVerified`.
+Register a fresh address, take the link from the last line of `.next/mail.log`, and open it. Expected: the browser lands on `/login` and the `user` row now has a truthy `emailVerified`.
 
 Run through the application's own connection string:
 
@@ -782,7 +799,7 @@ In `src/app/(auth)/login/page.tsx`, render `<CredentialsForm />` above the exist
 
 - [ ] **Step 4: Verify the full loop by hand**
 
-Register a fresh address, confirm it through Mailpit, then sign in with it. Expected: the header shows the account menu and `/profile` renders. Then try signing in with a **registered but unconfirmed** address. Expected: refused, with the generic message.
+Register a fresh address, take its link from `.next/mail.log`, follow it, then sign in with it. Expected: the header shows the account menu and `/profile` renders. Then try signing in with a **registered but unconfirmed** address. Expected: refused, with the generic message.
 
 - [ ] **Step 5: Commit**
 
@@ -796,35 +813,80 @@ git commit -m "feat: add email and password sign-in to the login page"
 ### Task 15: End-to-end coverage of the registration flow
 
 **Files:**
-- Create: `e2e/helpers/mailpit.ts`
+- Create: `e2e/helpers/mail.ts`
 - Create: `e2e/registration.spec.ts`
-- Modify: `playwright.config.ts`
+- Modify: `playwright.config.ts`, `e2e/global-setup.ts`
 
 **Interfaces:**
 - Consumes: everything above.
-- Produces: `readLatestMessageTo(email)` and `clearMailbox()` from `e2e/helpers/mailpit.ts`.
+- Produces: `readLatestMessageTo(email)`, `extractFirstUrl(body)` and `clearMailbox()` from `e2e/helpers/mail.ts`.
 
-- [ ] **Step 1: Pass the mail settings to the test server**
+No mail server is involved. `EMAIL_CAPTURE_FILE` puts the transport in capture mode and the helper reads that
+file.
+
+- [ ] **Step 1: Point the test server at the capture file**
 
 Add to `webServerAuthEnvironment` in `playwright.config.ts`:
 
 ```ts
-  SMTP_HOST: "localhost",
-  SMTP_PORT: "1025",
-  EMAIL_FROM: "no-reply@localhost",
+  EMAIL_CAPTURE_FILE: MAIL_LOG,
 ```
 
-- [ ] **Step 2: Write the Mailpit helper**
+and above the config, next to the existing `TEST_DATABASE_URL` import:
 
 ```ts
-// e2e/helpers/mailpit.ts
-const mailpitBaseUrl = "http://localhost:8025";
+export const MAIL_LOG = ".next/mail.log";
+```
 
-export async function clearMailbox() {
-  await fetch(`${mailpitBaseUrl}/api/v1/messages`, { method: "DELETE" });
+Put `MAIL_LOG` in `e2e/global-setup.ts` alongside `TEST_DATABASE_URL` and import it in the config, so the
+setup and the helper cannot drift onto different paths.
+
+In `globalSetup`, truncate the file before the run so a previous run's messages cannot satisfy a later
+assertion:
+
+```ts
+import { writeFileSync, mkdirSync } from "node:fs";
+import { dirname } from "node:path";
+
+mkdirSync(dirname(MAIL_LOG), { recursive: true });
+writeFileSync(MAIL_LOG, "");
+```
+
+- [ ] **Step 2: Write the mail helper**
+
+```ts
+// e2e/helpers/mail.ts
+import { readFile, writeFile } from "node:fs/promises";
+
+import { MAIL_LOG } from "../global-setup";
+
+type CapturedMessage = {
+  to: string;
+  subject: string;
+  text: string;
+  at: number;
+};
+
+async function readCaptured(): Promise<CapturedMessage[]> {
+  let raw: string;
+
+  try {
+    raw = await readFile(MAIL_LOG, "utf8");
+  } catch {
+    return [];
+  }
+
+  return raw
+    .split("\n")
+    .filter(Boolean)
+    .map((line) => JSON.parse(line) as CapturedMessage);
 }
 
-/** Polls until a message addressed to `email` arrives, then returns its body. */
+export async function clearMailbox() {
+  await writeFile(MAIL_LOG, "");
+}
+
+/** Polls the capture file until a message addressed to `email` arrives. */
 export async function readLatestMessageTo(
   email: string,
   timeoutMs = 10_000,
@@ -832,27 +894,18 @@ export async function readLatestMessageTo(
   const deadline = Date.now() + timeoutMs;
 
   while (Date.now() < deadline) {
-    const listed = await fetch(`${mailpitBaseUrl}/api/v1/messages`);
-    const { messages = [] } = (await listed.json()) as {
-      messages?: { ID: string; To: { Address: string }[] }[];
-    };
+    const messages = await readCaptured();
+    const match = messages
+      .filter((m) => m.to.toLowerCase() === email.toLowerCase())
+      .sort((a, b) => a.at - b.at)
+      .at(-1);
 
-    const match = messages.find((message) =>
-      message.To.some(
-        (recipient) => recipient.Address.toLowerCase() === email.toLowerCase(),
-      ),
-    );
+    if (match) return match.text;
 
-    if (match) {
-      const full = await fetch(`${mailpitBaseUrl}/api/v1/message/${match.ID}`);
-      const { Text = "" } = (await full.json()) as { Text?: string };
-      return Text;
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, 250));
+    await new Promise((resolve) => setTimeout(resolve, 100));
   }
 
-  throw new Error(`No Mailpit message for ${email} within ${timeoutMs}ms`);
+  throw new Error(`No captured message for ${email} within ${timeoutMs}ms`);
 }
 
 export function extractFirstUrl(body: string): string {
@@ -862,19 +915,20 @@ export function extractFirstUrl(body: string): string {
 }
 ```
 
+The verification callback dispatches with `void sendEmail(...)` rather than awaiting it, so the write races the
+HTTP response. Polling, not a single read, is what makes this reliable.
+
 - [ ] **Step 3: Write the spec**
 
-Each test uses a unique address so the suite stays safe under `fullyParallel: true`.
+Each test uses a unique address so the suite stays safe under `fullyParallel: true`. Do **not** call
+`clearMailbox()` in `beforeEach` — parallel workers share one file, and one worker truncating it would delete
+another's message. Unique addresses make clearing unnecessary; `globalSetup` handles the once-per-run reset.
 
 ```ts
 // e2e/registration.spec.ts
 import { expect, test } from "@playwright/test";
 
-import {
-  clearMailbox,
-  extractFirstUrl,
-  readLatestMessageTo,
-} from "./helpers/mailpit";
+import { extractFirstUrl, readLatestMessageTo } from "./helpers/mail";
 
 const password = "correct-horse-1";
 
@@ -883,10 +937,6 @@ function uniqueEmail(label: string) {
     .toString(36)
     .slice(2, 8)}@example.invalid`;
 }
-
-test.beforeEach(async () => {
-  await clearMailbox();
-});
 
 test("registers, confirms by email, then signs in", async ({ page }) => {
   const email = uniqueEmail("happy");
@@ -956,13 +1006,14 @@ test("answers identically when the address is already registered", async ({
 
 - [ ] **Step 4: Run the suite**
 
-Run: `npm test`  (Mailpit must be running)
-Expected: every test passes, including the specs carried over from stages 1–2.
+Run: `npm test`
+Expected: every test passes, including the specs carried over from stages 1–2. No mail server, no network
+access, and no credentials are needed for this run.
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add e2e/helpers/mailpit.ts e2e/registration.spec.ts playwright.config.ts
+git add e2e/helpers/mail.ts e2e/registration.spec.ts e2e/global-setup.ts playwright.config.ts
 git commit -m "test: cover registration, verification, and first sign-in end to end"
 ```
 
@@ -976,4 +1027,5 @@ git commit -m "test: cover registration, verification, and first sign-in end to 
 - Google sign-in still works, unchanged, on the Better Auth stack.
 - The user row persists in Postgres with `emailVerified` set after confirmation.
 - `npx tsc --noEmit`, `npm run lint`, `npm test`, and `npm run test:agents` all pass.
-- Only `src/lib/email/client.ts` knows the mail transport; changing providers is an env change plus that one file.
+- Only `src/lib/email/client.ts` knows the mail transport; changing providers is an environment change alone.
+- Nothing was installed to make mail work: tests capture to a file, delivery uses the owner's existing Gmail.
