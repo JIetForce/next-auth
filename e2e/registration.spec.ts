@@ -53,7 +53,9 @@ test("refuses sign-in before the address is confirmed", async ({ page }) => {
   await page.getByLabel("Password").fill(password);
   await page.getByRole("button", { name: "Sign in" }).click();
 
-  await expect(page.getByRole("alert")).toBeVisible();
+  await expect(
+    page.getByRole("alert").filter({ hasText: "Could not sign in" }),
+  ).toBeVisible();
   await page.goto("/profile");
   await expect(page).toHaveURL(/\/login$/);
 });
