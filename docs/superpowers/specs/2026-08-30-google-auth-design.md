@@ -1,5 +1,9 @@
 # Google Authentication Page Design
 
+## Status
+
+After the authenticated profile foundation, `docs/auth-architecture.md` is the canonical application-auth reference. This document remains the original Google login decision record.
+
 ## Summary
 
 Build a production-oriented `/login` page with a real Google OAuth flow through Auth.js v5. Keep Next.js Server Components as the default, isolate the authentication routes with an `(auth)` route group, and limit new client-side code to the pending state of the submit button. The page must work in the existing light, dark, and system themes.
@@ -200,7 +204,13 @@ AUTH_GOOGLE_ID=
 AUTH_GOOGLE_SECRET=
 ```
 
-Explain that `npx auth secret` can generate `AUTH_SECRET`, that `.env.local` is ignored, and that the Google OAuth client must register the exact callback URL for each environment.
+Explain that the required Node.js runtime provides this cross-platform way to generate a secret:
+
+```bash
+node -e "console.log(require('node:crypto').randomBytes(32).toString('base64url'))"
+```
+
+Instruct the reader to copy the command output into `AUTH_SECRET`. Also explain that `.env.local` is ignored and that the Google OAuth client must register the exact callback URL for each environment.
 
 ## Acceptance criteria
 

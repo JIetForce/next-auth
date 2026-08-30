@@ -666,7 +666,13 @@ AUTH_GOOGLE_ID=
 AUTH_GOOGLE_SECRET=
 ```
 
-Generate `AUTH_SECRET` with `npx auth secret`. In Google Cloud, register the callback URL for each environment:
+Use the required Node.js runtime to generate a secret cross-platform:
+
+```bash
+node -e "console.log(require('node:crypto').randomBytes(32).toString('base64url'))"
+```
+
+Copy the command output into `AUTH_SECRET`. In Google Cloud, register the callback URL for each environment:
 
 - Local: `http://localhost:3000/api/auth/callback/google`
 - Production: `https://your-domain.example/api/auth/callback/google`

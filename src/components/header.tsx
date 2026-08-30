@@ -1,41 +1,28 @@
-"use client";
-
-import * as React from "react";
+import { Suspense, type ComponentProps } from "react";
 import Link from "next/link";
-import { Menu } from "lucide-react";
 
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { HeaderAccount } from "@/components/header-account";
+import { MobileNavigation } from "@/components/mobile-navigation";
+import { ModeToggle } from "@/components/mode-toggle";
 import {
   NavigationMenu,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import { ModeToggle } from "@/components/mode-toggle";
+import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 
-const navLinks = [
+const primaryLinks = [
   { href: "/", label: "Home" },
   { href: "/features", label: "Features" },
   { href: "/pricing", label: "Pricing" },
-  { href: "/auth", label: "Sign in" },
-];
+] as const;
 
 const navLinkClass =
   "inline-flex h-9 items-center justify-center rounded-lg px-2.5 py-1.5 text-sm font-medium text-foreground transition-all hover:bg-muted focus:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-1";
 
-export function Header({
-  className,
-  ...props
-}: React.ComponentProps<"header">) {
+export function Header({ className, ...props }: ComponentProps<"header">) {
   return (
     <header
       className={cn(
@@ -55,7 +42,7 @@ export function Header({
 
         <NavigationMenu className="hidden md:flex">
           <NavigationMenuList>
-            {navLinks.map((link) => (
+            {primaryLinks.map((link) => (
               <NavigationMenuItem key={link.href}>
                 <NavigationMenuLink
                   className={navLinkClass}
@@ -70,36 +57,13 @@ export function Header({
 
         <div className="flex items-center gap-2">
           <ModeToggle />
+          <Suspense
+            fallback={<Skeleton className="h-8 w-20" aria-hidden="true" />}
+          >
+            <HeaderAccount />
+          </Suspense>
           <div className="md:hidden">
-            <Sheet>
-              <SheetTrigger
-                render={
-                  <Button variant="ghost" size="icon-sm">
-                    <Menu aria-hidden="true" />
-                    <span className="sr-only">Toggle navigation menu</span>
-                  </Button>
-                }
-              />
-              <SheetContent side="right">
-                <SheetHeader>
-                  <SheetTitle>Navigation</SheetTitle>
-                  <SheetDescription>
-                    Browse the marketing and auth sections.
-                  </SheetDescription>
-                </SheetHeader>
-                <nav className="flex flex-col gap-2 p-4">
-                  {navLinks.map((link) => (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      className="flex h-9 items-center rounded-md px-3 text-sm font-medium text-foreground transition-colors hover:bg-muted"
-                    >
-                      {link.label}
-                    </Link>
-                  ))}
-                </nav>
-              </SheetContent>
-            </Sheet>
+            <MobileNavigation links={primaryLinks} />
           </div>
         </div>
       </div>

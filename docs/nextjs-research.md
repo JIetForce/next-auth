@@ -202,12 +202,14 @@ my-app/
 
 ```bash
 npm install next-auth@beta
-npx auth secret   # создаёт AUTH_SECRET в .env.local
+node -e "console.log(require('node:crypto').randomBytes(32).toString('base64url'))"
 ```
+
+Скопируйте результат команды в `AUTH_SECRET` внутри `.env.local`.
 
 `AUTH_SECRET` обязателен в production.
 
-> **Примечание:** в `package.json` этого репозитория `next-auth@beta` не указан. Для примеров ниже нужно выполнить `npm install next-auth@beta` и `npx auth secret`. Если планируете Credentials-провайдер из раздела 4.8, дополнительно понадобятся `bcryptjs`, `zod` и уже настроенный клиент БД (Prisma, Drizzle и т.д.).
+> **Примечание:** в `package.json` этого репозитория `next-auth@beta` не указан. Для примеров ниже нужно выполнить `npm install next-auth@beta`, затем сгенерировать секрет указанной выше командой и скопировать результат в `AUTH_SECRET` внутри `.env.local`. Если планируете Credentials-провайдер из раздела 4.8, дополнительно понадобятся `bcryptjs`, `zod` и уже настроенный клиент БД (Prisma, Drizzle и т.д.).
 
 ### 4.3. Базовая конфигурация Auth.js
 

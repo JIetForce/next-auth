@@ -55,6 +55,33 @@ docs/               # project research and notes
 - Tailwind CSS v4 uses CSS-based configuration via `@theme` in `globals.css`; there is no `tailwind.config.ts`.
 - Secrets and local environment variables go in `.env.local` (ignored by git).
 
+## Google authentication
+
+The `/login` page uses Auth.js v5 with Google OAuth. Add these values to the ignored `.env.local` file:
+
+```env
+AUTH_SECRET=
+AUTH_GOOGLE_ID=
+AUTH_GOOGLE_SECRET=
+```
+
+Use the required Node.js runtime to generate a secret cross-platform:
+
+```bash
+node -e "console.log(require('node:crypto').randomBytes(32).toString('base64url'))"
+```
+
+Copy the command output into `AUTH_SECRET`. In Google Cloud, register the callback URL for each environment:
+
+- Local: `http://localhost:3000/api/auth/callback/google`
+- Production: `https://your-domain.example/api/auth/callback/google`
+
+Restart the application after changing environment variables. Without all three values, `/login` remains available but disables Google sign-in.
+
+Keep `AUTH_SECRET` stable across restarts and deployments. Rotating it invalidates existing JWT sessions; if a stale browser cookie causes `no matching decryption secret`, visit `/api/auth/signout` and confirm **Sign out** (POST), or clear the site's cookies, then return to `/login`. Do not restore the previous secret to recover old sessions.
+
+Application auth architecture, extension rules, redirect contracts, and test strategy are documented in [`docs/auth-architecture.md`](docs/auth-architecture.md). Read it before changing authentication, session handling, protected routes, Header account state, or logout.
+
 ## agent-roster (brief)
 
 This repository defines its agent operating contract once in `AGENTS.md` and `agents/`, then projects it into each supported harness (Claude Code, Devin, Antigravity, Codex, Cursor). Run `npm run sync:agents` after any change to roles or config. See `AGENTS.md` for the full contract.
