@@ -14,7 +14,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
-export type NavigationLink = Readonly<{
+type NavigationLink = Readonly<{
   href: string;
   label: string;
 }>;

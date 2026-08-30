@@ -6,7 +6,7 @@ import {
   E2E_VIEWER,
 } from "./helpers/auth-session";
 
-const authConfigured = Boolean(process.env.AUTH_SECRET?.trim());
+const sessionConfigured = Boolean(process.env.AUTH_SECRET?.trim());
 const sessionCookieName = "authjs.session-token";
 
 const googleAuthEnvironmentKeys = [
@@ -17,6 +17,35 @@ const googleAuthEnvironmentKeys = [
 const googleConfigured = googleAuthEnvironmentKeys.every((key) =>
   Boolean(process.env[key]?.trim()),
 );
+
+// The raw `/api/auth/signin/google` POST triggers @auth/core's
+// getAuthorizationUrl, which performs OIDC discovery against
+// accounts.google.com. On discovery failure @auth/core throws and returns
+// no cookies, so the callback-url cookie assertion below can only pass when
+// that request succeeds. Probe Google's public well-known endpoint once per
+// file (cached) so the test skips — rather than fails for the wrong reason —
+// in an isolated CI without network. This is a plain read-only GET to a
+// public URL; no mocks, no test provider, no persisted storageState.
+let googleDiscoveryReachable: boolean | undefined;
+async function isGoogleDiscoveryReachable(): Promise<boolean> {
+  if (googleDiscoveryReachable !== undefined) {
+    return googleDiscoveryReachable;
+  }
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 4000);
+  try {
+    const response = await fetch(
+      "https://accounts.google.com/.well-known/openid-configuration",
+      { signal: controller.signal },
+    );
+    googleDiscoveryReachable = response.ok;
+  } catch {
+    googleDiscoveryReachable = false;
+  } finally {
+    clearTimeout(timeout);
+  }
+  return googleDiscoveryReachable;
+}
 
 function accountMenuButton(page: import("@playwright/test").Page) {
   return page.getByRole("button", {
@@ -87,7 +116,7 @@ test.describe("raw Auth.js route destination pinning", () => {
     request,
   }) => {
     test.skip(
-      !authConfigured,
+      !sessionConfigured,
       "AUTH_SECRET is required to exercise /api/auth/signout",
     );
 
@@ -112,9 +141,10 @@ test.describe("raw Auth.js route destination pinning", () => {
   test("pins the raw Google sign-in route's callback-url cookie to / regardless of a same-origin callbackUrl", async ({
     request,
   }) => {
+    const discoveryReachable = await isGoogleDiscoveryReachable();
     test.skip(
-      !googleConfigured,
-      "The full Google auth environment is required to exercise /api/auth/signin/google",
+      !googleConfigured || !discoveryReachable,
+      "The full Google auth environment and network access to Google's OIDC discovery endpoint are required to exercise /api/auth/signin/google",
     );
 
     const csrfResponse = await request.get("/api/auth/csrf");
@@ -139,7 +169,10 @@ test.describe("raw Auth.js route destination pinning", () => {
 });
 
 test.describe("authenticated session", () => {
-  test.skip(!authConfigured, "AUTH_SECRET is required for synthetic sessions");
+  test.skip(
+    !sessionConfigured,
+    "AUTH_SECRET is required for synthetic sessions",
+  );
 
   test("recognizes the test-only Auth.js JWT fixture", async ({
     context,
@@ -401,7 +434,10 @@ test.describe("account avatar fallback initials", () => {
   // addAuthenticatedSession() viewer override and reads the rendered
   // AvatarFallback text, which appears twice per page (header trigger +
   // profile body), matching the existing "EU" assertion's toHaveCount(2).
-  test.skip(!authConfigured, "AUTH_SECRET is required for synthetic sessions");
+  test.skip(
+    !sessionConfigured,
+    "AUTH_SECRET is required for synthetic sessions",
+  );
 
   test("derives initials from a single-word non-BMP name", async ({
     context,

@@ -6,7 +6,7 @@ const googleAuthEnvironmentKeys = [
   "AUTH_GOOGLE_SECRET",
 ] as const;
 
-const authConfigured = googleAuthEnvironmentKeys.every((key) =>
+const googleConfigured = googleAuthEnvironmentKeys.every((key) =>
   Boolean(process.env[key]?.trim()),
 );
 
@@ -60,7 +60,7 @@ test("renders the Google sign-in page with accessible metadata", async ({
 test("shows a safe configuration state without auth environment variables", async ({
   page,
 }) => {
-  test.skip(authConfigured, "Auth environment is configured for this run");
+  test.skip(googleConfigured, "Auth environment is configured for this run");
 
   await page.goto("/login");
 
@@ -75,7 +75,10 @@ test("shows a safe configuration state without auth environment variables", asyn
 test("enables Google sign-in when auth environment variables exist", async ({
   page,
 }) => {
-  test.skip(!authConfigured, "Auth environment is not configured for this run");
+  test.skip(
+    !googleConfigured,
+    "Auth environment is not configured for this run",
+  );
 
   await page.goto("/login");
 
@@ -85,7 +88,10 @@ test("enables Google sign-in when auth environment variables exist", async ({
 });
 
 test("exposes only the configured Google provider", async ({ request }) => {
-  test.skip(!authConfigured, "Auth environment is not configured for this run");
+  test.skip(
+    !googleConfigured,
+    "Auth environment is not configured for this run",
+  );
 
   const response = await request.get("/api/auth/providers");
   const providers = await response.json();
@@ -104,7 +110,10 @@ test("exposes only the configured Google provider", async ({ request }) => {
 test("renders a generic OAuth error without exposing provider details", async ({
   page,
 }) => {
-  test.skip(!authConfigured, "Auth environment is not configured for this run");
+  test.skip(
+    !googleConfigured,
+    "Auth environment is not configured for this run",
+  );
 
   await page.goto("/login?error=OAuthCallback");
 
