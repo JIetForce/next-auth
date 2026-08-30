@@ -57,12 +57,15 @@ docs/               # project research and notes
 
 ## Google authentication
 
-The `/login` page uses Auth.js v5 with Google OAuth. Add these values to the ignored `.env.local` file:
+The `/login` page uses Better Auth with Google OAuth. A local Postgres 17 server with an `appdev` and an `apptest` database is required. Add these values to the ignored `.env.local` file:
 
 ```env
-AUTH_SECRET=
-AUTH_GOOGLE_ID=
-AUTH_GOOGLE_SECRET=
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/appdev"
+DIRECT_URL="postgresql://postgres:postgres@localhost:5432/appdev"
+BETTER_AUTH_SECRET=""
+BETTER_AUTH_URL="http://localhost:3000"
+GOOGLE_CLIENT_ID=""
+GOOGLE_CLIENT_SECRET=""
 ```
 
 Use the required Node.js runtime to generate a secret cross-platform:

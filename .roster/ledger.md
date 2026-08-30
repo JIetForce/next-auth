@@ -122,3 +122,14 @@ all pass. Google sign-in completes and lands on `/`. Sessions are rows in the
 - outstanding: none
 - coordinator-approved deviations: (1) sign-out test Origin+JSON body, (2) social sign-in 403 rejection, (3) helper null-vs-undefined preservation, (4) DAL empty-to-null normalization
 - commits: pending
+
+### Cycle 8 — Task 8: Auth.js removed and suite proven green
+
+- verifier: pass — all 10 checks (next-auth gone from package.json/lockfile/node_modules, no residue in src/e2e/package.json, README updated, tsc clean, lint 0 errors, 25 passed/1 skipped/0 failed, test:agents 33 pass)
+- code-reviewer: approved_with_notes — 0 required (next-auth fully removed, README env block matches .env.example, stale AUTH_SECRET prose deferred to stage 6 per plan)
+- security-reviewer: approved_with_notes — 0 required (no authn regression, no secrets committed, transitive deps were next-auth-exclusive)
+- quality-reviewer: approved_with_notes — 0 required (lockfile consistent, README byte-identical to .env.example, commit scope correct)
+- resolved since cycle 7b: 0
+- outstanding: none
+- coordinator note: README lines 77, 82, 84 still reference AUTH_SECRET in prose — explicitly deferred to stage 6 per plan Task 8 Step 4. Plan's residue grep pattern AUTH_SECRET (no word boundary) would false-positive on BETTER_AUTH_SECRET — noted for future verifiers.
+- commits: pending (coordinator commits after approval)
