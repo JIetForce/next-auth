@@ -1,9 +1,9 @@
 import { expect, test } from "@playwright/test";
 
 const googleAuthEnvironmentKeys = [
-  "AUTH_SECRET",
-  "AUTH_GOOGLE_ID",
-  "AUTH_GOOGLE_SECRET",
+  "BETTER_AUTH_SECRET",
+  "GOOGLE_CLIENT_ID",
+  "GOOGLE_CLIENT_SECRET",
 ] as const;
 
 const googleConfigured = googleAuthEnvironmentKeys.every((key) =>
@@ -85,26 +85,6 @@ test("enables Google sign-in when auth environment variables exist", async ({
   await expect(
     page.getByRole("button", { name: "Continue with Google" }),
   ).toBeEnabled();
-});
-
-test("exposes only the configured Google provider", async ({ request }) => {
-  test.skip(
-    !googleConfigured,
-    "Auth environment is not configured for this run",
-  );
-
-  const response = await request.get("/api/auth/providers");
-  const providers = await response.json();
-
-  expect(response.ok()).toBe(true);
-  expect(Object.keys(providers)).toEqual(["google"]);
-  expect(providers.google).toMatchObject({
-    id: "google",
-    name: "Google",
-    type: "oidc",
-    signinUrl: "http://localhost:3000/api/auth/signin/google",
-    callbackUrl: "http://localhost:3000/api/auth/callback/google",
-  });
 });
 
 test("renders a generic OAuth error without exposing provider details", async ({

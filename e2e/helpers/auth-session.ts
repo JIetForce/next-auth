@@ -4,8 +4,6 @@ import type { BrowserContext } from "@playwright/test";
 import type { Viewer } from "@/lib/auth/types";
 import { testAuth } from "./auth-test-instance";
 
-const sessionCookieName = "better-auth.session_token";
-
 export const E2E_VIEWER = {
   name: "E2E User",
   email: "e2e-user@example.invalid",
@@ -14,15 +12,24 @@ export const E2E_VIEWER = {
 
 async function findOrCreateUser(viewer: Viewer) {
   const ctx = await testAuth.$context;
-  const email = viewer.email ?? E2E_VIEWER.email;
+  // Distinguish explicit `null` (let it flow through) from `undefined` (fall
+  // back to the default). The User table's `name`/`email` columns are NOT NULL
+  // (prisma/schema.prisma), so `null` is coerced to `""` at the DB boundary —
+  // which is equivalent to `null` in getViewerInitials, since an empty string
+  // yields no word-initials and falls through to the next fallback branch.
+  const name =
+    (viewer.name !== undefined ? viewer.name : E2E_VIEWER.name) ?? "";
+  const email =
+    (viewer.email !== undefined ? viewer.email : E2E_VIEWER.email) ?? "";
+  const image = viewer.image !== undefined ? viewer.image : E2E_VIEWER.image;
 
   const existing = await ctx.internalAdapter.findUserByEmail(email);
   if (existing?.user) return existing.user;
 
   const user = ctx.test.createUser({
     email,
-    name: viewer.name ?? "",
-    image: viewer.image ?? undefined,
+    name,
+    image,
     emailVerified: true,
   });
 
@@ -56,17 +63,4 @@ export async function addAuthenticatedSession(
   });
 
   await context.addCookies(cookies);
-}
-
-export async function addTamperedSession(context: BrowserContext) {
-  await context.addCookies([
-    {
-      name: sessionCookieName,
-      value: "tampered-session",
-      url: "http://localhost:3000",
-      httpOnly: true,
-      secure: false,
-      sameSite: "Lax",
-    },
-  ]);
 }

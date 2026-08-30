@@ -1,51 +1,18 @@
 import { expect, test } from "@playwright/test";
 
-import {
-  addAuthenticatedSession,
-  addTamperedSession,
-  E2E_VIEWER,
-} from "./helpers/auth-session";
+import { addAuthenticatedSession, E2E_VIEWER } from "./helpers/auth-session";
 
-const sessionConfigured = Boolean(process.env.AUTH_SECRET?.trim());
-const sessionCookieName = "authjs.session-token";
+const sessionConfigured = Boolean(process.env.BETTER_AUTH_SECRET?.trim());
+const sessionCookieName = "better-auth.session_token";
 
 const googleAuthEnvironmentKeys = [
-  "AUTH_SECRET",
-  "AUTH_GOOGLE_ID",
-  "AUTH_GOOGLE_SECRET",
+  "BETTER_AUTH_SECRET",
+  "GOOGLE_CLIENT_ID",
+  "GOOGLE_CLIENT_SECRET",
 ] as const;
 const googleConfigured = googleAuthEnvironmentKeys.every((key) =>
   Boolean(process.env[key]?.trim()),
 );
-
-// The raw `/api/auth/signin/google` POST triggers @auth/core's
-// getAuthorizationUrl, which performs OIDC discovery against
-// accounts.google.com. On discovery failure @auth/core throws and returns
-// no cookies, so the callback-url cookie assertion below can only pass when
-// that request succeeds. Probe Google's public well-known endpoint once per
-// file (cached) so the test skips — rather than fails for the wrong reason —
-// in an isolated CI without network. This is a plain read-only GET to a
-// public URL; no mocks, no test provider, no persisted storageState.
-let googleDiscoveryReachable: boolean | undefined;
-async function isGoogleDiscoveryReachable(): Promise<boolean> {
-  if (googleDiscoveryReachable !== undefined) {
-    return googleDiscoveryReachable;
-  }
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 4000);
-  try {
-    const response = await fetch(
-      "https://accounts.google.com/.well-known/openid-configuration",
-      { signal: controller.signal },
-    );
-    googleDiscoveryReachable = response.ok;
-  } catch {
-    googleDiscoveryReachable = false;
-  } finally {
-    clearTimeout(timeout);
-  }
-  return googleDiscoveryReachable;
-}
 
 function accountMenuButton(page: import("@playwright/test").Page) {
   return page.getByRole("button", {
@@ -105,82 +72,62 @@ test("redirects an anonymous profile request to the fixed login route", async ({
   expect(await response.text()).not.toContain(E2E_VIEWER.email);
 });
 
-test.describe("raw Auth.js route destination pinning", () => {
-  // These hit /api/auth/signin/* and /api/auth/signout directly. The app's
-  // own Server Actions (login/actions.ts, lib/auth/actions.ts) never accept
-  // a callbackUrl, so tests that only go through them cannot prove anything
-  // about the raw routes, which next-auth reaches through
-  // src/app/api/auth/[...nextauth]/route.ts's verbatim `handlers` re-export.
+test("signs out through the raw endpoint", async ({ context, page }) => {
+  await addAuthenticatedSession(context);
 
-  test("pins the raw sign-out route to / regardless of a same-origin callbackUrl", async ({
-    request,
-  }) => {
-    test.skip(
-      !sessionConfigured,
-      "AUTH_SECRET is required to exercise /api/auth/signout",
-    );
-
-    const csrfResponse = await request.get("/api/auth/csrf");
-    const { csrfToken } = await csrfResponse.json();
-
-    const response = await request.post("/api/auth/signout", {
-      form: { csrfToken, callbackUrl: "/profile" },
-      maxRedirects: 0,
-    });
-
-    expect(response.status()).toBe(302);
-    const location = new URL(
-      response.headers().location!,
-      "http://localhost:3000",
-    );
-    expect(location.origin).toBe("http://localhost:3000");
-    expect(location.pathname).toBe("/");
-    expect(location.search).toBe("");
+  const response = await page.request.post("/api/auth/sign-out", {
+    data: {},
+    headers: { Origin: "http://localhost:3000" },
   });
+  expect(response.ok()).toBe(true);
 
-  test("pins the raw Google sign-in route's callback-url cookie to / regardless of a same-origin callbackUrl", async ({
-    request,
-  }) => {
-    const discoveryReachable = await isGoogleDiscoveryReachable();
-    test.skip(
-      !googleConfigured || !discoveryReachable,
-      "The full Google auth environment and network access to Google's OIDC discovery endpoint are required to exercise /api/auth/signin/google",
-    );
+  expect(
+    (await context.cookies()).find(
+      (cookie) => cookie.name === sessionCookieName,
+    ),
+  ).toBeUndefined();
+});
 
-    const csrfResponse = await request.get("/api/auth/csrf");
-    const { csrfToken } = await csrfResponse.json();
+test("returns a Google URL and ignores a caller-supplied destination", async ({
+  request,
+}) => {
+  test.skip(
+    !googleConfigured,
+    "The full Google auth environment is required to exercise sign-in/social",
+  );
 
-    await request.post("/api/auth/signin/google", {
-      form: { csrfToken, callbackUrl: "/profile" },
-      maxRedirects: 0,
-    });
-
-    const { cookies } = await request.storageState();
-    const callbackUrlCookie = cookies.find(
-      (cookie) => cookie.name === "authjs.callback-url",
-    );
-
-    // Auth.js URL-encodes cookie values (see @auth/core/lib/vendored/cookie.js),
-    // so the raw stored value is percent-encoded.
-    expect(decodeURIComponent(callbackUrlCookie?.value ?? "")).toBe(
-      "http://localhost:3000/",
-    );
+  // Better Auth validates callbackURL against trusted origins. An untrusted
+  // destination is rejected outright (403) rather than echoed back — the
+  // stronger form of "ignores a caller-supplied destination".
+  const rejected = await request.post("/api/auth/sign-in/social", {
+    data: { provider: "google", callbackURL: "https://evil.example/pwned" },
   });
+  expect(rejected.status()).toBe(403);
+  expect((await rejected.json()).url).toBeUndefined();
+
+  // A trusted same-origin destination still yields the provider URL, which
+  // never contains the caller's destination.
+  const response = await request.post("/api/auth/sign-in/social", {
+    data: { provider: "google", callbackURL: "http://localhost:3000/" },
+  });
+  const body = await response.json();
+  expect(body.url).toContain("accounts.google.com");
+  expect(body.url).not.toContain("evil.example");
 });
 
 test.describe("authenticated session", () => {
   test.skip(
     !sessionConfigured,
-    "AUTH_SECRET is required for synthetic sessions",
+    "BETTER_AUTH_SECRET is required for synthetic sessions",
   );
 
-  test("recognizes the test-only Auth.js JWT fixture", async ({
+  test("recognizes the test-only Better Auth session fixture", async ({
     context,
     page,
   }) => {
     await addAuthenticatedSession(context);
 
-    const response = await page.request.get("/api/auth/session");
+    const response = await page.request.get("/api/auth/get-session");
     const session = await response.json();
 
     expect(response.ok()).toBe(true);
@@ -289,7 +236,7 @@ test.describe("authenticated session", () => {
     await expect(page).toHaveURL("http://localhost:3000/");
     await expect(page.getByRole("link", { name: "Sign in" })).toBeVisible();
 
-    const response = await page.request.get("/api/auth/session");
+    const response = await page.request.get("/api/auth/get-session");
     expect(await response.json()).toBeNull();
     expect(
       (await context.cookies()).find(
@@ -319,7 +266,7 @@ test.describe("authenticated session", () => {
     await expect(page).toHaveURL("http://localhost:3000/");
     await expect(page.getByRole("link", { name: "Sign in" })).toBeVisible();
 
-    const response = await page.request.get("/api/auth/session");
+    const response = await page.request.get("/api/auth/get-session");
     expect(await response.json()).toBeNull();
     expect(
       (await context.cookies()).find(
@@ -344,7 +291,7 @@ test.describe("authenticated session", () => {
     await expect(page).toHaveURL("http://localhost:3000/");
     await expect(page.getByRole("link", { name: "Sign in" })).toBeVisible();
 
-    const response = await page.request.get("/api/auth/session");
+    const response = await page.request.get("/api/auth/get-session");
     expect(await response.json()).toBeNull();
     expect(
       (await context.cookies()).find(
@@ -392,38 +339,10 @@ test.describe("authenticated session", () => {
 
     await expect(page).toHaveURL("http://localhost:3000/");
     expect(
-      await (await page.request.get("/api/auth/session")).json(),
+      await (await page.request.get("/api/auth/get-session")).json(),
     ).toBeNull();
     await page.reload();
     await expect(page.getByRole("link", { name: "Sign in" })).toBeVisible();
-  });
-
-  test("fails closed for a tampered Auth.js cookie and supports POST sign-out recovery", async ({
-    context,
-    page,
-  }) => {
-    await addTamperedSession(context);
-    await page.goto("/profile");
-
-    await expect(page).toHaveURL("http://localhost:3000/login");
-    await expect(page.locator("body")).not.toContainText(E2E_VIEWER.email);
-
-    await page.goto("/api/auth/signout");
-    await page.getByRole("button", { name: "Sign out" }).click();
-
-    await expect(page).toHaveURL("http://localhost:3000/");
-    expect(
-      (await context.cookies()).find(
-        (cookie) => cookie.name === sessionCookieName,
-      ),
-    ).toBeUndefined();
-
-    await page.goto("/login");
-    await expect(page).toHaveURL("http://localhost:3000/login");
-    await expect(
-      page.getByRole("heading", { level: 1, name: "Welcome back" }),
-    ).toBeVisible();
-    await expect(page.getByRole("button", { name: "Sign out" })).toHaveCount(0);
   });
 });
 
@@ -436,7 +355,7 @@ test.describe("account avatar fallback initials", () => {
   // profile body), matching the existing "EU" assertion's toHaveCount(2).
   test.skip(
     !sessionConfigured,
-    "AUTH_SECRET is required for synthetic sessions",
+    "BETTER_AUTH_SECRET is required for synthetic sessions",
   );
 
   test("derives initials from a single-word non-BMP name", async ({

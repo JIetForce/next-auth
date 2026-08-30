@@ -16,8 +16,8 @@ export const getCurrentViewer = cache(async (): Promise<Viewer | null> => {
   if (!session?.user) return null;
 
   return {
-    name: session.user.name ?? null,
-    email: session.user.email ?? null,
+    name: session.user.name?.trim() ? session.user.name : null,
+    email: session.user.email?.trim() ? session.user.email : null,
     image: session.user.image ?? null,
   };
 });
