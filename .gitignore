@@ -40,8 +40,10 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# agent-roster harness scratch
-.roster/
+# agent-roster review scratch — captured diffs only.
+# The ledger and its archive are tracked deliberately: they are the loop's
+# recovery artifact, and Gemini-based harnesses skip git-ignored paths.
+.roster/review/
 .superpowers/
 
 # prisma generated client
