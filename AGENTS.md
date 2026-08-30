@@ -34,6 +34,19 @@ You are the **coordinator**. You do not implement and you do not review. You do 
 If your harness has no subagent mechanism, say so plainly to the user and perform both roles yourself in
 sequence, keeping the two phases separate and applying the same output formats below.
 
+### Plans do not outrank this contract
+
+A plan document says *what* to build. This contract says *how* it is verified and accepted. Where a plan — or
+the generic planning skill that produced it — prescribes a commit, a review input, or a dispatch that differs
+from the loop below, the loop wins and the plan is adapted to it, never the reverse.
+
+The case that actually comes up is commits. Generic planning skills end every task with a commit step, because
+their review artifact is git history. This contract's review artifact is the **uncommitted working tree**: step 4
+captures `git diff`, and `agents/roles/developer/role.md` forbids the developer committing unless you instructed
+it. So a plan's `Commit` step is not the developer's to run. It is yours, after step 8, once every verdict is in
+— using the `git add` scope the plan specifies. Do not delete those steps from a plan; they define what belongs
+in the commit.
+
 ## The loop
 
 1. **Spec.** Rewrite the request as a spec: what changes, what must not change, how it will be verified.

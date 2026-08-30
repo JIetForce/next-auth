@@ -8,12 +8,14 @@ description: 'Run the multi-role developer + verifier + review loop for a code c
 # Developer + Reviewer Harness
 
 `AGENTS.md` is the authoritative contract. Read it if it is not already in your context — this skill is the
-short form and omits the escalation boundary, which is not optional.
+short form and omits the escalation boundary, which is not optional. It also outranks any plan document and any
+generic planning skill: where they disagree with the loop below, the loop wins.
 
 1. Rewrite the request as a concrete spec and show it to the user. Dispatch `researcher` first, in parallel,
    if you would otherwise be guessing.
 2. Open `.roster/ledger.md` (create it on cycle 1, read it if you are resuming).
-3. Dispatch `developer` with the spec. One writer at a time.
+3. Dispatch `developer` with the spec. One writer at a time. It does **not** commit — the diff under review is
+   the uncommitted working tree.
 4. Capture the diff to a file — never inline:
    ```bash
    mkdir -p .roster/review
@@ -23,8 +25,9 @@ short form and omits the escalation boundary, which is not optional.
 5. Dispatch `verifier` alone.
 6. Dispatch `code-reviewer`, `security-reviewer` and `quality-reviewer` **in parallel**, each with the spec
    and the diff **path**.
-7. Append the cycle block to the ledger, then decide: all approved and verifier green → summarise. Otherwise
-   merge the required changes and return to step 3.
+7. Append the cycle block to the ledger, then decide: all approved and verifier green → commit the work
+   yourself using the plan's `git add` scope, then summarise. Otherwise merge the required changes and return
+   to step 3.
 8. Stop only on a stall (two cycles with no shrinkage), an unresolvable `### Blocked`, or cycle 8.
 
 ## Dispatch
