@@ -1,12 +1,16 @@
+// src/lib/auth/environment.ts
 import "server-only";
 
 const googleProviderEnvironmentKeys = [
-  "AUTH_GOOGLE_ID",
-  "AUTH_GOOGLE_SECRET",
+  "GOOGLE_CLIENT_ID",
+  "GOOGLE_CLIENT_SECRET",
 ] as const;
 
 export function isAuthSessionConfigured() {
-  return Boolean(process.env.AUTH_SECRET?.trim());
+  return (
+    Boolean(process.env.BETTER_AUTH_SECRET?.trim()) &&
+    Boolean(process.env.DATABASE_URL?.trim())
+  );
 }
 
 export function isGoogleAuthConfigured() {

@@ -215,7 +215,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                   <Info className="text-amber-600 dark:text-amber-400" aria-hidden="true" />
                   <AlertTitle>Google sign-in is not configured</AlertTitle>
                   <AlertDescription className="text-xs text-muted-foreground">
-                    Add AUTH_SECRET, AUTH_GOOGLE_ID, and AUTH_GOOGLE_SECRET, then
+                    Add BETTER_AUTH_SECRET, GOOGLE_CLIENT_ID, and GOOGLE_CLIENT_SECRET, then
                     restart the application.
                   </AlertDescription>
                 </Alert>
