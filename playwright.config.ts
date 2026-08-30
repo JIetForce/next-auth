@@ -1,6 +1,6 @@
 import { defineConfig, devices } from "@playwright/test";
 
-import { TEST_DATABASE_URL } from "./e2e/global-setup";
+import { MAIL_LOG, TEST_DATABASE_URL } from "./e2e/global-setup";
 
 const webServerAuthEnvironment = {
   DATABASE_URL: TEST_DATABASE_URL,
@@ -9,6 +9,7 @@ const webServerAuthEnvironment = {
   BETTER_AUTH_URL: "http://localhost:3000",
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID ?? "",
   GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET ?? "",
+  EMAIL_CAPTURE_FILE: MAIL_LOG,
 };
 
 export default defineConfig({
