@@ -48,3 +48,6 @@ next-env.d.ts
 
 # prisma generated client
 /src/generated/
+
+# captured mail from E2E runs
+/.next/mail.log
