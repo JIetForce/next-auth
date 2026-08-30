@@ -20,6 +20,9 @@ export const auth = betterAuth({
     callbackURL: "/login",
     sendVerificationEmail: async ({ user, url }) => {
       // Not awaited: response timing must not reveal whether the address exists.
+      // The catch keeps a transport failure (e.g. SMTP down) from becoming an
+      // unhandled rejection, which would crash the process outside dev — it
+      // must not change what this action or any HTTP response returns.
       void sendEmail({
         to: user.email,
         subject: "Confirm your email address",
@@ -30,6 +33,8 @@ export const auth = betterAuth({
           "",
           "If you did not sign up, you can ignore this message.",
         ].join("\n"),
+      }).catch((error: unknown) => {
+        console.error("Failed to send verification email", error);
       });
     },
   },

@@ -19,7 +19,7 @@ export function RegisterForm() {
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
-      {state.error ? <Alert role="alert">{state.error}</Alert> : null}
+      {state.error ? <Alert>{state.error}</Alert> : null}
 
       <div className="flex flex-col gap-2">
         <Label htmlFor="name">Name</Label>

@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { join } from "node:path";
 
 import { defineConfig, devices } from "@playwright/test";
 import dotenv from "dotenv";
@@ -21,7 +22,12 @@ import { MAIL_LOG, TEST_DATABASE_URL } from "./e2e/global-setup";
 // accident — only the keys named below ever cross over.
 function loadLocalEnv(): Record<string, string> {
   try {
-    return dotenv.parse(readFileSync(".env.local", "utf8"));
+    // Resolved against this file's own directory, not process.cwd(), so a
+    // run from a subdirectory can't silently miss .env.local and fall back
+    // to {} — which surfaces downstream as global-setup's misleading
+    // "check that the file exists" error.
+    const envLocalPath = join(import.meta.dirname, ".env.local");
+    return dotenv.parse(readFileSync(envLocalPath, "utf8"));
   } catch {
     return {};
   }

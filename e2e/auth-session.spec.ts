@@ -2,7 +2,6 @@ import { expect, test } from "@playwright/test";
 
 import { addAuthenticatedSession, E2E_VIEWER } from "./helpers/auth-session";
 
-const sessionConfigured = Boolean(process.env.BETTER_AUTH_SECRET?.trim());
 const sessionCookieName = "better-auth.session_token";
 
 const googleAuthEnvironmentKeys = [
@@ -116,11 +115,6 @@ test("returns a Google URL and ignores a caller-supplied destination", async ({
 });
 
 test.describe("authenticated session", () => {
-  test.skip(
-    !sessionConfigured,
-    "BETTER_AUTH_SECRET is required for synthetic sessions",
-  );
-
   test("recognizes the test-only Better Auth session fixture", async ({
     context,
     page,
@@ -353,11 +347,6 @@ test.describe("account avatar fallback initials", () => {
   // addAuthenticatedSession() viewer override and reads the rendered
   // AvatarFallback text, which appears twice per page (header trigger +
   // profile body), matching the existing "EU" assertion's toHaveCount(2).
-  test.skip(
-    !sessionConfigured,
-    "BETTER_AUTH_SECRET is required for synthetic sessions",
-  );
-
   test("derives initials from a single-word non-BMP name", async ({
     context,
     page,
