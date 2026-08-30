@@ -1,13 +1,19 @@
 import { defineConfig, devices } from "@playwright/test";
 
+import { TEST_DATABASE_URL } from "./e2e/global-setup";
+
 const webServerAuthEnvironment = {
-  AUTH_SECRET: process.env.AUTH_SECRET ?? "",
-  AUTH_GOOGLE_ID: process.env.AUTH_GOOGLE_ID ?? "",
-  AUTH_GOOGLE_SECRET: process.env.AUTH_GOOGLE_SECRET ?? "",
+  DATABASE_URL: TEST_DATABASE_URL,
+  DIRECT_URL: TEST_DATABASE_URL,
+  BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET ?? "",
+  BETTER_AUTH_URL: "http://localhost:3000",
+  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID ?? "",
+  GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET ?? "",
 };
 
 export default defineConfig({
   testDir: "./e2e",
+  globalSetup: "./e2e/global-setup.ts",
   outputDir: ".next/playwright",
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
