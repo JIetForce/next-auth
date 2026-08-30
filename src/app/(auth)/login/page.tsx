@@ -27,6 +27,7 @@ import { Separator } from "@/components/ui/separator";
 import { isGoogleAuthConfigured } from "@/lib/auth/environment";
 import { getCurrentViewer } from "@/lib/auth/session";
 
+import { CredentialsForm } from "./_components/credentials-form";
 import { GoogleSignInForm } from "./_components/google-sign-in-form";
 
 export const metadata: Metadata = {
@@ -80,7 +81,10 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           <div className="flex flex-col gap-6">
             <div className="flex items-center gap-2">
               <Badge variant="secondary" className="gap-1.5 px-3 py-1 text-xs">
-                <Sparkles className="size-3.5 text-primary" aria-hidden="true" />
+                <Sparkles
+                  className="size-3.5 text-primary"
+                  aria-hidden="true"
+                />
                 <span>Next-Gen Multi-Agent Platform</span>
               </Badge>
             </div>
@@ -90,8 +94,9 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                 Deterministic Review &amp; Delivery Loop
               </h2>
               <p className="max-w-lg text-base text-muted-foreground">
-                Orchestrate developers, verifiers, and specialized review triumvirates
-                with automated consensus and real-time verification.
+                Orchestrate developers, verifiers, and specialized review
+                triumvirates with automated consensus and real-time
+                verification.
               </p>
             </div>
 
@@ -142,7 +147,9 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                   <CheckCircle2 className="size-4" aria-hidden="true" />
                 </div>
                 <div className="flex flex-col gap-0.5">
-                  <span className="text-sm font-medium">Real-time Verification</span>
+                  <span className="text-sm font-medium">
+                    Real-time Verification
+                  </span>
                   <span className="text-xs text-muted-foreground">
                     Deterministic build and test evidence
                   </span>
@@ -154,9 +161,12 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                   <Shield className="size-4" aria-hidden="true" />
                 </div>
                 <div className="flex flex-col gap-0.5">
-                  <span className="text-sm font-medium">Enterprise Security</span>
+                  <span className="text-sm font-medium">
+                    Enterprise Security
+                  </span>
                   <span className="text-xs text-muted-foreground">
-                    OIDC tokens, zero local credential storage &amp; strict origin isolation
+                    OIDC tokens, zero local credential storage &amp; strict
+                    origin isolation
                   </span>
                 </div>
               </div>
@@ -171,8 +181,9 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             />
             <div className="flex flex-col gap-3">
               <p className="text-sm italic text-foreground/90">
-                &ldquo;Agent Roster transformed our delivery cycle into a verifiable,
-                deterministic loop with automated multi-agent consensus.&rdquo;
+                &ldquo;Agent Roster transformed our delivery cycle into a
+                verifiable, deterministic loop with automated multi-agent
+                consensus.&rdquo;
               </p>
               <div className="flex items-center gap-2">
                 <div className="flex size-6 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
@@ -196,13 +207,18 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           <Card className="w-full max-w-md border-border/80 bg-card/90 shadow-xl shadow-black/5 backdrop-blur-md dark:shadow-black/20">
             <CardHeader className="flex flex-col gap-2 text-center sm:text-left">
               <div className="flex items-center justify-center sm:justify-start">
-                <Badge variant="outline" className="gap-1 px-2.5 py-0.5 text-xs text-muted-foreground">
+                <Badge
+                  variant="outline"
+                  className="gap-1 px-2.5 py-0.5 text-xs text-muted-foreground"
+                >
                   <Lock className="size-3" aria-hidden="true" />
                   <span>Single Sign-On</span>
                 </Badge>
               </div>
               <CardTitle>
-                <h1 className="text-2xl font-bold tracking-tight">Welcome back</h1>
+                <h1 className="text-2xl font-bold tracking-tight">
+                  Welcome back
+                </h1>
               </CardTitle>
               <CardDescription className="text-sm">
                 Continue with your Google account to sign in.
@@ -212,11 +228,14 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             <CardContent className="flex flex-col gap-4">
               {showConfigurationError ? (
                 <Alert className="border-amber-500/30 bg-amber-500/10 text-foreground dark:border-amber-500/40 dark:bg-amber-950/20">
-                  <Info className="text-amber-600 dark:text-amber-400" aria-hidden="true" />
+                  <Info
+                    className="text-amber-600 dark:text-amber-400"
+                    aria-hidden="true"
+                  />
                   <AlertTitle>Google sign-in is not configured</AlertTitle>
                   <AlertDescription className="text-xs text-muted-foreground">
-                    Add BETTER_AUTH_SECRET, GOOGLE_CLIENT_ID, and GOOGLE_CLIENT_SECRET, then
-                    restart the application.
+                    Add BETTER_AUTH_SECRET, GOOGLE_CLIENT_ID, and
+                    GOOGLE_CLIENT_SECRET, then restart the application.
                   </AlertDescription>
                 </Alert>
               ) : null}
@@ -231,7 +250,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                 </Alert>
               ) : null}
 
-              <GoogleSignInForm configured={configured} />
+              <CredentialsForm />
 
               <div className="relative my-1 flex items-center justify-center">
                 <Separator />
@@ -240,9 +259,14 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                 </span>
               </div>
 
+              <GoogleSignInForm configured={configured} />
+
               <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
                 <span className="inline-flex items-center gap-1">
-                  <ShieldCheck className="size-3.5 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
+                  <ShieldCheck
+                    className="size-3.5 text-emerald-600 dark:text-emerald-400"
+                    aria-hidden="true"
+                  />
                   256-bit TLS
                 </span>
                 <span>&bull;</span>
@@ -251,6 +275,16 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                   OAuth 2.0 / OIDC
                 </span>
               </div>
+
+              <p className="text-center text-sm text-muted-foreground">
+                Don&apos;t have an account?{" "}
+                <Link
+                  href="/register"
+                  className="underline underline-offset-4 hover:text-foreground transition-colors"
+                >
+                  Create one
+                </Link>
+              </p>
             </CardContent>
 
             <CardFooter className="flex flex-col gap-3 border-t border-border/50 pt-4 text-center">
