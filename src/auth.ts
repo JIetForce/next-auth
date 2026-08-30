@@ -17,6 +17,7 @@ export const auth = betterAuth({
   },
   emailVerification: {
     sendOnSignUp: true,
+    callbackURL: "/login",
     sendVerificationEmail: async ({ user, url }) => {
       // Not awaited: response timing must not reveal whether the address exists.
       void sendEmail({

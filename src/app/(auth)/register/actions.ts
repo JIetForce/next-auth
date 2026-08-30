@@ -55,7 +55,9 @@ export async function registerAction(
   }
 
   try {
-    await auth.api.signUpEmail({ body: { name, email, password } });
+    await auth.api.signUpEmail({
+      body: { name, email, password, callbackURL: "/login" },
+    });
   } catch {
     return genericFailure;
   }
