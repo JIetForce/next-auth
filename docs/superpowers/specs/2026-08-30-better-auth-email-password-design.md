@@ -261,7 +261,11 @@ in-memory user object and does **not** write to the database; `test.saveUser(use
 `test.deleteUser(user.id)` cleans up. Calling `getCookies()` for a user that was never saved yields a session
 pointing at a non-existent row. The `testUtils()` plugin lives in a **test-only auth instance** in `e2e/helpers/auth.test.ts`, not in `src/auth.ts`; conditional spreading into the production config breaks TypeScript inference of `ctx.test` and is avoided. The helper stays confined to `e2e/**` and must never be imported from `src/**`.
 
-The disposable test database is a Docker Postgres container (`postgres:17`) started before the test run, exposed on a non-conflicting port (e.g. 5433), and reset between runs with `npx prisma migrate reset --force` in a Playwright `globalSetup`. This avoids the Supabase free-tier 7-day inactivity pause (see § Accepted risks) and gives fully disposable, no-shared-state isolation. `playwright.config.ts` passes the test database URL (`DATABASE_URL`), `DIRECT_URL`, `BETTER_AUTH_SECRET`, and SMTP env (`SMTP_HOST=localhost`, `SMTP_PORT=1025`) to the child server alongside the existing auth variables.
+Tests run against a second database, `apptest`, on whatever Postgres 17 already serves the machine. Isolation comes from `npx prisma migrate reset --force` in a Playwright `globalSetup`, not from a container: the reset drops and rebuilds the schema before every run, so no state survives. Using a local server rather than Supabase also keeps the E2E suite off the free tier's inactivity clock (see § Accepted risks).
+
+A containerised Postgres must **not** be added alongside a local one. A container publishing `*:5432` and a local server bound to `127.0.0.1:5432` and `[::1]:5432` both start cleanly, but `localhost` resolves to the specific binds first; every connection reaches the local server while the container reports healthy, and migrations land in a database nobody inspects.
+
+Because `migrate reset` destroys whatever it reaches, the test connection string is never derived from `DATABASE_URL`. `playwright.config.ts` and `globalSetup` both take it from `TEST_DATABASE_URL`, defaulting to the `apptest` database, and `globalSetup` refuses to run when that name is absent. `playwright.config.ts` passes that URL as both `DATABASE_URL` and `DIRECT_URL` to the child server, alongside `BETTER_AUTH_SECRET` and the SMTP variables.
 
 New specs:
 

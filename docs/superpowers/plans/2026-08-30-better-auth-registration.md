@@ -37,11 +37,14 @@
 - Consumes: nothing from earlier tasks.
 - Produces: `sendEmail({ to, subject, text }): Promise<void>` from `@/lib/email/client`. Task 10 calls it.
 
-- [ ] **Step 1: Add Mailpit to the compose file**
+- [ ] **Step 1: Provide Mailpit**
 
-Append under `services:` in `docker-compose.yml`:
+Postgres is **not** containerised in this project (see Task 1 of the migration plan). Mailpit is the only service that is, and its ports do not collide with anything.
+
+Create `docker-compose.yml` if it does not exist, or append under an existing `services:` key — it must contain Mailpit and nothing else:
 
 ```yaml
+services:
   mailpit:
     image: axllent/mailpit
     container_name: next-auth-mailpit
@@ -50,7 +53,7 @@ Append under `services:` in `docker-compose.yml`:
       - "8025:8025"
 ```
 
-Port `1025` is SMTP; `8025` serves both the web UI and the REST API.
+Port `1025` is SMTP; `8025` serves both the web UI and the REST API. If Docker is unavailable, `brew install mailpit && mailpit` provides the same two ports and the rest of this plan is unchanged.
 
 - [ ] **Step 2: Install nodemailer**
 
@@ -121,7 +124,7 @@ export async function sendEmail({ to, subject, text }: SendEmailInput) {
 
 - [ ] **Step 5: Verify a message actually reaches Mailpit**
 
-Run: `docker compose up -d mailpit`
+Run: `docker compose up -d mailpit`  (or `mailpit` if installed via Homebrew)
 
 Run:
 ```bash
@@ -505,7 +508,7 @@ export default async function RegisterPage() {
 
 - [ ] **Step 4: Verify by hand**
 
-With `npm run dev` and `docker compose up -d` running, open `http://localhost:3000/register`, submit a valid address and a 12-character password, and confirm the browser lands on `/verify-email`. Then open `http://localhost:8025` and confirm the message is there.
+With `npm run dev` and Mailpit running, open `http://localhost:3000/register`, submit a valid address and a 12-character password, and confirm the browser lands on `/verify-email`. Then open `http://localhost:8025` and confirm the message is there.
 
 - [ ] **Step 5: Commit**
 
@@ -649,7 +652,13 @@ export default function VerifyEmailPage() {
 
 Register a fresh address, open `http://localhost:8025`, click through to the message, and follow its link. Expected: the browser lands on `/login` and the `user` row now has a truthy `emailVerified`.
 
-Run: `docker exec next-auth-dev-db psql -U postgres -d appdev -c 'select email, "emailVerified" from "user";'`
+Run through the application's own connection string:
+
+```bash
+psql "$(grep '^DATABASE_URL=' .env.local | cut -d= -f2- | tr -d '"')" \
+  -c 'select email, "emailVerified" from "user";'
+```
+
 Expected: the row shows the address with `emailVerified` true.
 
 - [ ] **Step 5: Commit**
@@ -947,7 +956,7 @@ test("answers identically when the address is already registered", async ({
 
 - [ ] **Step 4: Run the suite**
 
-Run: `docker compose up -d && npm test`
+Run: `npm test`  (Mailpit must be running)
 Expected: every test passes, including the specs carried over from stages 1–2.
 
 - [ ] **Step 5: Commit**

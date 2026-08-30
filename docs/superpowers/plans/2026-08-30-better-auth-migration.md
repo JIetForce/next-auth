@@ -28,66 +28,50 @@
 - No secret value is printed, echoed, committed, or written into a tracked file.
 - Better Auth HTTP endpoints: session is `GET /api/auth/get-session`; sign-out is `POST /api/auth/sign-out`; social sign-in is `POST /api/auth/sign-in/social`. There are no `/api/auth/providers`, `/api/auth/csrf`, or `/api/auth/session` routes — those are Auth.js-only and must be removed wherever tests reference them.
 - Session cookie name is `better-auth.session_token` (Auth.js used `authjs.session-token`).
+- **Every database verification runs through the same connection string the application uses.** Never confirm
+  schema state through a side channel such as `docker exec ... psql`: a side channel can report a healthy
+  database that the app never talks to, which is exactly how a migration lands somewhere nobody is looking.
+- Postgres is whatever server already runs on the machine. Do **not** add a containerised Postgres beside a
+  local one — see the infrastructure note in Task 1.
 
 ---
 
-### Task 1: Disposable Postgres for development and E2E
+### Task 1: Two Postgres databases and env scaffolding
 
 **Files:**
-- Create: `docker-compose.yml`
 - Create: `.env.example`
 - Modify: `.env.local` (untracked; edit by hand, never commit)
 
 **Interfaces:**
 - Consumes: nothing.
-- Produces: a Postgres 17 instance on `localhost:5432` (database `appdev`) and one on `localhost:5433` (database `apptest`), both with user `postgres` and password `postgres`. Later tasks read `DATABASE_URL` and `DIRECT_URL`.
+- Produces: databases `appdev` and `apptest` on the machine's existing Postgres. Later tasks read `DATABASE_URL` and `DIRECT_URL`.
 
-- [ ] **Step 1: Write the compose file**
+**Infrastructure decision — Docker is not a requirement of this plan.**
 
-```yaml
-# docker-compose.yml
-services:
-  postgres:
-    image: postgres:17
-    container_name: next-auth-dev-db
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: appdev
-    ports:
-      - "5432:5432"
-    volumes:
-      - dev-db:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
+What the plan actually needs is two *separate databases*: one for development whose data survives, and one for tests that `prisma migrate reset` wipes on every run (Task 6). The isolation comes from that reset, not from a container or from `tmpfs`. Any Postgres 17 server provides it — Postgres.app, Homebrew, a container, or a remote server.
 
-  postgres-test:
-    image: postgres:17
-    container_name: next-auth-test-db
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: apptest
-    ports:
-      - "5433:5432"
-    tmpfs:
-      - /var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
+**Do not run a containerised Postgres beside a local one.** A container publishing `*:5432` and a local server bound to `127.0.0.1:5432` and `[::1]:5432` both start successfully, but `localhost` resolves to the specific binds first. Every connection then reaches the local server while `docker compose ps` reports the container healthy, and migrations land in a database nobody inspects.
 
-volumes:
-  dev-db:
+If a previous run of this task already created `docker-compose.yml` with Postgres services, remove those services now (`docker compose down` first) and keep only non-conflicting ones. Mailpit, added in the registration plan on ports 1025/8025, does not conflict and may stay in Docker.
+
+- [ ] **Step 1: Confirm which Postgres answers on this machine**
+
+Run: `lsof -nP -iTCP:5432 -sTCP:LISTEN`
+Expected: exactly one process family listening. If a container and a local server both appear, stop the container's Postgres before continuing — see the infrastructure note above.
+
+Run: `psql -h localhost -U postgres -c 'select version();'`
+Expected: a Postgres 17 banner. If the major version is below 17, upgrade or point at a different server before continuing.
+
+- [ ] **Step 2: Create the two databases**
+
+```bash
+psql -h localhost -U postgres -c 'CREATE DATABASE appdev;'
+psql -h localhost -U postgres -c 'CREATE DATABASE apptest;'
 ```
 
-The test database uses `tmpfs`, so it holds nothing between machine restarts. That is intentional: E2E state must never survive a run.
+`apptest` is wiped by `prisma migrate reset` on every E2E run, so it must never hold anything worth keeping. `appdev` is yours.
 
-- [ ] **Step 2: Write the tracked env template**
+- [ ] **Step 3: Write the tracked env template**
 
 ```bash
 # .env.example — safe to commit; contains no real values
@@ -99,28 +83,22 @@ GOOGLE_CLIENT_ID=""
 GOOGLE_CLIENT_SECRET=""
 ```
 
-`DIRECT_URL` equals `DATABASE_URL` locally. They diverge only on Supabase, where `DATABASE_URL` is the pooled connection and `DIRECT_URL` is the direct one that migrations require.
+`DIRECT_URL` equals `DATABASE_URL` locally. They diverge only on Supabase, where `DATABASE_URL` is the pooled connection and `DIRECT_URL` is the direct one that migrations require. Adjust the user and password to match the local server; Postgres.app commonly uses your own username with no password.
 
-- [ ] **Step 3: Update the untracked local env by hand**
+- [ ] **Step 4: Update the untracked local env by hand**
 
-Add the six variables above to `.env.local` with real values. Reuse the existing `AUTH_SECRET` value as `BETTER_AUTH_SECRET`, and the existing `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET` values as `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`. Keep the old `AUTH_*` names in place for now; Task 8 removes them. Do not print the file's contents.
+Add the six variables above to `.env.local` with real values. Reuse the existing `AUTH_SECRET` value as `BETTER_AUTH_SECRET`, and `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET` as `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`. Keep the old `AUTH_*` names for now; Task 8 removes them. Do not print the file's contents.
 
-- [ ] **Step 4: Start both databases and verify**
+Verify the string the application will actually use:
 
-Run: `docker compose up -d && docker compose ps`
-Expected: both `next-auth-dev-db` and `next-auth-test-db` report `healthy`.
-
-Run: `docker exec next-auth-dev-db psql -U postgres -d appdev -c 'select 1'`
-Expected: one row containing `1`.
-
-Run: `docker exec next-auth-test-db psql -U postgres -d apptest -c 'select 1'`
-Expected: one row containing `1`.
+Run: `psql "$(grep '^DATABASE_URL=' .env.local | cut -d= -f2- | tr -d '\"')" -c 'select current_database();'`
+Expected: `appdev`. This is the only check that proves the app's connection string reaches the intended database.
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add docker-compose.yml .env.example
-git commit -m "chore: add local and test Postgres via docker compose"
+git add .env.example
+git commit -m "chore: add env template and the appdev/apptest databases"
 ```
 
 ---
@@ -140,7 +118,9 @@ git commit -m "chore: add local and test Postgres via docker compose"
 
 - [ ] **Step 1: Install the pinned versions**
 
-Run: `npm install --save-exact @prisma/client@7.10.0 @prisma/adapter-pg@7.10.0 && npm install --save-exact --save-dev prisma@7.10.0`
+Run: `npm install --save-exact @prisma/client@7.10.0 @prisma/adapter-pg@7.10.0 && npm install --save-exact --save-dev prisma@7.10.0 dotenv`
+
+`dotenv` is a direct devDependency because `prisma.config.ts` loads the environment itself; see Step 3.
 
 - [ ] **Step 2: Verify the pins landed exactly**
 
@@ -149,9 +129,22 @@ Expected: `7.10.0 7.10.0 7.10.0` — three bare versions with no `^` or `~`. If 
 
 - [ ] **Step 3: Write the Prisma config**
 
+Two Prisma 7 details that older examples get wrong:
+
+- **`datasource.directUrl` does not exist in Prisma 7.** The published type in `@prisma/config@7.10.0` is
+  `{ url?: string; shadowDatabaseUrl?: string }`; writing `directUrl` fails to compile with `TS2353`. Only the
+  CLI reads this block, and the CLI runs migrations, so it takes the **direct** connection. The runtime client
+  in `src/lib/db.ts` separately reads the pooled `DATABASE_URL`. Locally the two strings are identical; on
+  Supabase they differ.
+- **`import "dotenv/config"` loads `.env`, which this project does not have.** Next.js reads `.env.local`
+  itself, but the Prisma CLI is a separate process with no knowledge of that convention, so the path is given
+  explicitly. The `dotenv.config` call must run before `prisma/config` is imported.
+
 ```ts
 // prisma.config.ts
-import "dotenv/config";
+import dotenv from "dotenv";
+
+dotenv.config({ path: ".env.local" });
 
 import { defineConfig, env } from "prisma/config";
 
@@ -161,8 +154,7 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    url: env("DATABASE_URL"),
-    directUrl: env("DIRECT_URL"),
+    url: env("DIRECT_URL"),
   },
 });
 ```
@@ -322,8 +314,13 @@ Expected: success.
 
 - [ ] **Step 7: Verify the tables landed**
 
-Run: `docker exec next-auth-dev-db psql -U postgres -d appdev -c '\dt'`
-Expected: tables for user, session, account, and verification are listed.
+Run through the application's own connection string, never a side channel:
+
+```bash
+psql "$(grep '^DATABASE_URL=' .env.local | cut -d= -f2- | tr -d '"')" -c '\dt'
+```
+
+Expected: tables for user, session, account, and verification are listed. If they are absent while `migrate dev` reported success, the CLI and the application are pointed at different servers — resolve that before continuing rather than copying the schema across by hand.
 
 - [ ] **Step 8: Commit**
 
@@ -664,31 +661,53 @@ export async function addTamperedSession(context: BrowserContext) {
 
 - [ ] **Step 3: Write the global setup that resets the test database**
 
+`prisma migrate reset` **drops every table it can reach**. `prisma.config.ts` loads `.env.local`, whose
+`DIRECT_URL` points at `appdev` — so a reset that inherits the ambient environment would wipe the development
+database on every test run. The test URL is therefore forced into the child environment. `dotenv` does not
+override variables that are already set, so the explicit values win.
+
 ```ts
 // e2e/global-setup.ts
 import { execSync } from "node:child_process";
 
+export const TEST_DATABASE_URL =
+  process.env.TEST_DATABASE_URL ??
+  "postgresql://postgres:postgres@localhost:5432/apptest";
+
 export default function globalSetup() {
+  if (!/apptest/.test(TEST_DATABASE_URL)) {
+    throw new Error(
+      `Refusing to reset ${TEST_DATABASE_URL}: the E2E database name must contain "apptest"`,
+    );
+  }
+
   execSync("npx prisma migrate reset --force --skip-seed --skip-generate", {
     stdio: "inherit",
-    env: process.env,
+    env: {
+      ...process.env,
+      DATABASE_URL: TEST_DATABASE_URL,
+      DIRECT_URL: TEST_DATABASE_URL,
+    },
   });
 }
 ```
+
+The name guard is deliberate. A reset pointed at the wrong database is silent and unrecoverable, so the cheapest
+possible assertion sits in front of it.
 
 - [ ] **Step 4: Point Playwright at the test database**
 
 Replace the `webServerAuthEnvironment` block and add `globalSetup`. The env is shared by the Playwright process (which runs the helper) and the child Next server, so both talk to the same database and sign cookies with the same secret.
 
+The test URL is imported from `global-setup` rather than read from `DATABASE_URL`. Falling back to `DATABASE_URL` would silently point the suite — and its `migrate reset` — at the development database. Override it with `TEST_DATABASE_URL`, never with `DATABASE_URL`.
+
 ```ts
 // playwright.config.ts — replace the const and add two config keys
-const testDatabaseUrl =
-  process.env.DATABASE_URL ??
-  "postgresql://postgres:postgres@localhost:5433/apptest";
+import { TEST_DATABASE_URL } from "./e2e/global-setup";
 
 const webServerAuthEnvironment = {
-  DATABASE_URL: testDatabaseUrl,
-  DIRECT_URL: process.env.DIRECT_URL ?? testDatabaseUrl,
+  DATABASE_URL: TEST_DATABASE_URL,
+  DIRECT_URL: TEST_DATABASE_URL,
   BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET ?? "",
   BETTER_AUTH_URL: "http://localhost:3000",
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID ?? "",
@@ -792,8 +811,8 @@ If `googleConfigured` is not already defined in this file, copy its definition f
 
 - [ ] **Step 6: Run the full suite**
 
-Run: `docker compose up -d && npm test`
-Expected: all tests pass. If the run cannot reach the database, confirm `DATABASE_URL` points at port `5433`.
+Run: `npm test`
+Expected: all tests pass. If the run cannot reach the database, confirm the `apptest` database exists and that `TEST_DATABASE_URL` (or the default in `e2e/global-setup.ts`) names it.
 
 - [ ] **Step 7: Commit**
 
@@ -830,7 +849,7 @@ Remove `AUTH_SECRET`, `AUTH_GOOGLE_ID`, and `AUTH_GOOGLE_SECRET` from `.env.loca
 
 - [ ] **Step 4: Update the README setup section**
 
-In `README.md`, replace the three `AUTH_*` variables in the "Google authentication" block with the six names from `.env.example`, and add one line above them: `Start the databases first with `docker compose up -d`.` Leave the rest of the section alone; the full documentation rewrite is stage 6.
+In `README.md`, replace the three `AUTH_*` variables in the "Google authentication" block with the six names from `.env.example`, and add one line above them stating that a local Postgres 17 with an `appdev` and an `apptest` database is required. Leave the rest of the section alone; the full documentation rewrite is stage 6.
 
 - [ ] **Step 5: Run the whole verification set**
 
