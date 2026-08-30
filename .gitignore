@@ -43,3 +43,6 @@ next-env.d.ts
 # agent-roster harness scratch
 .roster/
 .superpowers/
+
+# prisma generated client
+/src/generated/
