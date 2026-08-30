@@ -124,37 +124,28 @@ test("renders a generic OAuth error without exposing provider details", async ({
   await expect(alert).not.toContainText("OAuthCallback");
 });
 
-test("switches and persists light, dark, and system themes", async ({
+test("switches and persists light and dark themes", async ({
   page,
 }) => {
   await page.goto("/login");
 
   await page.getByRole("button", { name: "Toggle theme" }).click();
-  await page.getByRole("menuitem", { name: "Dark" }).click();
   await expect(page.locator("html")).toHaveClass(/dark/);
 
   await page.reload();
   await expect(page.locator("html")).toHaveClass(/dark/);
+  await expect
+    .poll(() => page.evaluate(() => localStorage.getItem("theme")))
+    .toBe("dark");
 
   await page.getByRole("button", { name: "Toggle theme" }).click();
-  await page.getByRole("menuitem", { name: "Light" }).click();
   await expect(page.locator("html")).toHaveClass(/light/);
 
   await page.reload();
   await expect(page.locator("html")).toHaveClass(/light/);
-
-  await page.getByRole("button", { name: "Toggle theme" }).click();
-  const systemOption = page.getByRole("menuitem", { name: "System" });
-  await expect(systemOption).toBeVisible();
-  await systemOption.click();
   await expect
     .poll(() => page.evaluate(() => localStorage.getItem("theme")))
-    .toBe("system");
-
-  await page.reload();
-  await expect
-    .poll(() => page.evaluate(() => localStorage.getItem("theme")))
-    .toBe("system");
+    .toBe("light");
 });
 
 test("fits the login shell in a mobile viewport", async ({ page }) => {
