@@ -9,6 +9,7 @@
     "start": "next start",
     "test": "playwright test",
     "lint": "eslint",
+    "db:studio": "prisma studio",
     "sync:agents": "node scripts/sync-agents.mjs",
     "check:agents": "node scripts/sync-agents.mjs --check",
     "validate:agents": "node scripts/validate-agents.mjs",
