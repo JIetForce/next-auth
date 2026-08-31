@@ -26,6 +26,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { sharedFaqs, partnerStats } from "@/lib/content";
 import { cn } from "@/lib/utils";
 
 export default function Home() {
@@ -145,8 +146,8 @@ export default function Home() {
                 Developer Tools
               </CardTitle>
               <CardDescription className="text-sm leading-relaxed text-muted-foreground">
-                Libraries, frameworks, and utilities for engineers who ship fast.
-                Practical recommendations without the fluff.
+                Libraries, frameworks, and utilities for engineers who ship
+                fast. Practical recommendations without the fluff.
               </CardDescription>
             </CardHeader>
           </Card>
@@ -239,8 +240,8 @@ export default function Home() {
                 AI Workflows
               </CardTitle>
               <CardDescription className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                How to connect tools like Claude, Zapier, and Notion to
-                automate your content pipeline.
+                How to connect tools like Claude, Zapier, and Notion to automate
+                your content pipeline.
               </CardDescription>
             </div>
           </Card>
@@ -293,50 +294,20 @@ export default function Home() {
 
         <div className="mt-12">
           <Accordion className="w-full space-y-3">
-            <AccordionItem
-              value="faq-1"
-              className="rounded-2xl border border-white/6 bg-white/[0.02] px-6 transition-colors hover:border-white/12 hover:bg-white/[0.035]"
-            >
-              <AccordionTrigger className="py-5 font-heading text-base font-bold text-foreground hover:no-underline">
-                Is Siftloom really free?
-              </AccordionTrigger>
-              <AccordionContent className="pb-5 text-sm leading-relaxed text-muted-foreground">
-                Yes, 100% free. We monetize through careful, relevant
-                sponsorships with tools we actually like and use. We will never
-                hide our core content behind a paywall.
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem
-              value="faq-2"
-              className="rounded-2xl border border-white/6 bg-white/[0.02] px-6 transition-colors hover:border-white/12 hover:bg-white/[0.035]"
-            >
-              <AccordionTrigger className="py-5 font-heading text-base font-bold text-foreground hover:no-underline">
-                How often do you send updates?
-              </AccordionTrigger>
-              <AccordionContent className="pb-5 text-sm leading-relaxed text-muted-foreground">
-                We typically post high-signal updates on our Telegram channel a
-                few times a week, and send a consolidated email newsletter
-                weekly. We respect your inbox and only send when we have
-                something truly valuable to share.
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem
-              value="faq-3"
-              className="rounded-2xl border border-white/6 bg-white/[0.02] px-6 transition-colors hover:border-white/12 hover:bg-white/[0.035]"
-            >
-              <AccordionTrigger className="py-5 font-heading text-base font-bold text-foreground hover:no-underline">
-                What kind of tools do you feature?
-              </AccordionTrigger>
-              <AccordionContent className="pb-5 text-sm leading-relaxed text-muted-foreground">
-                We feature everything from emerging AI agents and developer
-                utilities to proven marketing platforms and no-code builders. If
-                it saves time, reduces friction, or creates leverage for digital
-                professionals, it&apos;s on our radar.
-              </AccordionContent>
-            </AccordionItem>
-
+            {sharedFaqs.map(({ value, question, answer }) => (
+              <AccordionItem
+                key={value}
+                value={value}
+                className="rounded-2xl border border-white/6 bg-white/[0.02] px-6 transition-colors hover:border-white/12 hover:bg-white/[0.035]"
+              >
+                <AccordionTrigger className="py-5 font-heading text-base font-bold text-foreground hover:no-underline">
+                  {question}
+                </AccordionTrigger>
+                <AccordionContent className="pb-5 text-sm leading-relaxed text-muted-foreground">
+                  {answer}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
             <AccordionItem
               value="faq-4"
               className="rounded-2xl border border-white/6 bg-white/[0.02] px-6 transition-colors hover:border-white/12 hover:bg-white/[0.035]"
@@ -421,36 +392,31 @@ export default function Home() {
             </div>
 
             <div className="grid grid-cols-2 gap-4 lg:col-span-5">
-              <Card className="col-span-2 rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md gap-1">
-                <CardHeader className="p-0 gap-1">
-                  <CardTitle className="font-heading text-3xl font-extrabold tracking-tight text-siftloom-gradient sm:text-4xl">
-                    10,000+
-                  </CardTitle>
-                  <CardDescription className="text-xs text-muted-foreground sm:text-sm">
-                    Engaged newsletter subscribers
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-              <Card className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md gap-1">
-                <CardHeader className="p-0 gap-1">
-                  <CardTitle className="font-heading text-2xl font-extrabold text-foreground sm:text-3xl">
-                    48%
-                  </CardTitle>
-                  <CardDescription className="text-xs text-muted-foreground">
-                    Avg. open rate
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-              <Card className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md gap-1">
-                <CardHeader className="p-0 gap-1">
-                  <CardTitle className="font-heading text-2xl font-extrabold text-foreground sm:text-3xl">
-                    5,000+
-                  </CardTitle>
-                  <CardDescription className="text-xs text-muted-foreground">
-                    Community members
-                  </CardDescription>
-                </CardHeader>
-              </Card>
+              {partnerStats.map((stat) => (
+                <Card
+                  key={stat.value}
+                  className={cn(
+                    "gap-1 rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md",
+                    stat.highlight && "col-span-2",
+                  )}
+                >
+                  <CardHeader className="gap-1 p-0">
+                    <CardTitle
+                      className={cn(
+                        "font-heading font-extrabold tracking-tight",
+                        stat.highlight
+                          ? "text-3xl text-siftloom-gradient sm:text-4xl"
+                          : "text-2xl text-foreground sm:text-3xl",
+                      )}
+                    >
+                      {stat.value}
+                    </CardTitle>
+                    <CardDescription className="text-xs text-muted-foreground sm:text-sm">
+                      {stat.label}
+                    </CardDescription>
+                  </CardHeader>
+                </Card>
+              ))}
             </div>
           </div>
         </Card>
