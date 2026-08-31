@@ -75,6 +75,65 @@ test("refuses sign-in before the address is confirmed", async ({ page }) => {
   await expect(page).toHaveURL(/\/login$/);
 });
 
+test("shows a client-side error for a password that is too short", async ({
+  page,
+}) => {
+  const email = uniqueEmail("short-password");
+
+  await page.goto("/login");
+  await page.getByRole("tab", { name: "Create Account" }).click();
+  await page.getByLabel("Name").fill("Short Password");
+  await page.getByLabel("Email").fill(email);
+  await page.getByLabel("Password", { exact: true }).fill("abc1");
+  await page.getByLabel("Confirm password").fill("abc1");
+  await page.getByRole("button", { name: "Create account" }).click();
+
+  await expect(
+    page.getByText(
+      "Use at least 6 characters, including one letter and one number.",
+    ),
+  ).toBeVisible();
+  await expect(page).not.toHaveURL(/\/login\?verify=true$/);
+});
+
+test("shows a client-side error for a password missing a letter or number", async ({
+  page,
+}) => {
+  const email = uniqueEmail("no-number-password");
+
+  await page.goto("/login");
+  await page.getByRole("tab", { name: "Create Account" }).click();
+  await page.getByLabel("Name").fill("No Number Password");
+  await page.getByLabel("Email").fill(email);
+  await page.getByLabel("Password", { exact: true }).fill("onlyletters");
+  await page.getByLabel("Confirm password").fill("onlyletters");
+  await page.getByRole("button", { name: "Create account" }).click();
+
+  await expect(
+    page.getByText(
+      "Use at least 6 characters, including one letter and one number.",
+    ),
+  ).toBeVisible();
+  await expect(page).not.toHaveURL(/\/login\?verify=true$/);
+});
+
+test("shows a client-side error when the confirmation password does not match", async ({
+  page,
+}) => {
+  const email = uniqueEmail("mismatch");
+
+  await page.goto("/login");
+  await page.getByRole("tab", { name: "Create Account" }).click();
+  await page.getByLabel("Name").fill("Mismatch Person");
+  await page.getByLabel("Email").fill(email);
+  await page.getByLabel("Password", { exact: true }).fill(password);
+  await page.getByLabel("Confirm password").fill("different-password-1");
+  await page.getByRole("button", { name: "Create account" }).click();
+
+  await expect(page.getByText("The two passwords do not match.")).toBeVisible();
+  await expect(page).not.toHaveURL(/\/login\?verify=true$/);
+});
+
 test("answers identically when the address is already registered", async ({
   page,
 }) => {

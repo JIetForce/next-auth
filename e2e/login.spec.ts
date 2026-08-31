@@ -104,9 +104,7 @@ test("renders a generic OAuth error without exposing provider details", async ({
   await expect(alert).not.toContainText("OAuthCallback");
 });
 
-test("switches and persists light and dark themes", async ({
-  page,
-}) => {
+test("switches and persists light and dark themes", async ({ page }) => {
   await page.goto("/login");
 
   await page.getByRole("button", { name: "Toggle theme" }).click();
@@ -126,6 +124,32 @@ test("switches and persists light and dark themes", async ({
   await expect
     .poll(() => page.evaluate(() => localStorage.getItem("theme")))
     .toBe("light");
+});
+
+test("shows a client-side error for an invalid email before submitting", async ({
+  page,
+}) => {
+  await page.goto("/login");
+
+  await page.getByLabel("Email").fill("not-an-email");
+  await page.getByLabel("Password").fill("some-password");
+  await page.getByRole("button", { name: "Sign in" }).click();
+
+  await expect(
+    page.getByText("Please enter a valid email address."),
+  ).toBeVisible();
+  await expect(page).toHaveURL(/\/login$/);
+});
+
+test("shows client-side errors for empty required fields and does not navigate", async ({
+  page,
+}) => {
+  await page.goto("/login");
+
+  await page.getByRole("button", { name: "Sign in" }).click();
+
+  await expect(page.locator('[data-invalid="true"]')).toHaveCount(2);
+  await expect(page).toHaveURL(/\/login$/);
 });
 
 test("fits the login shell in a mobile viewport", async ({ page }) => {

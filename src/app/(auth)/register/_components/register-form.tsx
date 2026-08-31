@@ -1,7 +1,9 @@
 // src/app/(auth)/register/_components/register-form.tsx
 "use client";
 
-import { useActionState } from "react";
+import { startTransition, useActionState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 import {
   ArrowRight,
   CircleAlert,
@@ -15,6 +17,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { registerSchema, type RegisterInput } from "@/lib/auth/schemas";
 
 import { registerAction, type RegisterState } from "../actions";
 
@@ -26,8 +29,31 @@ export function RegisterForm() {
     initialState,
   );
 
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<RegisterInput>({
+    resolver: zodResolver(registerSchema),
+  });
+
+  const onValid = (data: RegisterInput) => {
+    const formData = new FormData();
+    formData.set("name", data.name);
+    formData.set("email", data.email);
+    formData.set("password", data.password);
+    formData.set("confirmPassword", data.confirmPassword);
+    startTransition(() => {
+      formAction(formData);
+    });
+  };
+
   return (
-    <form action={formAction} className="flex flex-col gap-4">
+    <form
+      onSubmit={handleSubmit(onValid)}
+      noValidate
+      className="flex flex-col gap-4"
+    >
       {state.error ? (
         <Alert variant="destructive" className="py-2.5 text-xs">
           <CircleAlert className="size-4" aria-hidden="true" />
@@ -35,7 +61,7 @@ export function RegisterForm() {
         </Alert>
       ) : null}
 
-      <div className="flex flex-col gap-1.5">
+      <div className="flex flex-col gap-1.5" data-invalid={!!errors.name}>
         <Label htmlFor="register-name" className="text-xs font-medium">
           Name
         </Label>
@@ -46,16 +72,19 @@ export function RegisterForm() {
           />
           <Input
             id="register-name"
-            name="name"
             placeholder="Alex Developer"
             autoComplete="name"
             className="pl-9"
-            required
+            aria-invalid={!!errors.name}
+            {...register("name")}
           />
         </div>
+        {errors.name ? (
+          <p className="text-xs text-destructive">{errors.name.message}</p>
+        ) : null}
       </div>
 
-      <div className="flex flex-col gap-1.5">
+      <div className="flex flex-col gap-1.5" data-invalid={!!errors.email}>
         <Label htmlFor="register-email" className="text-xs font-medium">
           Email
         </Label>
@@ -66,17 +95,20 @@ export function RegisterForm() {
           />
           <Input
             id="register-email"
-            name="email"
             type="email"
             placeholder="name@example.com"
             autoComplete="email"
             className="pl-9"
-            required
+            aria-invalid={!!errors.email}
+            {...register("email")}
           />
         </div>
+        {errors.email ? (
+          <p className="text-xs text-destructive">{errors.email.message}</p>
+        ) : null}
       </div>
 
-      <div className="flex flex-col gap-1.5">
+      <div className="flex flex-col gap-1.5" data-invalid={!!errors.password}>
         <Label htmlFor="register-password" className="text-xs font-medium">
           Password
         </Label>
@@ -87,21 +119,27 @@ export function RegisterForm() {
           />
           <Input
             id="register-password"
-            name="password"
             type="password"
             placeholder="At least 6 characters"
             autoComplete="new-password"
-            minLength={6}
             className="pl-9"
-            required
+            aria-invalid={!!errors.password}
+            {...register("password")}
           />
         </div>
-        <p className="text-[11px] text-muted-foreground">
-          Must be at least 6 characters with letters and numbers.
-        </p>
+        {errors.password ? (
+          <p className="text-xs text-destructive">{errors.password.message}</p>
+        ) : (
+          <p className="text-[11px] text-muted-foreground">
+            Must be at least 6 characters with letters and numbers.
+          </p>
+        )}
       </div>
 
-      <div className="flex flex-col gap-1.5">
+      <div
+        className="flex flex-col gap-1.5"
+        data-invalid={!!errors.confirmPassword}
+      >
         <Label
           htmlFor="register-confirmPassword"
           className="text-xs font-medium"
@@ -115,15 +153,19 @@ export function RegisterForm() {
           />
           <Input
             id="register-confirmPassword"
-            name="confirmPassword"
             type="password"
             placeholder="Repeat password"
             autoComplete="new-password"
-            minLength={6}
             className="pl-9"
-            required
+            aria-invalid={!!errors.confirmPassword}
+            {...register("confirmPassword")}
           />
         </div>
+        {errors.confirmPassword ? (
+          <p className="text-xs text-destructive">
+            {errors.confirmPassword.message}
+          </p>
+        ) : null}
       </div>
 
       <Button

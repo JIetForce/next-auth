@@ -1,13 +1,16 @@
 // src/app/(auth)/login/_components/credentials-form.tsx
 "use client";
 
-import { useActionState } from "react";
+import { startTransition, useActionState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 import { ArrowRight, CircleAlert, Lock, Mail } from "lucide-react";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { signInSchema, type SignInInput } from "@/lib/auth/schemas";
 
 import { signInWithCredentials, type SignInState } from "../actions";
 
@@ -19,8 +22,29 @@ export function CredentialsForm() {
     initialState,
   );
 
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SignInInput>({
+    resolver: zodResolver(signInSchema),
+  });
+
+  const onValid = (data: SignInInput) => {
+    const formData = new FormData();
+    formData.set("email", data.email);
+    formData.set("password", data.password);
+    startTransition(() => {
+      formAction(formData);
+    });
+  };
+
   return (
-    <form action={formAction} className="flex flex-col gap-4">
+    <form
+      onSubmit={handleSubmit(onValid)}
+      noValidate
+      className="flex flex-col gap-4"
+    >
       {state.error ? (
         <Alert variant="destructive" className="py-2.5 text-xs">
           <CircleAlert className="size-4" aria-hidden="true" />
@@ -28,7 +52,7 @@ export function CredentialsForm() {
         </Alert>
       ) : null}
 
-      <div className="flex flex-col gap-1.5">
+      <div className="flex flex-col gap-1.5" data-invalid={!!errors.email}>
         <Label htmlFor="login-email" className="text-xs font-medium">
           Email
         </Label>
@@ -39,17 +63,20 @@ export function CredentialsForm() {
           />
           <Input
             id="login-email"
-            name="email"
             type="email"
             placeholder="name@example.com"
             autoComplete="email"
             className="pl-9"
-            required
+            aria-invalid={!!errors.email}
+            {...register("email")}
           />
         </div>
+        {errors.email ? (
+          <p className="text-xs text-destructive">{errors.email.message}</p>
+        ) : null}
       </div>
 
-      <div className="flex flex-col gap-1.5">
+      <div className="flex flex-col gap-1.5" data-invalid={!!errors.password}>
         <Label htmlFor="login-password" className="text-xs font-medium">
           Password
         </Label>
@@ -60,14 +87,17 @@ export function CredentialsForm() {
           />
           <Input
             id="login-password"
-            name="password"
             type="password"
             placeholder="••••••••••••"
             autoComplete="current-password"
             className="pl-9"
-            required
+            aria-invalid={!!errors.password}
+            {...register("password")}
           />
         </div>
+        {errors.password ? (
+          <p className="text-xs text-destructive">{errors.password.message}</p>
+        ) : null}
       </div>
 
       <Button
