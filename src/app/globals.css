@@ -130,7 +130,7 @@
 }
 
 .bg-siftloom-gradient {
-  background: linear-gradient(100deg, #3fa1de, #2fb8ae 52%, #cbe37c);
+  background: linear-gradient(100deg, #3fa1de 0%, #2fb8ae 52%, #cbe37c 100%);
 }
 
 .text-siftloom-gradient {
@@ -184,4 +184,45 @@
   background: radial-gradient(circle, rgba(203, 227, 124, 0.14), transparent 65%);
   pointer-events: none;
   z-index: 0;
+}
+
+.sl-card {
+  transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1), border-color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+}
+.sl-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.sl-faq-item {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  margin-bottom: 14px;
+  overflow: hidden;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+.sl-faq-item:hover {
+  background: rgba(255, 255, 255, 0.035);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+.sl-faq-item summary {
+  padding: 22px 24px;
+  font-weight: 700;
+  font-size: 16px;
+  color: #edf1f6;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.sl-faq-item summary::-webkit-details-marker {
+  display: none;
+}
+.sl-faq-content {
+  padding: 0 24px 22px;
+  font-size: 15px;
+  color: #9aa6b2;
+  line-height: 1.62;
 }
