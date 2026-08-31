@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
 import { consumeRateLimit } from "@/lib/auth/rate-limit";
+import { isValidPassword } from "@/lib/auth/validation";
 
 export type RegisterState = { error: string | null };
 
@@ -15,10 +16,6 @@ const genericFailure: RegisterState = {
 
 function isValidEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-}
-
-function isValidPassword(value: string) {
-  return value.length >= 6 && /[a-zA-Z]/.test(value) && /[0-9]/.test(value);
 }
 
 export async function registerAction(
