@@ -20,13 +20,13 @@ const primaryLinks = [
 ] as const;
 
 const navLinkClass =
-  "inline-flex h-9 items-center justify-center rounded-lg px-2.5 py-1.5 text-sm font-medium text-foreground transition-all hover:bg-muted focus:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-1";
+  "inline-flex h-9 items-center justify-center rounded-lg px-2.5 py-1.5 text-sm font-medium text-foreground/80 transition-all hover:text-foreground hover:bg-muted focus:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-1";
 
 export function Header({ className, ...props }: ComponentProps<"header">) {
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur",
+        "sticky top-0 z-50 w-full border-b border-border/80 bg-background/80 backdrop-blur-md",
         className,
       )}
       {...props}
@@ -34,9 +34,12 @@ export function Header({ className, ...props }: ComponentProps<"header">) {
       <div className="container flex h-14 items-center gap-4">
         <Link
           href="/"
-          className="mr-auto flex items-center gap-2 font-heading text-base font-medium text-foreground"
+          className="mr-auto flex items-center gap-2 font-heading text-base font-bold tracking-tight text-foreground transition-opacity hover:opacity-90"
         >
-          <span className="size-6 rounded-md bg-primary" aria-hidden="true" />
+          <span
+            className="size-6 rounded-md bg-siftloom-gradient shadow-xs"
+            aria-hidden="true"
+          />
           <span>Agent Roster</span>
         </Link>
 
