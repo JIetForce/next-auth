@@ -2,7 +2,7 @@
 
 ## Spec
 
-Plan task plus link to plan: `docs/superpowers/plans/2026-08-31-header-redesign-features-pricing.md` (Task 3: /pricing marketing page). Full spec: `docs/superpowers/specs/2026-08-31-header-redesign-features-pricing-design.md`.
+Plan task plus link to plan: `docs/superpowers/plans/2026-08-31-header-redesign-features-pricing.md` (Task 4: e2e header-navigation spec). Full spec: `docs/superpowers/specs/2026-08-31-header-redesign-features-pricing-design.md`.
 
 ## Cycle log
 
@@ -47,3 +47,13 @@ Plan task plus link to plan: `docs/superpowers/plans/2026-08-31-header-redesign-
 - resolved since cycle 3: extracted partnerStats + sharedFaqs to src/lib/content.ts, both pages consume shared data
 - outstanding: none
 - delivered: committed (main)/pricing/page.tsx, src/lib/content.ts, (main)/page.tsx
+
+### Cycle 5 (Task 4: e2e header-navigation spec)
+
+- verifier: pass — lint, build, new spec (7 passed), full suite (43 passed, 1 skip)
+- code-reviewer: approved — 0 required
+- security-reviewer: approved — 0 required
+- quality-reviewer: approved_with_notes — 0 required (notes: mobile active state not covered by e2e)
+- resolved since cycle 4: n/a
+- outstanding: none
+- delivered: committed e2e/header-navigation.spec.ts
