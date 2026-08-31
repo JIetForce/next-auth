@@ -85,7 +85,7 @@ Use the required Node.js runtime to generate a secret cross-platform:
 node -e "console.log(require('node:crypto').randomBytes(32).toString('base64url'))"
 ```
 
-Copy the command output into `AUTH_SECRET`. In Google Cloud, register the callback URL for each environment:
+Copy the command output into `BETTER_AUTH_SECRET`. In Google Cloud, register the callback URL for each environment:
 
 - Local: `http://localhost:3000/api/auth/callback/google`
 - Production: `https://your-domain.example/api/auth/callback/google`
@@ -96,7 +96,7 @@ Restart the application after changing environment variables. Without `BETTER_AU
 
 Leave `EMAIL_CAPTURE_FILE` empty in your own `.env.local`. When it is set, `src/lib/email/client.ts` appends every outgoing message to that file as JSON and never actually sends it — including the account verification email, so registration will look like it succeeded while silently sending nothing. `playwright.config.ts` sets this variable automatically, only in the environment of the `next dev` process the test suite starts, so it never affects your own `npm run dev` as long as it stays unset in `.env.local`.
 
-Keep `AUTH_SECRET` stable across restarts and deployments. Rotating it invalidates existing JWT sessions; if a stale browser cookie causes `no matching decryption secret`, visit `/api/auth/signout` and confirm **Sign out** (POST), or clear the site's cookies, then return to `/login`. Do not restore the previous secret to recover old sessions.
+Keep `BETTER_AUTH_SECRET` stable across restarts and deployments. Rotating it invalidates existing JWT sessions; if a stale browser cookie causes `no matching decryption secret`, visit `/api/auth/signout` and confirm **Sign out** (POST), or clear the site's cookies, then return to `/login`. Do not restore the previous secret to recover old sessions.
 
 Application auth architecture, extension rules, redirect contracts, and test strategy are documented in [`docs/auth-architecture.md`](docs/auth-architecture.md). Read it before changing authentication, session handling, protected routes, Header account state, or logout.
 
