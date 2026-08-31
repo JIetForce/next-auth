@@ -24,7 +24,7 @@ export const metadata: Metadata = {
 };
 
 type LoginPageProps = {
-  searchParams: Promise<{ error?: string | string[] }>;
+  searchParams: Promise<{ error?: string | string[]; verify?: string | string[] }>;
 };
 
 type LoginError = "configuration" | "oauth" | null;
@@ -41,11 +41,12 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   if (viewer) redirect("/");
 
   const configured = isGoogleAuthConfigured();
-  const { error } = await searchParams;
+  const { error, verify } = await searchParams;
   const loginError = normalizeLoginError(error);
 
   const showConfigurationError = !configured || loginError === "configuration";
   const showOAuthError = configured && loginError === "oauth";
+  const isVerifyMode = Boolean(Array.isArray(verify) ? verify[0] : verify);
 
   return (
     <main className="relative flex min-h-[calc(100svh-3.5rem)] flex-1 overflow-hidden bg-background">
@@ -192,6 +193,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             configured={configured}
             showConfigurationError={showConfigurationError}
             showOAuthError={showOAuthError}
+            defaultTab={isVerifyMode ? "verify" : "signin"}
           />
         </div>
       </div>

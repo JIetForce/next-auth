@@ -16,6 +16,11 @@ test("redirects /register to /login", async ({ page }) => {
   await expect(page).toHaveURL(/\/login$/);
 });
 
+test("redirects /verify-email to /login?verify=true", async ({ page }) => {
+  await page.goto("/verify-email");
+  await expect(page).toHaveURL(/\/login\?verify=true$/);
+});
+
 test("registers, confirms by email, then signs in", async ({ page }) => {
   const email = uniqueEmail("happy");
 
@@ -27,7 +32,10 @@ test("registers, confirms by email, then signs in", async ({ page }) => {
   await page.getByLabel("Confirm password").fill(password);
   await page.getByRole("button", { name: "Create account" }).click();
 
-  await expect(page).toHaveURL(/\/verify-email$/);
+  await expect(page).toHaveURL(/\/login\?verify=true$/);
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Confirm your email" }),
+  ).toBeVisible();
 
   const body = await readLatestMessageTo(email);
   await page.goto(extractFirstUrl(body));
@@ -53,7 +61,7 @@ test("refuses sign-in before the address is confirmed", async ({ page }) => {
   await page.getByLabel("Password", { exact: true }).fill(password);
   await page.getByLabel("Confirm password").fill(password);
   await page.getByRole("button", { name: "Create account" }).click();
-  await expect(page).toHaveURL(/\/verify-email$/);
+  await expect(page).toHaveURL(/\/login\?verify=true$/);
 
   await page.goto("/login");
   await page.getByLabel("Email").fill(email);
@@ -82,6 +90,6 @@ test("answers identically when the address is already registered", async ({
     await page.getByRole("button", { name: "Create account" }).click();
 
     // Identical outcome both times: no error, same destination.
-    await expect(page).toHaveURL(/\/verify-email$/);
+    await expect(page).toHaveURL(/\/login\?verify=true$/);
   }
 });

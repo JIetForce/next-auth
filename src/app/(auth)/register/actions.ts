@@ -62,5 +62,5 @@ export async function registerAction(
     return genericFailure;
   }
 
-  redirect("/verify-email");
+  redirect("/login?verify=true");
 }
