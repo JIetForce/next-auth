@@ -167,3 +167,11 @@ test("fits the login shell in a mobile viewport", async ({ page }) => {
     page.getByRole("button", { name: "Continue with Google" }),
   ).toBeInViewport();
 });
+
+test("links to the password reset page", async ({ page }) => {
+  await page.goto("/login");
+
+  const forgotLink = page.getByRole("link", { name: "Forgot your password?" });
+  await expect(forgotLink).toBeVisible();
+  await expect(forgotLink).toHaveAttribute("href", "/reset-password");
+});

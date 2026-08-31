@@ -11,28 +11,17 @@ function uniqueEmail(label: string) {
     .slice(2, 8)}@example.invalid`;
 }
 
-test("redirects /register to /login", async ({ page }) => {
-  await page.goto("/register");
-  await expect(page).toHaveURL(/\/login$/);
-});
-
-test("redirects /verify-email to /login?verify=true", async ({ page }) => {
-  await page.goto("/verify-email");
-  await expect(page).toHaveURL(/\/login\?verify=true$/);
-});
-
 test("registers, confirms by email, then signs in", async ({ page }) => {
   const email = uniqueEmail("happy");
 
-  await page.goto("/login");
-  await page.getByRole("tab", { name: "Create Account" }).click();
+  await page.goto("/register");
   await page.getByLabel("Name").fill("E2E Person");
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password", { exact: true }).fill(password);
   await page.getByLabel("Confirm password").fill(password);
   await page.getByRole("button", { name: "Create account" }).click();
 
-  await expect(page).toHaveURL(/\/login\?verify=true$/);
+  await expect(page).toHaveURL(/\/verify-email$/);
   await expect(
     page.getByRole("heading", { level: 1, name: "Confirm your email" }),
   ).toBeVisible();
@@ -54,14 +43,13 @@ test("registers, confirms by email, then signs in", async ({ page }) => {
 test("refuses sign-in before the address is confirmed", async ({ page }) => {
   const email = uniqueEmail("unconfirmed");
 
-  await page.goto("/login");
-  await page.getByRole("tab", { name: "Create Account" }).click();
+  await page.goto("/register");
   await page.getByLabel("Name").fill("Unconfirmed Person");
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password", { exact: true }).fill(password);
   await page.getByLabel("Confirm password").fill(password);
   await page.getByRole("button", { name: "Create account" }).click();
-  await expect(page).toHaveURL(/\/login\?verify=true$/);
+  await expect(page).toHaveURL(/\/verify-email$/);
 
   await page.goto("/login");
   await page.getByLabel("Email").fill(email);
@@ -80,8 +68,7 @@ test("shows a client-side error for a password that is too short", async ({
 }) => {
   const email = uniqueEmail("short-password");
 
-  await page.goto("/login");
-  await page.getByRole("tab", { name: "Create Account" }).click();
+  await page.goto("/register");
   await page.getByLabel("Name").fill("Short Password");
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password", { exact: true }).fill("abc1");
@@ -93,7 +80,7 @@ test("shows a client-side error for a password that is too short", async ({
       "Use at least 6 characters, including one letter and one number.",
     ),
   ).toBeVisible();
-  await expect(page).not.toHaveURL(/\/login\?verify=true$/);
+  await expect(page).toHaveURL(/\/register$/);
 });
 
 test("shows a client-side error for a password missing a letter or number", async ({
@@ -101,8 +88,7 @@ test("shows a client-side error for a password missing a letter or number", asyn
 }) => {
   const email = uniqueEmail("no-number-password");
 
-  await page.goto("/login");
-  await page.getByRole("tab", { name: "Create Account" }).click();
+  await page.goto("/register");
   await page.getByLabel("Name").fill("No Number Password");
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password", { exact: true }).fill("onlyletters");
@@ -114,7 +100,7 @@ test("shows a client-side error for a password missing a letter or number", asyn
       "Use at least 6 characters, including one letter and one number.",
     ),
   ).toBeVisible();
-  await expect(page).not.toHaveURL(/\/login\?verify=true$/);
+  await expect(page).toHaveURL(/\/register$/);
 });
 
 test("shows a client-side error when the confirmation password does not match", async ({
@@ -122,8 +108,7 @@ test("shows a client-side error when the confirmation password does not match", 
 }) => {
   const email = uniqueEmail("mismatch");
 
-  await page.goto("/login");
-  await page.getByRole("tab", { name: "Create Account" }).click();
+  await page.goto("/register");
   await page.getByLabel("Name").fill("Mismatch Person");
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password", { exact: true }).fill(password);
@@ -131,7 +116,7 @@ test("shows a client-side error when the confirmation password does not match", 
   await page.getByRole("button", { name: "Create account" }).click();
 
   await expect(page.getByText("The two passwords do not match.")).toBeVisible();
-  await expect(page).not.toHaveURL(/\/login\?verify=true$/);
+  await expect(page).toHaveURL(/\/register$/);
 });
 
 test("answers identically when the address is already registered", async ({
@@ -140,8 +125,7 @@ test("answers identically when the address is already registered", async ({
   const email = uniqueEmail("duplicate");
 
   for (const attempt of [1, 2]) {
-    await page.goto("/login");
-    await page.getByRole("tab", { name: "Create Account" }).click();
+    await page.goto("/register");
     await page.getByLabel("Name").fill(`Duplicate ${attempt}`);
     await page.getByLabel("Email").fill(email);
     await page.getByLabel("Password", { exact: true }).fill(password);
@@ -149,6 +133,6 @@ test("answers identically when the address is already registered", async ({
     await page.getByRole("button", { name: "Create account" }).click();
 
     // Identical outcome both times: no error, same destination.
-    await expect(page).toHaveURL(/\/login\?verify=true$/);
+    await expect(page).toHaveURL(/\/verify-email$/);
   }
 });
