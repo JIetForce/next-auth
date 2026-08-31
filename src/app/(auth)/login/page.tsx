@@ -1,38 +1,22 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import {
   Bot,
   CheckCircle2,
-  CircleAlert,
-  Info,
-  Lock,
   Quote,
   Shield,
-  ShieldCheck,
   Sparkles,
 } from "lucide-react";
 import { redirect } from "next/navigation";
 
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { isGoogleAuthConfigured } from "@/lib/auth/environment";
 import { getCurrentViewer } from "@/lib/auth/session";
 
-import { CredentialsForm } from "./_components/credentials-form";
-import { GoogleSignInForm } from "./_components/google-sign-in-form";
+import { AuthCard } from "./_components/auth-card";
 
 export const metadata: Metadata = {
   title: "Sign in | Agent Roster",
-  description: "Sign in to Agent Roster with your Google account.",
+  description: "Sign in or create an account for Agent Roster.",
   robots: {
     index: false,
     follow: false,
@@ -204,112 +188,11 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
         {/* Right column: Auth Card */}
         <div className="flex w-full flex-col items-center justify-center lg:col-span-6 xl:col-span-5">
-          <Card className="w-full max-w-md border-border/80 bg-card/90 shadow-xl shadow-black/5 backdrop-blur-md dark:shadow-black/20">
-            <CardHeader className="flex flex-col gap-2 text-center sm:text-left">
-              <div className="flex items-center justify-center sm:justify-start">
-                <Badge
-                  variant="outline"
-                  className="gap-1 px-2.5 py-0.5 text-xs text-muted-foreground"
-                >
-                  <Lock className="size-3" aria-hidden="true" />
-                  <span>Single Sign-On</span>
-                </Badge>
-              </div>
-              <CardTitle>
-                <h1 className="text-2xl font-bold tracking-tight">
-                  Welcome back
-                </h1>
-              </CardTitle>
-              <CardDescription className="text-sm">
-                Continue with your Google account to sign in.
-              </CardDescription>
-            </CardHeader>
-
-            <CardContent className="flex flex-col gap-4">
-              {showConfigurationError ? (
-                <Alert className="border-amber-500/30 bg-amber-500/10 text-foreground dark:border-amber-500/40 dark:bg-amber-950/20">
-                  <Info
-                    className="text-amber-600 dark:text-amber-400"
-                    aria-hidden="true"
-                  />
-                  <AlertTitle>Google sign-in is not configured</AlertTitle>
-                  <AlertDescription className="text-xs text-muted-foreground">
-                    Add BETTER_AUTH_SECRET, GOOGLE_CLIENT_ID, and
-                    GOOGLE_CLIENT_SECRET, then restart the application.
-                  </AlertDescription>
-                </Alert>
-              ) : null}
-
-              {showOAuthError ? (
-                <Alert variant="destructive">
-                  <CircleAlert aria-hidden="true" />
-                  <AlertTitle>Unable to sign in</AlertTitle>
-                  <AlertDescription className="text-xs">
-                    Google sign-in could not be completed. Please try again.
-                  </AlertDescription>
-                </Alert>
-              ) : null}
-
-              <CredentialsForm />
-
-              <div className="relative my-1 flex items-center justify-center">
-                <Separator />
-                <span className="absolute bg-card px-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                  Secure Access
-                </span>
-              </div>
-
-              <GoogleSignInForm configured={configured} />
-
-              <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
-                <span className="inline-flex items-center gap-1">
-                  <ShieldCheck
-                    className="size-3.5 text-emerald-600 dark:text-emerald-400"
-                    aria-hidden="true"
-                  />
-                  256-bit TLS
-                </span>
-                <span>&bull;</span>
-                <span className="inline-flex items-center gap-1">
-                  <Lock className="size-3.5 text-primary" aria-hidden="true" />
-                  OAuth 2.0 / OIDC
-                </span>
-              </div>
-
-              <p className="text-center text-sm text-muted-foreground">
-                Don&apos;t have an account?{" "}
-                <Link
-                  href="/register"
-                  className="underline underline-offset-4 hover:text-foreground transition-colors"
-                >
-                  Create one
-                </Link>
-              </p>
-            </CardContent>
-
-            <CardFooter className="flex flex-col gap-3 border-t border-border/50 pt-4 text-center">
-              <CardDescription className="text-xs">
-                Authentication is handled securely by Google.
-              </CardDescription>
-              <p className="text-[11px] text-muted-foreground">
-                By continuing, you agree to our{" "}
-                <Link
-                  href="/"
-                  className="underline underline-offset-4 hover:text-foreground transition-colors"
-                >
-                  Terms of Service
-                </Link>{" "}
-                and{" "}
-                <Link
-                  href="/"
-                  className="underline underline-offset-4 hover:text-foreground transition-colors"
-                >
-                  Privacy Policy
-                </Link>
-                .
-              </p>
-            </CardFooter>
-          </Card>
+          <AuthCard
+            configured={configured}
+            showConfigurationError={showConfigurationError}
+            showOAuthError={showOAuthError}
+          />
         </div>
       </div>
     </main>

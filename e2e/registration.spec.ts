@@ -11,10 +11,16 @@ function uniqueEmail(label: string) {
     .slice(2, 8)}@example.invalid`;
 }
 
+test("redirects /register to /login", async ({ page }) => {
+  await page.goto("/register");
+  await expect(page).toHaveURL(/\/login$/);
+});
+
 test("registers, confirms by email, then signs in", async ({ page }) => {
   const email = uniqueEmail("happy");
 
-  await page.goto("/register");
+  await page.goto("/login");
+  await page.getByRole("tab", { name: "Create Account" }).click();
   await page.getByLabel("Name").fill("E2E Person");
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password", { exact: true }).fill(password);
@@ -40,7 +46,8 @@ test("registers, confirms by email, then signs in", async ({ page }) => {
 test("refuses sign-in before the address is confirmed", async ({ page }) => {
   const email = uniqueEmail("unconfirmed");
 
-  await page.goto("/register");
+  await page.goto("/login");
+  await page.getByRole("tab", { name: "Create Account" }).click();
   await page.getByLabel("Name").fill("Unconfirmed Person");
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password", { exact: true }).fill(password);
@@ -66,7 +73,8 @@ test("answers identically when the address is already registered", async ({
   const email = uniqueEmail("duplicate");
 
   for (const attempt of [1, 2]) {
-    await page.goto("/register");
+    await page.goto("/login");
+    await page.getByRole("tab", { name: "Create Account" }).click();
     await page.getByLabel("Name").fill(`Duplicate ${attempt}`);
     await page.getByLabel("Email").fill(email);
     await page.getByLabel("Password", { exact: true }).fill(password);
