@@ -2,7 +2,7 @@
 
 ## Spec
 
-Plan task plus link to plan: `docs/superpowers/plans/2026-08-31-header-redesign-features-pricing.md` (Task 1: Header redesign with centered nav and brand active pill). Full spec: `docs/superpowers/specs/2026-08-31-header-redesign-features-pricing-design.md`.
+Plan task plus link to plan: `docs/superpowers/plans/2026-08-31-header-redesign-features-pricing.md` (Task 2: /features marketing page). Full spec: `docs/superpowers/specs/2026-08-31-header-redesign-features-pricing-design.md`.
 
 ## Cycle log
 
@@ -27,3 +27,13 @@ Plan task plus link to plan: `docs/superpowers/plans/2026-08-31-header-redesign-
 - resolved since cycle 1: brand pill → underline, button → plain link, container → max-w-6xl
 - outstanding: none
 - delivered: committed header-nav.tsx, sign-in-link.tsx, header-account.tsx, header.tsx, mobile-navigation.tsx
+
+### Cycle 3 (Task 2: /features page)
+
+- verifier: pass — lint, build (/features in route output), e2e (28 passed, 1 skip)
+- code-reviewer: approved — 0 required
+- security-reviewer: approved — 0 required
+- quality-reviewer: approved_with_notes — 0 required (notes: category card / CTA banner markup duplicated with home page)
+- resolved since cycle 2: n/a
+- outstanding: none
+- delivered: committed (main)/features/page.tsx
