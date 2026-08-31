@@ -24,7 +24,7 @@ export function Header({ className, ...props }: ComponentProps<"header">) {
       )}
       {...props}
     >
-      <div className="container relative flex h-14 items-center gap-4">
+      <div className="relative mx-auto flex h-14 max-w-6xl items-center gap-4 px-6 lg:px-8">
         <Link
           href="/"
           className="flex items-center gap-2.5 font-heading text-base font-bold tracking-tight text-foreground transition-opacity hover:opacity-90"

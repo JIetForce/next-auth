@@ -63,8 +63,8 @@ export function MobileNavigation({
                 className={cn(
                   "flex h-9 items-center rounded-md px-3 text-sm font-medium transition-colors",
                   active
-                    ? "bg-primary text-primary-foreground shadow-xs"
-                    : "text-foreground hover:bg-muted",
+                    ? "text-primary font-semibold"
+                    : "text-foreground/80 hover:bg-muted hover:text-foreground",
                 )}
               >
                 {link.label}

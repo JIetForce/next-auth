@@ -18,7 +18,7 @@ function isActive(pathname: string, href: string): boolean {
 }
 
 const navLinkClass =
-  "inline-flex h-9 items-center justify-center rounded-md px-3 py-1.5 text-sm font-medium transition-all focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-1";
+  "inline-flex h-14 items-center px-3 text-sm font-medium border-b-2 transition-colors focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-1";
 
 export function HeaderNav({ links }: { links: readonly NavigationLink[] }) {
   const pathname = usePathname();
@@ -36,8 +36,8 @@ export function HeaderNav({ links }: { links: readonly NavigationLink[] }) {
               className={cn(
                 navLinkClass,
                 active
-                  ? "bg-primary text-primary-foreground shadow-xs"
-                  : "text-foreground/80 hover:bg-muted hover:text-foreground",
+                  ? "border-primary text-foreground"
+                  : "border-transparent text-foreground/80 hover:text-foreground",
               )}
             >
               {link.label}
