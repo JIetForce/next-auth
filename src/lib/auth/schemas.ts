@@ -40,3 +40,34 @@ export const resendSchema = z.object({
 });
 
 export type ResendInput = z.infer<typeof resendSchema>;
+
+export const forgotPasswordSchema = z.object({
+  email: z.string().email({ message: "Please enter a valid email address." }),
+});
+
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
+
+export const resetPasswordSchema = z
+  .object({
+    password: z
+      .string()
+      .min(6, {
+        message:
+          "Use at least 6 characters, including one letter and one number.",
+      })
+      .regex(/[a-zA-Z]/, {
+        message:
+          "Use at least 6 characters, including one letter and one number.",
+      })
+      .regex(/[0-9]/, {
+        message:
+          "Use at least 6 characters, including one letter and one number.",
+      }),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "The two passwords do not match.",
+    path: ["confirmPassword"],
+  });
+
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;

@@ -14,6 +14,25 @@ export const auth = betterAuth({
     autoSignIn: false,
     minPasswordLength: 6,
     maxPasswordLength: 128,
+    resetPasswordTokenExpiresIn: 3600,
+    revokeSessionsOnPasswordReset: true,
+    sendResetPassword: async ({ user, url }) => {
+      // Not awaited: response timing must not reveal whether the address exists.
+      // The catch keeps a transport failure from becoming an unhandled rejection.
+      void sendEmail({
+        to: user.email,
+        subject: "Reset your password",
+        text: [
+          "Click the link to reset your password:",
+          "",
+          url,
+          "",
+          "If you did not request this, you can ignore this message.",
+        ].join("\n"),
+      }).catch((error: unknown) => {
+        console.error("Failed to send reset password email", error);
+      });
+    },
   },
   emailVerification: {
     sendOnSignUp: true,
