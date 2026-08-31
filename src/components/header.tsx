@@ -1,4 +1,5 @@
 import { Suspense, type ComponentProps } from "react";
+import Image from "next/image";
 import Link from "next/link";
 
 import { HeaderAccount } from "@/components/header-account";
@@ -34,13 +35,19 @@ export function Header({ className, ...props }: ComponentProps<"header">) {
       <div className="container flex h-14 items-center gap-4">
         <Link
           href="/"
-          className="mr-auto flex items-center gap-2 font-heading text-base font-bold tracking-tight text-foreground transition-opacity hover:opacity-90"
+          className="mr-auto flex items-center gap-2.5 font-heading text-base font-bold tracking-tight text-foreground transition-opacity hover:opacity-90"
         >
-          <span
-            className="size-6 rounded-md bg-siftloom-gradient shadow-xs"
-            aria-hidden="true"
-          />
-          <span>Siftloom</span>
+          <div className="flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-[10px] border border-white/10 bg-black shadow-xs">
+            <Image
+              src="/siftloom-logo.png"
+              alt="Siftloom"
+              width={32}
+              height={32}
+              priority
+              className="size-full object-cover scale-115"
+            />
+          </div>
+          <span className="text-lg">Siftloom</span>
         </Link>
 
         <NavigationMenu className="hidden md:flex">

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Bot, Layers, Quote, Zap } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -108,9 +109,15 @@ export function AuthShowcase() {
             &ldquo;Siftloom gives our team the curated signal on modern AI and
             developer workflows without any fluff.&rdquo;
           </p>
-          <div className="flex items-center gap-2">
-            <div className="flex size-6 items-center justify-center rounded-full bg-siftloom-gradient text-[10px] font-bold text-primary-foreground">
-              SL
+          <div className="flex items-center gap-2.5">
+            <div className="flex size-7 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-white/10 bg-black">
+              <Image
+                src="/siftloom-logo.png"
+                alt="Siftloom"
+                width={28}
+                height={28}
+                className="size-full object-cover scale-115"
+              />
             </div>
             <div className="flex flex-col">
               <span className="text-xs font-semibold text-foreground">

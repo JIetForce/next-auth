@@ -17,6 +17,11 @@ export const metadata: Metadata = {
   title: "Siftloom — Curated AI, SaaS & Workflow Tools",
   description:
     "We sift through the noise so you can scale. Curated AI, SaaS, and workflow tools for modern teams and digital professionals.",
+  icons: {
+    icon: "/siftloom-logo.png",
+    shortcut: "/siftloom-logo.png",
+    apple: "/siftloom-logo.png",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
