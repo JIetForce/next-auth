@@ -9,7 +9,8 @@ import { AuthCardShell } from "../_components/auth-card-shell";
 import { ResendForm } from "./_components/resend-form";
 
 export const metadata: Metadata = {
-  title: "Confirm your email | Agent Roster",
+  title: "Confirm your email | Siftloom",
+  description: "Confirm your email address to access your Siftloom account.",
   robots: { index: false, follow: false },
 };
 

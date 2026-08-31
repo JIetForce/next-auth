@@ -12,7 +12,8 @@ import { GoogleSignInForm } from "../login/_components/google-sign-in-form";
 import { RegisterForm } from "./_components/register-form";
 
 export const metadata: Metadata = {
-  title: "Create an account | Agent Roster",
+  title: "Create an account | Siftloom",
+  description: "Create an account for Siftloom to access curated AI and SaaS tools.",
   robots: { index: false, follow: false },
 };
 
@@ -31,7 +32,7 @@ export default async function RegisterPage() {
         </>
       }
       title="Create an account"
-      description="Enter your details to create a new Agent Roster account."
+      description="Enter your details to create a new Siftloom account."
     >
       <RegisterForm />
 

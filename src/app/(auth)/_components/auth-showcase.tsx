@@ -1,4 +1,4 @@
-import { Bot, CheckCircle2, Quote, Shield, Sparkles } from "lucide-react";
+import { Bot, Layers, Quote, Zap } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 
@@ -11,46 +11,48 @@ export function AuthShowcase() {
             variant="outline"
             className="gap-1.5 border-primary/40 bg-primary/10 px-3 py-1 text-xs text-primary shadow-xs"
           >
-            <Sparkles className="size-3.5 text-primary" aria-hidden="true" />
-            <span>Next-Gen Multi-Agent Platform</span>
+            <span className="size-1.5 rounded-full bg-primary shadow-[0_0_0_3px_rgba(47,184,174,0.2)]" />
+            <span>The curated edge for AI, Growth &amp; Sales</span>
           </Badge>
         </div>
 
         <div className="flex flex-col gap-3">
-          <h2 className="font-heading text-3xl font-bold tracking-tight sm:text-4xl xl:text-5xl">
-            Deterministic Review &amp;{" "}
-            <span className="text-siftloom-gradient">Delivery Loop</span>
+          <h2 className="font-heading text-3xl font-extrabold tracking-tight sm:text-4xl xl:text-5xl">
+            We sift through the noise
+            <br />
+            so you can <span className="text-siftloom-gradient">scale</span>.
           </h2>
           <p className="max-w-lg text-base text-muted-foreground">
-            Orchestrate developers, verifiers, and specialized review
-            triumvirates with automated consensus and real-time verification.
+            Curated AI, SaaS, and workflow tools for modern teams and digital
+            professionals. Practical discoveries and clear updates without
+            the fluff.
           </p>
         </div>
 
         {/* Platform Metrics */}
         <div className="grid grid-cols-3 gap-3 rounded-xl border border-border/80 bg-card/60 p-4 shadow-xs backdrop-blur-md">
           <div className="flex flex-col gap-1 border-r border-border/60 pr-2">
-            <span className="font-heading text-2xl font-bold tracking-tight text-siftloom-gradient">
-              100%
+            <span className="font-heading text-2xl font-extrabold tracking-tight text-siftloom-gradient">
+              10,000+
             </span>
             <span className="text-xs text-muted-foreground">
-              Deterministic Builds
+              Engaged Subscribers
             </span>
           </div>
           <div className="flex flex-col gap-1 border-r border-border/60 px-2">
-            <span className="font-heading text-2xl font-bold tracking-tight text-foreground">
-              3-Lens
+            <span className="font-heading text-2xl font-extrabold tracking-tight text-foreground">
+              48%
             </span>
             <span className="text-xs text-muted-foreground">
-              Review Consensus
+              Avg. Open Rate
             </span>
           </div>
           <div className="flex flex-col gap-1 pl-2">
-            <span className="font-heading text-2xl font-bold tracking-tight text-foreground">
-              Zero
+            <span className="font-heading text-2xl font-extrabold tracking-tight text-foreground">
+              5,000+
             </span>
             <span className="text-xs text-muted-foreground">
-              Stored Secrets
+              Community Members
             </span>
           </div>
         </div>
@@ -59,39 +61,36 @@ export function AuthShowcase() {
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div className="flex items-start gap-3 rounded-lg border border-border/80 bg-card/60 p-3.5 shadow-xs backdrop-blur-md">
             <div className="flex size-8 shrink-0 items-center justify-center rounded-md border border-primary/30 bg-gradient-to-br from-[#3fa1de]/20 to-[#2fb8ae]/20 text-primary">
-              <Bot className="size-4" aria-hidden="true" />
+              <Zap className="size-4" aria-hidden="true" />
             </div>
             <div className="flex flex-col gap-0.5">
-              <span className="text-sm font-medium">Autonomous Roles</span>
+              <span className="text-sm font-medium">Productivity Workflows</span>
               <span className="text-xs text-muted-foreground">
-                Developer, verifier, and 3-lens reviewers
+                Tools that actually save time and accelerate output
               </span>
             </div>
           </div>
 
           <div className="flex items-start gap-3 rounded-lg border border-border/80 bg-card/60 p-3.5 shadow-xs backdrop-blur-md">
             <div className="flex size-8 shrink-0 items-center justify-center rounded-md border border-primary/30 bg-gradient-to-br from-[#2fb8ae]/20 to-[#cbe37c]/20 text-primary">
-              <CheckCircle2 className="size-4" aria-hidden="true" />
+              <Layers className="size-4" aria-hidden="true" />
             </div>
             <div className="flex flex-col gap-0.5">
-              <span className="text-sm font-medium">
-                Real-time Verification
-              </span>
+              <span className="text-sm font-medium">Developer Tools</span>
               <span className="text-xs text-muted-foreground">
-                Deterministic build and test evidence
+                Frameworks, APIs, and modern toolkits for builders
               </span>
             </div>
           </div>
 
           <div className="flex items-start gap-3 rounded-lg border border-border/80 bg-card/60 p-3.5 shadow-xs backdrop-blur-md sm:col-span-2">
             <div className="flex size-8 shrink-0 items-center justify-center rounded-md border border-primary/30 bg-gradient-to-br from-[#3fa1de]/20 via-[#2fb8ae]/20 to-[#cbe37c]/20 text-primary">
-              <Shield className="size-4" aria-hidden="true" />
+              <Bot className="size-4" aria-hidden="true" />
             </div>
             <div className="flex flex-col gap-0.5">
-              <span className="text-sm font-medium">Enterprise Security</span>
+              <span className="text-sm font-medium">AI, Agents &amp; Automation</span>
               <span className="text-xs text-muted-foreground">
-                OIDC tokens, zero local credential storage &amp; strict origin
-                isolation
+                Real-world autonomous agents, LLM integrations, and custom automations
               </span>
             </div>
           </div>
@@ -106,20 +105,19 @@ export function AuthShowcase() {
         />
         <div className="flex flex-col gap-3">
           <p className="text-sm italic text-foreground/90">
-            &ldquo;Agent Roster transformed our delivery cycle into a
-            verifiable, deterministic loop with automated multi-agent
-            consensus.&rdquo;
+            &ldquo;Siftloom gives our team the curated signal on modern AI and
+            developer workflows without any fluff.&rdquo;
           </p>
           <div className="flex items-center gap-2">
             <div className="flex size-6 items-center justify-center rounded-full bg-siftloom-gradient text-[10px] font-bold text-primary-foreground">
-              AI
+              SL
             </div>
             <div className="flex flex-col">
               <span className="text-xs font-semibold text-foreground">
-                Autonomous Engineering Lead
+                Growth Operator &amp; Founder
               </span>
               <span className="text-[10px] text-muted-foreground">
-                AI Systems Infrastructure
+                Siftloom Reader Community
               </span>
             </div>
           </div>

@@ -10,7 +10,8 @@ import { ForgotPasswordForm } from "./_components/forgot-password-form";
 import { ResetPasswordForm } from "./_components/reset-password-form";
 
 export const metadata: Metadata = {
-  title: "Reset your password | Agent Roster",
+  title: "Reset your password | Siftloom",
+  description: "Reset your Siftloom account password.",
   robots: { index: false, follow: false },
 };
 

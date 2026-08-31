@@ -13,8 +13,8 @@ import { CredentialsForm } from "./_components/credentials-form";
 import { GoogleSignInForm } from "./_components/google-sign-in-form";
 
 export const metadata: Metadata = {
-  title: "Sign in | Agent Roster",
-  description: "Sign in or create an account for Agent Roster.",
+  title: "Sign in | Siftloom",
+  description: "Sign in or create an account for Siftloom.",
   robots: {
     index: false,
     follow: false,

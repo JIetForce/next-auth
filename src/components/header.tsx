@@ -15,8 +15,8 @@ import { cn } from "@/lib/utils";
 
 const primaryLinks = [
   { href: "/", label: "Home" },
-  { href: "/features", label: "Features" },
-  { href: "/pricing", label: "Pricing" },
+  { href: "/features", label: "Tools" },
+  { href: "/pricing", label: "Community" },
 ] as const;
 
 const navLinkClass =
@@ -40,7 +40,7 @@ export function Header({ className, ...props }: ComponentProps<"header">) {
             className="size-6 rounded-md bg-siftloom-gradient shadow-xs"
             aria-hidden="true"
           />
-          <span>Agent Roster</span>
+          <span>Siftloom</span>
         </Link>
 
         <NavigationMenu className="hidden md:flex">
