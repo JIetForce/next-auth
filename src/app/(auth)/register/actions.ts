@@ -18,7 +18,7 @@ function isValidEmail(value: string) {
 }
 
 function isValidPassword(value: string) {
-  return value.length >= 12 && /[a-zA-Z]/.test(value) && /[0-9]/.test(value);
+  return value.length >= 6 && /[a-zA-Z]/.test(value) && /[0-9]/.test(value);
 }
 
 export async function registerAction(
@@ -35,7 +35,7 @@ export async function registerAction(
   if (!name || !isValidEmail(email)) return genericFailure;
   if (!isValidPassword(password)) {
     return {
-      error: "Use at least 12 characters, including one letter and one number.",
+      error: "Use at least 6 characters, including one letter and one number.",
     };
   }
   if (password !== confirmation) {

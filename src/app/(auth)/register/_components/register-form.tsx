@@ -89,15 +89,15 @@ export function RegisterForm() {
             id="register-password"
             name="password"
             type="password"
-            placeholder="At least 12 characters"
+            placeholder="At least 6 characters"
             autoComplete="new-password"
-            minLength={12}
+            minLength={6}
             className="pl-9"
             required
           />
         </div>
         <p className="text-[11px] text-muted-foreground">
-          Must be at least 12 characters with letters and numbers.
+          Must be at least 6 characters with letters and numbers.
         </p>
       </div>
 
@@ -119,7 +119,7 @@ export function RegisterForm() {
             type="password"
             placeholder="Repeat password"
             autoComplete="new-password"
-            minLength={12}
+            minLength={6}
             className="pl-9"
             required
           />
