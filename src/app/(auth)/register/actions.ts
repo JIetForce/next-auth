@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
+import { getClientIp } from "@/lib/auth/client-ip";
 import { consumeRateLimit } from "@/lib/auth/rate-limit";
 import { isValidPassword } from "@/lib/auth/validation";
 
@@ -39,15 +40,13 @@ export async function registerAction(
     return { error: "The two passwords do not match." };
   }
 
-  const ip =
-    (await headers()).get("x-forwarded-for")?.split(",").pop()?.trim() ??
-    "unknown";
+  const ip = getClientIp(await headers());
 
-  if (!consumeRateLimit(`register:ip:${ip}`, 10, 60 * 60 * 1000)) {
+  if (!(await consumeRateLimit(`register:ip:${ip}`, 10, 60 * 60 * 1000))) {
     return genericFailure;
   }
 
-  if (!consumeRateLimit(`register:email:${email}`, 3, 60 * 60 * 1000)) {
+  if (!(await consumeRateLimit(`register:email:${email}`, 3, 60 * 60 * 1000))) {
     return genericFailure;
   }
 

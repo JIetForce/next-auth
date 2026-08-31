@@ -4,6 +4,7 @@
 import { headers } from "next/headers";
 
 import { auth } from "@/auth";
+import { getClientIp } from "@/lib/auth/client-ip";
 import { consumeRateLimit } from "@/lib/auth/rate-limit";
 
 export type ResendState = { message: string | null };
@@ -16,19 +17,19 @@ export async function resendVerificationAction(
   _state: ResendState,
   formData: FormData,
 ): Promise<ResendState> {
-  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const email = String(formData.get("email") ?? "")
+    .trim()
+    .toLowerCase();
 
   if (!email) return uniformReply;
 
-  const ip =
-    (await headers()).get("x-forwarded-for")?.split(",").pop()?.trim() ??
-    "unknown";
+  const ip = getClientIp(await headers());
 
-  if (!consumeRateLimit(`resend:ip:${ip}`, 10, 60 * 60 * 1000)) {
+  if (!(await consumeRateLimit(`resend:ip:${ip}`, 10, 60 * 60 * 1000))) {
     return uniformReply;
   }
 
-  if (!consumeRateLimit(`resend:email:${email}`, 3, 60 * 60 * 1000)) {
+  if (!(await consumeRateLimit(`resend:email:${email}`, 3, 60 * 60 * 1000))) {
     return uniformReply;
   }
 

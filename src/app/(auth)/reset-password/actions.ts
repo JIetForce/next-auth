@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
+import { getClientIp } from "@/lib/auth/client-ip";
 import { consumeRateLimit } from "@/lib/auth/rate-limit";
 import { isValidPassword } from "@/lib/auth/validation";
 
@@ -24,12 +25,12 @@ export async function requestPasswordResetAction(
   if (!email) return uniformReply;
 
   // rate-limit by IP and by email
-  const ip =
-    (await headers()).get("x-forwarded-for")?.split(",").pop()?.trim() ??
-    "unknown";
-  if (!consumeRateLimit(`request-reset:ip:${ip}`, 10, 60 * 60 * 1000))
+  const ip = getClientIp(await headers());
+  if (!(await consumeRateLimit(`request-reset:ip:${ip}`, 10, 60 * 60 * 1000)))
     return uniformReply;
-  if (!consumeRateLimit(`request-reset:email:${email}`, 3, 60 * 60 * 1000))
+  if (
+    !(await consumeRateLimit(`request-reset:email:${email}`, 3, 60 * 60 * 1000))
+  )
     return uniformReply;
 
   try {
@@ -62,6 +63,16 @@ export async function resetPasswordAction(
       error:
         "Use at least 6 characters, including one letter and one number, and make sure the passwords match.",
     };
+  }
+
+  // Rate-limit by IP only — the token is the subject and must not become a
+  // bucket key: an attacker with one valid token could lock nothing, and an
+  // attacker with many tokens could evade the bucket entirely.
+  const ip = getClientIp(await headers());
+  if (
+    !(await consumeRateLimit(`reset-password:ip:${ip}`, 10, 60 * 60 * 1000))
+  ) {
+    return genericFailure;
   }
 
   try {

@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
+import { getClientIp } from "@/lib/auth/client-ip";
 import { isGoogleAuthConfigured } from "@/lib/auth/environment";
 import { consumeRateLimit } from "@/lib/auth/rate-limit";
 
@@ -46,15 +47,13 @@ export async function signInWithCredentials(
     return { error: "Enter your email and password." };
   }
 
-  const ip =
-    (await headers()).get("x-forwarded-for")?.split(",").pop()?.trim() ??
-    "unknown";
+  const ip = getClientIp(await headers());
 
-  if (!consumeRateLimit(`signin:ip:${ip}`, 20, 15 * 60 * 1000)) {
+  if (!(await consumeRateLimit(`signin:ip:${ip}`, 20, 15 * 60 * 1000))) {
     return { error: "Too many attempts. Try again later." };
   }
 
-  if (!consumeRateLimit(`signin:email:${email}`, 5, 15 * 60 * 1000)) {
+  if (!(await consumeRateLimit(`signin:email:${email}`, 5, 15 * 60 * 1000))) {
     return { error: "Too many attempts. Try again later." };
   }
 
