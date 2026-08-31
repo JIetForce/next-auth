@@ -3,25 +3,17 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { HeaderAccount } from "@/components/header-account";
+import { HeaderNav } from "@/components/header-nav";
 import { MobileNavigation } from "@/components/mobile-navigation";
 import { ModeToggle } from "@/components/mode-toggle";
-import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-} from "@/components/ui/navigation-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
-const primaryLinks = [
+export const primaryLinks = [
   { href: "/", label: "Home" },
-  { href: "/features", label: "Tools" },
-  { href: "/pricing", label: "Community" },
+  { href: "/features", label: "Features" },
+  { href: "/pricing", label: "Pricing" },
 ] as const;
-
-const navLinkClass =
-  "inline-flex h-9 items-center justify-center rounded-lg px-2.5 py-1.5 text-sm font-medium text-foreground/80 transition-all hover:text-foreground hover:bg-muted focus:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-1";
 
 export function Header({ className, ...props }: ComponentProps<"header">) {
   return (
@@ -32,10 +24,10 @@ export function Header({ className, ...props }: ComponentProps<"header">) {
       )}
       {...props}
     >
-      <div className="container flex h-14 items-center gap-4">
+      <div className="container relative flex h-14 items-center gap-4">
         <Link
           href="/"
-          className="mr-auto flex items-center gap-2.5 font-heading text-base font-bold tracking-tight text-foreground transition-opacity hover:opacity-90"
+          className="flex items-center gap-2.5 font-heading text-base font-bold tracking-tight text-foreground transition-opacity hover:opacity-90"
         >
           <div className="flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-[10px] border border-white/10 bg-black shadow-xs">
             <Image
@@ -44,28 +36,15 @@ export function Header({ className, ...props }: ComponentProps<"header">) {
               width={32}
               height={32}
               priority
-              className="size-full object-cover scale-115"
+              className="size-full scale-115 object-cover"
             />
           </div>
           <span className="text-lg">Siftloom</span>
         </Link>
 
-        <NavigationMenu className="hidden md:flex">
-          <NavigationMenuList>
-            {primaryLinks.map((link) => (
-              <NavigationMenuItem key={link.href}>
-                <NavigationMenuLink
-                  className={navLinkClass}
-                  render={<Link href={link.href} />}
-                >
-                  {link.label}
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-            ))}
-          </NavigationMenuList>
-        </NavigationMenu>
+        <HeaderNav links={primaryLinks} />
 
-        <div className="flex items-center gap-2">
+        <div className="ml-auto flex items-center gap-2">
           <ModeToggle />
           <Suspense
             fallback={<Skeleton className="h-8 w-20" aria-hidden="true" />}
