@@ -8,6 +8,33 @@ import { prisma } from "@/lib/db";
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, { provider: "postgresql" }),
+  // Every credential flow in this app goes through a Server Action, which calls
+  // auth.api.* directly. Better Auth's rate limiter runs only in the router's
+  // onRequest hook (better-auth/dist/api/index.mjs:168), so an HTTP caller hitting
+  // these paths would bypass both the limiter below AND the per-action limits.
+  // Disabling them leaves the Server Action as the only door.
+  // The paths kept open are the ones the browser reaches by following an emailed
+  // or redirected link, not by script.
+  disabledPaths: [
+    "/sign-in/email",
+    "/sign-up/email",
+    "/sign-in/social",
+    "/request-password-reset",
+    "/reset-password",
+    "/send-verification-email",
+    "/sign-out",
+  ],
+  rateLimit: {
+    enabled: true, // on in development too, so E2E exercises it
+    storage: "database",
+    window: 60,
+    max: 100,
+    customRules: {
+      "/callback/*": { window: 60, max: 20 },
+      "/verify-email": { window: 3600, max: 20 },
+      "/reset-password/*": { window: 3600, max: 20 },
+    },
+  },
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,

@@ -71,47 +71,30 @@ test("redirects an anonymous profile request to the fixed login route", async ({
   expect(await response.text()).not.toContain(E2E_VIEWER.email);
 });
 
-test("signs out through the raw endpoint", async ({ context, page }) => {
-  await addAuthenticatedSession(context);
+// The "signs out through the raw endpoint" test that lived here was removed:
+// /sign-out is now in disabledPaths (src/auth.ts), so the raw HTTP endpoint
+// returns 404. Sign-out via the UI button is covered by the tests below —
+// "logs out locally and protects profile again",
+// "logs out through the header dropdown menu item by pointer", and
+// "logs out through the header dropdown menu item by keyboard".
 
-  const response = await page.request.post("/api/auth/sign-out", {
-    data: {},
-    headers: { Origin: "http://localhost:3000" },
-  });
-  expect(response.ok()).toBe(true);
-
-  expect(
-    (await context.cookies()).find(
-      (cookie) => cookie.name === sessionCookieName,
-    ),
-  ).toBeUndefined();
-});
-
-test("returns a Google URL and ignores a caller-supplied destination", async ({
-  request,
+test("redirects to Google when the sign-in button is clicked", async ({
+  page,
 }) => {
   test.skip(
     !googleConfigured,
     "The full Google auth environment is required to exercise sign-in/social",
   );
 
-  // Better Auth validates callbackURL against trusted origins. An untrusted
-  // destination is rejected outright (403) rather than echoed back — the
-  // stronger form of "ignores a caller-supplied destination".
-  const rejected = await request.post("/api/auth/sign-in/social", {
-    data: { provider: "google", callbackURL: "https://evil.example/pwned" },
-  });
-  expect(rejected.status()).toBe(403);
-  expect((await rejected.json()).url).toBeUndefined();
+  // signInWithGoogle (src/app/(auth)/login/actions.ts) hardcodes
+  // callbackURL: "/" and never accepts a caller-supplied destination, so the
+  // open-redirect / destination-injection surface that the old raw-endpoint
+  // test probed no longer exists. The only thing left to verify is that the
+  // button reaches Google.
+  await page.goto("/login");
+  await page.getByRole("button", { name: "Continue with Google" }).click();
 
-  // A trusted same-origin destination still yields the provider URL, which
-  // never contains the caller's destination.
-  const response = await request.post("/api/auth/sign-in/social", {
-    data: { provider: "google", callbackURL: "http://localhost:3000/" },
-  });
-  const body = await response.json();
-  expect(body.url).toContain("accounts.google.com");
-  expect(body.url).not.toContain("evil.example");
+  await expect(page).toHaveURL(/accounts\.google\.com/);
 });
 
 test.describe("authenticated session", () => {
