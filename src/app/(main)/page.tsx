@@ -86,9 +86,9 @@ export default function Home() {
         {/* Social proof avatar indicators */}
         <div className="mt-12 inline-flex items-center gap-3 text-xs text-muted-foreground sm:text-sm">
           <div className="flex -space-x-2">
-            <span className="inline-block size-7 rounded-full border-2 border-background bg-gradient-to-br from-[#3fa1de] to-[#2fb8ae]" />
-            <span className="inline-block size-7 rounded-full border-2 border-background bg-gradient-to-br from-[#2fb8ae] to-[#9fd37e]" />
-            <span className="inline-block size-7 rounded-full border-2 border-background bg-gradient-to-br from-[#9fd37e] to-[#cbe37c]" />
+            <span className="inline-block size-7 rounded-full border-2 border-background bg-linear-to-br from-[#3fa1de] to-[#2fb8ae]" />
+            <span className="inline-block size-7 rounded-full border-2 border-background bg-linear-to-br from-[#2fb8ae] to-[#9fd37e]" />
+            <span className="inline-block size-7 rounded-full border-2 border-background bg-linear-to-br from-[#9fd37e] to-[#cbe37c]" />
           </div>
           <span>
             Trusted by{" "}
@@ -122,7 +122,7 @@ export default function Home() {
         <div className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {/* Card 1: Productivity */}
           <Card className="sl-card rounded-2xl border border-border/80 bg-card/60 p-8 shadow-xs backdrop-blur-md gap-0">
-            <div className="mb-6 flex size-13 items-center justify-center rounded-xl border border-[#3fa1de]/30 bg-gradient-to-br from-[#3fa1de]/20 to-[#2fb8ae]/20 text-[#3fa1de]">
+            <div className="mb-6 flex size-13 items-center justify-center rounded-xl border border-[#3fa1de]/30 bg-linear-to-br from-[#3fa1de]/20 to-[#2fb8ae]/20 text-[#3fa1de]">
               <Zap className="size-6" />
             </div>
             <CardHeader className="p-0 gap-2">
@@ -138,7 +138,7 @@ export default function Home() {
 
           {/* Card 2: Developer Tools */}
           <Card className="sl-card rounded-2xl border border-border/80 bg-card/60 p-8 shadow-xs backdrop-blur-md gap-0">
-            <div className="mb-6 flex size-13 items-center justify-center rounded-xl border border-[#2fb8ae]/30 bg-gradient-to-br from-[#2fb8ae]/20 to-[#9fd37e]/20 text-[#2fb8ae]">
+            <div className="mb-6 flex size-13 items-center justify-center rounded-xl border border-[#2fb8ae]/30 bg-linear-to-br from-[#2fb8ae]/20 to-[#9fd37e]/20 text-[#2fb8ae]">
               <Code2 className="size-6" />
             </div>
             <CardHeader className="p-0 gap-2">
@@ -154,7 +154,7 @@ export default function Home() {
 
           {/* Card 3: Automation */}
           <Card className="sl-card rounded-2xl border border-border/80 bg-card/60 p-8 shadow-xs backdrop-blur-md gap-0">
-            <div className="mb-6 flex size-13 items-center justify-center rounded-xl border border-[#9fd37e]/30 bg-gradient-to-br from-[#9fd37e]/20 to-[#cbe37c]/20 text-[#9fd37e]">
+            <div className="mb-6 flex size-13 items-center justify-center rounded-xl border border-[#9fd37e]/30 bg-linear-to-br from-[#9fd37e]/20 to-[#cbe37c]/20 text-[#9fd37e]">
               <Workflow className="size-6" />
             </div>
             <CardHeader className="p-0 gap-2">
@@ -170,7 +170,7 @@ export default function Home() {
 
           {/* Card 4: SaaS & Software */}
           <Card className="sl-card rounded-2xl border border-border/80 bg-card/60 p-8 shadow-xs backdrop-blur-md gap-0">
-            <div className="mb-6 flex size-13 items-center justify-center rounded-xl border border-[#cbe37c]/30 bg-gradient-to-br from-[#cbe37c]/20 to-[#3fa1de]/20 text-[#cbe37c]">
+            <div className="mb-6 flex size-13 items-center justify-center rounded-xl border border-[#cbe37c]/30 bg-linear-to-br from-[#cbe37c]/20 to-[#3fa1de]/20 text-[#cbe37c]">
               <Layers className="size-6" />
             </div>
             <CardHeader className="p-0 gap-2">
@@ -186,7 +186,7 @@ export default function Home() {
 
           {/* Card 5: AI & Agents */}
           <Card className="sl-card rounded-2xl border border-border/80 bg-card/60 p-8 shadow-xs backdrop-blur-md gap-0">
-            <div className="mb-6 flex size-13 items-center justify-center rounded-xl border border-[#2fb8ae]/30 bg-gradient-to-br from-[#2fb8ae]/20 to-[#cbe37c]/20 text-[#2fb8ae]">
+            <div className="mb-6 flex size-13 items-center justify-center rounded-xl border border-[#2fb8ae]/30 bg-linear-to-br from-[#2fb8ae]/20 to-[#cbe37c]/20 text-[#2fb8ae]">
               <Bot className="size-6" />
             </div>
             <CardHeader className="p-0 gap-2">
@@ -202,7 +202,7 @@ export default function Home() {
 
           {/* Card 6: Growth & Marketing */}
           <Card className="sl-card rounded-2xl border border-border/80 bg-card/60 p-8 shadow-xs backdrop-blur-md gap-0">
-            <div className="mb-6 flex size-13 items-center justify-center rounded-xl border border-[#3fa1de]/30 bg-gradient-to-br from-[#3fa1de]/20 to-[#9fd37e]/20 text-[#3fa1de]">
+            <div className="mb-6 flex size-13 items-center justify-center rounded-xl border border-[#3fa1de]/30 bg-linear-to-br from-[#3fa1de]/20 to-[#9fd37e]/20 text-[#3fa1de]">
               <TrendingUp className="size-6" />
             </div>
             <CardHeader className="p-0 gap-2">
@@ -232,7 +232,7 @@ export default function Home() {
 
         <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-3">
           <Card className="sl-card flex-row items-start gap-4 rounded-2xl border border-border/70 bg-card/50 p-6 backdrop-blur-md">
-            <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#3fa1de] to-[#2fb8ae] text-black">
+            <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-[#3fa1de] to-[#2fb8ae] text-black">
               <Cpu className="size-5" />
             </div>
             <div>
@@ -247,7 +247,7 @@ export default function Home() {
           </Card>
 
           <Card className="sl-card flex-row items-start gap-4 rounded-2xl border border-border/70 bg-card/50 p-6 backdrop-blur-md">
-            <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#9fd37e] to-[#cbe37c] text-black">
+            <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-[#9fd37e] to-[#cbe37c] text-black">
               <Zap className="size-5" />
             </div>
             <div>
@@ -262,7 +262,7 @@ export default function Home() {
           </Card>
 
           <Card className="sl-card flex-row items-start gap-4 rounded-2xl border border-border/70 bg-card/50 p-6 backdrop-blur-md">
-            <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#2fb8ae] to-[#9fd37e] text-black">
+            <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-[#2fb8ae] to-[#9fd37e] text-black">
               <Sparkles className="size-5" />
             </div>
             <div>
@@ -344,7 +344,7 @@ export default function Home() {
         id="partners"
         className="relative z-10 mx-auto max-w-6xl px-6 py-20 scroll-mt-20"
       >
-        <Card className="relative overflow-hidden rounded-3xl border border-border/80 bg-gradient-to-br from-[#0c1118] to-[#0a1014] p-8 shadow-2xl sm:p-14">
+        <Card className="relative overflow-hidden rounded-3xl border border-border/80 bg-linear-to-br from-[#0c1118] to-[#0a1014] p-8 shadow-2xl sm:p-14">
           <div
             className="pointer-events-none absolute inset-0 opacity-60"
             style={{

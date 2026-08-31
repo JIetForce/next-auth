@@ -61,7 +61,7 @@ export function AuthShowcase() {
         {/* Feature Highlights Matrix */}
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div className="flex items-start gap-3 rounded-lg border border-border/80 bg-card/60 p-3.5 shadow-xs backdrop-blur-md">
-            <div className="flex size-8 shrink-0 items-center justify-center rounded-md border border-primary/30 bg-gradient-to-br from-[#3fa1de]/20 to-[#2fb8ae]/20 text-primary">
+            <div className="flex size-8 shrink-0 items-center justify-center rounded-md border border-primary/30 bg-linear-to-br from-[#3fa1de]/20 to-[#2fb8ae]/20 text-primary">
               <Zap className="size-4" aria-hidden="true" />
             </div>
             <div className="flex flex-col gap-0.5">
@@ -73,7 +73,7 @@ export function AuthShowcase() {
           </div>
 
           <div className="flex items-start gap-3 rounded-lg border border-border/80 bg-card/60 p-3.5 shadow-xs backdrop-blur-md">
-            <div className="flex size-8 shrink-0 items-center justify-center rounded-md border border-primary/30 bg-gradient-to-br from-[#2fb8ae]/20 to-[#cbe37c]/20 text-primary">
+            <div className="flex size-8 shrink-0 items-center justify-center rounded-md border border-primary/30 bg-linear-to-br from-[#2fb8ae]/20 to-[#cbe37c]/20 text-primary">
               <Layers className="size-4" aria-hidden="true" />
             </div>
             <div className="flex flex-col gap-0.5">
@@ -85,7 +85,7 @@ export function AuthShowcase() {
           </div>
 
           <div className="flex items-start gap-3 rounded-lg border border-border/80 bg-card/60 p-3.5 shadow-xs backdrop-blur-md sm:col-span-2">
-            <div className="flex size-8 shrink-0 items-center justify-center rounded-md border border-primary/30 bg-gradient-to-br from-[#3fa1de]/20 via-[#2fb8ae]/20 to-[#cbe37c]/20 text-primary">
+            <div className="flex size-8 shrink-0 items-center justify-center rounded-md border border-primary/30 bg-linear-to-br from-[#3fa1de]/20 via-[#2fb8ae]/20 to-[#cbe37c]/20 text-primary">
               <Bot className="size-4" aria-hidden="true" />
             </div>
             <div className="flex flex-col gap-0.5">

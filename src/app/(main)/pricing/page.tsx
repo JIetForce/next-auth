@@ -120,7 +120,7 @@ export default function PricingPage() {
 
       {/* Sponsor / Partner */}
       <section className="relative z-10 mx-auto max-w-6xl px-6 py-12">
-        <Card className="relative overflow-hidden rounded-3xl border border-border/80 bg-gradient-to-br from-[#0c1118] to-[#0a1014] p-8 shadow-2xl sm:p-14">
+        <Card className="relative overflow-hidden rounded-3xl border border-border/80 bg-linear-to-br from-[#0c1118] to-[#0a1014] p-8 shadow-2xl sm:p-14">
           <div
             className="pointer-events-none absolute inset-0 opacity-60"
             style={{

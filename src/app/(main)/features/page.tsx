@@ -165,7 +165,7 @@ export default function FeaturesPage() {
               className="sl-card gap-0 rounded-2xl border border-border/80 bg-card/60 p-8 shadow-xs backdrop-blur-md"
             >
               <div
-                className="mb-6 flex size-13 items-center justify-center rounded-xl border bg-gradient-to-br from-[#3fa1de]/20 to-[#2fb8ae]/20"
+                className="mb-6 flex size-13 items-center justify-center rounded-xl border bg-linear-to-br from-[#3fa1de]/20 to-[#2fb8ae]/20"
                 style={{ borderColor: `${color}30`, color }}
               >
                 <Icon className="size-6" />
@@ -215,7 +215,7 @@ export default function FeaturesPage() {
               key={title}
               className="sl-card flex-row items-start gap-4 rounded-2xl border border-border/70 bg-card/50 p-6 backdrop-blur-md"
             >
-              <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#3fa1de] to-[#2fb8ae] text-black">
+              <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-[#3fa1de] to-[#2fb8ae] text-black">
                 <Icon className="size-5" />
               </div>
               <div>
@@ -233,7 +233,7 @@ export default function FeaturesPage() {
 
       {/* CTA banner */}
       <section className="relative z-10 mx-auto max-w-6xl px-6 py-16">
-        <Card className="relative overflow-hidden rounded-3xl border border-border/80 bg-gradient-to-br from-[#0c1118] to-[#0a1014] p-8 shadow-2xl sm:p-14">
+        <Card className="relative overflow-hidden rounded-3xl border border-border/80 bg-linear-to-br from-[#0c1118] to-[#0a1014] p-8 shadow-2xl sm:p-14">
           <div
             className="pointer-events-none absolute inset-0 opacity-60"
             style={{
