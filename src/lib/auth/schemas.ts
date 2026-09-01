@@ -7,9 +7,13 @@ const emailField = z
   .toLowerCase()
   .email({ message: "Please enter a valid email address." });
 
+export const MIN_PASSWORD_LENGTH = 8;
+
 const passwordField = z
   .string()
-  .min(8, { message: "Use at least 8 characters." });
+  .min(MIN_PASSWORD_LENGTH, {
+    message: `Use at least ${MIN_PASSWORD_LENGTH} characters.`,
+  });
 
 export const signInSchema = z.object({
   email: emailField,

@@ -18,6 +18,12 @@ export async function resendVerificationAction(
   _state: ResendState,
   formData: FormData,
 ): Promise<ResendState> {
+  const ip = getClientIp(await headers());
+
+  if (!(await consumeRateLimit(`resend:ip:${ip}`, 10, 60 * 60 * 1000))) {
+    return uniformReply;
+  }
+
   const parseResult = resendSchema.safeParse({
     email: String(formData.get("email") ?? ""),
   });
@@ -27,12 +33,6 @@ export async function resendVerificationAction(
   }
 
   const { email } = parseResult.data;
-
-  const ip = getClientIp(await headers());
-
-  if (!(await consumeRateLimit(`resend:ip:${ip}`, 10, 60 * 60 * 1000))) {
-    return uniformReply;
-  }
 
   if (!(await consumeRateLimit(`resend:email:${email}`, 3, 60 * 60 * 1000))) {
     return uniformReply;

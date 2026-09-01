@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
+  MIN_PASSWORD_LENGTH,
   resetPasswordSchema,
   type ResetPasswordInput,
 } from "@/lib/auth/schemas";
@@ -70,7 +71,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
           <Input
             id="reset-password"
             type="password"
-            placeholder="At least 8 characters"
+            placeholder={`At least ${MIN_PASSWORD_LENGTH} characters`}
             autoComplete="new-password"
             className="pl-9"
             aria-invalid={!!errors.password}
@@ -81,7 +82,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
           <p className="text-xs text-destructive">{errors.password.message}</p>
         ) : (
           <p className="text-[11px] text-muted-foreground">
-            Must be at least 8 characters.
+            {`Must be at least ${MIN_PASSWORD_LENGTH} characters.`}
           </p>
         )}
       </div>

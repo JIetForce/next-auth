@@ -9,6 +9,7 @@ import {
 } from "@/lib/auth/environment";
 import { sendEmail } from "@/lib/email/client";
 import { prisma } from "@/lib/db";
+import { MIN_PASSWORD_LENGTH } from "@/lib/auth/schemas";
 
 const baseURL = getPublicBaseUrl();
 
@@ -72,7 +73,7 @@ export const auth = betterAuth({
     enabled: true,
     requireEmailVerification: true,
     autoSignIn: false,
-    minPasswordLength: 8,
+    minPasswordLength: MIN_PASSWORD_LENGTH,
     maxPasswordLength: 128,
     resetPasswordTokenExpiresIn: 3600,
     revokeSessionsOnPasswordReset: true,

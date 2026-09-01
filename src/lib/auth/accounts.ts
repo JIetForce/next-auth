@@ -22,7 +22,9 @@ export async function getLinkedAccountProviderLabels(
     select: { providerId: true },
   });
 
-  const providerIds = accounts.map((account) => account.providerId).sort();
+  const providerIds = Array.from(
+    new Set(accounts.map((account) => account.providerId)),
+  ).sort();
 
   return providerIds.map(displayNameForProviderId);
 }

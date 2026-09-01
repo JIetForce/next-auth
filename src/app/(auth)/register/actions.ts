@@ -7,7 +7,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { getClientIp } from "@/lib/auth/client-ip";
 import { consumeRateLimit } from "@/lib/auth/rate-limit";
-import { registerSchema } from "@/lib/auth/schemas";
+import { MIN_PASSWORD_LENGTH, registerSchema } from "@/lib/auth/schemas";
 
 export type RegisterState = { error: string | null };
 
@@ -19,6 +19,12 @@ export async function registerAction(
   _state: RegisterState,
   formData: FormData,
 ): Promise<RegisterState> {
+  const ip = getClientIp(await headers());
+
+  if (!(await consumeRateLimit(`register:ip:${ip}`, 10, 60 * 60 * 1000))) {
+    return genericFailure;
+  }
+
   const parseResult = registerSchema.safeParse({
     name: String(formData.get("name") ?? ""),
     email: String(formData.get("email") ?? ""),
@@ -39,7 +45,7 @@ export async function registerAction(
       return genericFailure;
     }
     if (issues.some((issue) => issue.path[0] === "password")) {
-      return { error: "Use at least 8 characters." };
+      return { error: `Use at least ${MIN_PASSWORD_LENGTH} characters.` };
     }
     if (issues.some((issue) => issue.path[0] === "confirmPassword")) {
       return { error: "The two passwords do not match." };
@@ -49,12 +55,6 @@ export async function registerAction(
   }
 
   const { name, email, password } = parseResult.data;
-
-  const ip = getClientIp(await headers());
-
-  if (!(await consumeRateLimit(`register:ip:${ip}`, 10, 60 * 60 * 1000))) {
-    return genericFailure;
-  }
 
   if (!(await consumeRateLimit(`register:email:${email}`, 3, 60 * 60 * 1000))) {
     return genericFailure;

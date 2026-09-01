@@ -39,6 +39,12 @@ export async function signInWithCredentials(
   _state: SignInState,
   formData: FormData,
 ): Promise<SignInState> {
+  const ip = getClientIp(await headers());
+
+  if (!(await consumeRateLimit(`signin:ip:${ip}`, 20, 15 * 60 * 1000))) {
+    return { error: "Too many attempts. Try again later." };
+  }
+
   const parseResult = signInSchema.safeParse({
     email: String(formData.get("email") ?? ""),
     password: String(formData.get("password") ?? ""),
@@ -49,11 +55,6 @@ export async function signInWithCredentials(
   }
 
   const { email, password } = parseResult.data;
-  const ip = getClientIp(await headers());
-
-  if (!(await consumeRateLimit(`signin:ip:${ip}`, 20, 15 * 60 * 1000))) {
-    return { error: "Too many attempts. Try again later." };
-  }
 
   if (!(await consumeRateLimit(`signin:email:${email}`, 5, 15 * 60 * 1000))) {
     return { error: "Too many attempts. Try again later." };

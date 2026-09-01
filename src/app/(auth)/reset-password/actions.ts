@@ -7,7 +7,11 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { getClientIp } from "@/lib/auth/client-ip";
 import { consumeRateLimit } from "@/lib/auth/rate-limit";
-import { forgotPasswordSchema, resetPasswordSchema } from "@/lib/auth/schemas";
+import {
+  forgotPasswordSchema,
+  MIN_PASSWORD_LENGTH,
+  resetPasswordSchema,
+} from "@/lib/auth/schemas";
 
 export type RequestPasswordResetState = { message: string | null };
 
@@ -19,6 +23,11 @@ export async function requestPasswordResetAction(
   _state: RequestPasswordResetState,
   formData: FormData,
 ): Promise<RequestPasswordResetState> {
+  const ip = getClientIp(await headers());
+  if (!(await consumeRateLimit(`request-reset:ip:${ip}`, 10, 60 * 60 * 1000))) {
+    return uniformReply;
+  }
+
   const parseResult = forgotPasswordSchema.safeParse({
     email: String(formData.get("email") ?? ""),
   });
@@ -29,14 +38,11 @@ export async function requestPasswordResetAction(
 
   const { email } = parseResult.data;
 
-  // rate-limit by IP and by email
-  const ip = getClientIp(await headers());
-  if (!(await consumeRateLimit(`request-reset:ip:${ip}`, 10, 60 * 60 * 1000)))
-    return uniformReply;
   if (
     !(await consumeRateLimit(`request-reset:email:${email}`, 3, 60 * 60 * 1000))
-  )
+  ) {
     return uniformReply;
+  }
 
   try {
     await auth.api.requestPasswordReset({
@@ -59,20 +65,6 @@ export async function resetPasswordAction(
   _state: ResetPasswordState,
   formData: FormData,
 ): Promise<ResetPasswordState> {
-  const token = String(formData.get("token") ?? "");
-  const parseResult = resetPasswordSchema.safeParse({
-    password: String(formData.get("password") ?? ""),
-    confirmPassword: String(formData.get("confirmPassword") ?? ""),
-  });
-
-  if (!token || !parseResult.success) {
-    return {
-      error: "Use at least 8 characters, and make sure the passwords match.",
-    };
-  }
-
-  const { password } = parseResult.data;
-
   // Rate-limit by IP only — the token is the subject and must not become a
   // bucket key: an attacker with one valid token could lock nothing, and an
   // attacker with many tokens could evade the bucket entirely.
@@ -82,6 +74,20 @@ export async function resetPasswordAction(
   ) {
     return genericFailure;
   }
+
+  const token = String(formData.get("token") ?? "");
+  const parseResult = resetPasswordSchema.safeParse({
+    password: String(formData.get("password") ?? ""),
+    confirmPassword: String(formData.get("confirmPassword") ?? ""),
+  });
+
+  if (!token || !parseResult.success) {
+    return {
+      error: `Use at least ${MIN_PASSWORD_LENGTH} characters, and make sure the passwords match.`,
+    };
+  }
+
+  const { password } = parseResult.data;
 
   try {
     await auth.api.resetPassword({ body: { newPassword: password, token } });
