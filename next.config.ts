@@ -9,6 +9,12 @@ const nextConfig: NextConfig = {
   /* config options here */
   allowedDevOrigins,
   reactCompiler: true,
+
+  // Use the native Rust port of the React Compiler inside Turbopack
+  // instead of the Babel transform. Removes the babel-plugin-react-compiler
+  // dependency.
+  experimental: { turbopackRustReactCompiler: true },
+
   cacheComponents: true,
 
   // Security response headers, applied at the response layer so they do not
