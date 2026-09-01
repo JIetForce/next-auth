@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 
 import { prisma } from "@/lib/db";
+import { logger } from "@/lib/logger";
 
 // A stale rate-limit bucket is a fresh bucket, so it is safe to prune anything
 // older than the widest configured window. One hour comfortably exceeds every
@@ -46,7 +47,7 @@ export async function GET(request: Request) {
     rateLimit: rateLimit.count,
   };
 
-  console.info("cron/cleanup: pruned expired rows", counts);
+  logger.info(counts, "cron/cleanup: pruned expired rows");
 
   return NextResponse.json(counts);
 }

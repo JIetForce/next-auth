@@ -10,6 +10,7 @@ import {
 import { sendEmail } from "@/lib/email/client";
 import { prisma } from "@/lib/db";
 import { MIN_PASSWORD_LENGTH } from "@/lib/auth/schemas";
+import { logger } from "@/lib/logger";
 
 const baseURL = getPublicBaseUrl();
 
@@ -91,7 +92,7 @@ export const auth = betterAuth({
           "If you did not request this, you can ignore this message.",
         ].join("\n"),
       }).catch((error: unknown) => {
-        console.error("Failed to send reset password email", error);
+        logger.error({ err: error }, "Failed to send reset password email");
       });
     },
   },
@@ -119,7 +120,7 @@ export const auth = betterAuth({
           "If you did not sign up, you can ignore this message.",
         ].join("\n"),
       }).catch((error: unknown) => {
-        console.error("Failed to send verification email", error);
+        logger.error({ err: error }, "Failed to send verification email");
       });
     },
   },

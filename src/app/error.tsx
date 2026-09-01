@@ -20,7 +20,7 @@ export default function Error({
   retry: () => void;
 }) {
   useEffect(() => {
-    console.error("Unhandled error in route:", error);
+    console.error("Unhandled error in route", { digest: error.digest });
   }, [error]);
 
   return (

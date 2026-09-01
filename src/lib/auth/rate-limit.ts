@@ -4,6 +4,7 @@ import "server-only";
 import { randomUUID } from "node:crypto";
 
 import { prisma } from "@/lib/db";
+import { logger } from "@/lib/logger";
 
 /**
  * Returns true when the call is within budget, false when it is over — or when
@@ -77,8 +78,11 @@ export async function consumeRateLimit(
     });
   } catch (error) {
     // Fail closed: a database error rejects the request rather than letting
-    // it through. Phase 4 replaces this with structured logging.
-    console.error("consumeRateLimit failed closed:", error);
+    // it through. Structured logging reports the failure.
+    logger.error(
+      { err: error, action: key.split(":")[0] },
+      "consumeRateLimit failed closed",
+    );
     return false;
   }
 }

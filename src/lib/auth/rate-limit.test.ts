@@ -2,6 +2,16 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { consumeRateLimit } from "@/lib/auth/rate-limit";
 import { prisma } from "@/lib/db";
+import { logger } from "@/lib/logger";
+
+vi.mock("@/lib/logger", () => ({
+  logger: {
+    error: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    debug: vi.fn(),
+  },
+}));
 
 vi.mock("@/lib/db", () => ({
   prisma: {
@@ -134,12 +144,8 @@ describe("consumeRateLimit", () => {
 
   describe("database error returns false (fails closed)", () => {
     it("returns false when the transaction fails", async () => {
-      const consoleErrorSpy = vi
-        .spyOn(console, "error")
-        .mockImplementation(() => {});
-      vi.mocked(prisma.$transaction).mockRejectedValue(
-        new Error("DB connection failure"),
-      );
+      const dbError = new Error("DB connection failure");
+      vi.mocked(prisma.$transaction).mockRejectedValue(dbError);
 
       const allowed = await consumeRateLimit(
         "login:alice@example.com",
@@ -148,18 +154,15 @@ describe("consumeRateLimit", () => {
       );
 
       expect(allowed).toBe(false);
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        "consumeRateLimit failed closed:",
-        expect.any(Error),
+      expect(logger.error).toHaveBeenCalledWith(
+        { err: dbError, action: "login" },
+        "consumeRateLimit failed closed",
       );
-      consoleErrorSpy.mockRestore();
     });
 
     it("returns false when a query fails inside the transaction", async () => {
-      const consoleErrorSpy = vi
-        .spyOn(console, "error")
-        .mockImplementation(() => {});
-      mockTx.$queryRaw.mockRejectedValue(new Error("Deadlock detected"));
+      const deadlockError = new Error("Deadlock detected");
+      mockTx.$queryRaw.mockRejectedValue(deadlockError);
 
       const allowed = await consumeRateLimit(
         "login:alice@example.com",
@@ -168,11 +171,10 @@ describe("consumeRateLimit", () => {
       );
 
       expect(allowed).toBe(false);
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        "consumeRateLimit failed closed:",
-        expect.any(Error),
+      expect(logger.error).toHaveBeenCalledWith(
+        { err: deadlockError, action: "login" },
+        "consumeRateLimit failed closed",
       );
-      consoleErrorSpy.mockRestore();
     });
   });
 });
