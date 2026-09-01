@@ -7,7 +7,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { getClientIp } from "@/lib/auth/client-ip";
 import { consumeRateLimit } from "@/lib/auth/rate-limit";
-import { isValidPassword } from "@/lib/auth/validation";
+import { forgotPasswordSchema, resetPasswordSchema } from "@/lib/auth/schemas";
 
 export type RequestPasswordResetState = { message: string | null };
 
@@ -19,10 +19,15 @@ export async function requestPasswordResetAction(
   _state: RequestPasswordResetState,
   formData: FormData,
 ): Promise<RequestPasswordResetState> {
-  const email = String(formData.get("email") ?? "")
-    .trim()
-    .toLowerCase();
-  if (!email) return uniformReply;
+  const parseResult = forgotPasswordSchema.safeParse({
+    email: String(formData.get("email") ?? ""),
+  });
+
+  if (!parseResult.success) {
+    return uniformReply;
+  }
+
+  const { email } = parseResult.data;
 
   // rate-limit by IP and by email
   const ip = getClientIp(await headers());
@@ -55,15 +60,18 @@ export async function resetPasswordAction(
   formData: FormData,
 ): Promise<ResetPasswordState> {
   const token = String(formData.get("token") ?? "");
-  const password = String(formData.get("password") ?? "");
-  const confirmPassword = String(formData.get("confirmPassword") ?? "");
+  const parseResult = resetPasswordSchema.safeParse({
+    password: String(formData.get("password") ?? ""),
+    confirmPassword: String(formData.get("confirmPassword") ?? ""),
+  });
 
-  if (!token || !isValidPassword(password) || password !== confirmPassword) {
+  if (!token || !parseResult.success) {
     return {
-      error:
-        "Use at least 6 characters, including one letter and one number, and make sure the passwords match.",
+      error: "Use at least 8 characters, and make sure the passwords match.",
     };
   }
+
+  const { password } = parseResult.data;
 
   // Rate-limit by IP only — the token is the subject and must not become a
   // bucket key: an attacker with one valid token could lock nothing, and an

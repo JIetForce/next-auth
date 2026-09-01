@@ -1,8 +1,18 @@
 // src/lib/auth/schemas.ts
 import { z } from "zod";
 
+const emailField = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .email({ message: "Please enter a valid email address." });
+
+const passwordField = z
+  .string()
+  .min(8, { message: "Use at least 8 characters." });
+
 export const signInSchema = z.object({
-  email: z.string().email({ message: "Please enter a valid email address." }),
+  email: emailField,
   password: z.string().min(1, { message: "Enter your password." }),
 });
 
@@ -10,22 +20,9 @@ export type SignInInput = z.infer<typeof signInSchema>;
 
 export const registerSchema = z
   .object({
-    name: z.string().min(1),
-    email: z.string().email({ message: "Please enter a valid email address." }),
-    password: z
-      .string()
-      .min(6, {
-        message:
-          "Use at least 6 characters, including one letter and one number.",
-      })
-      .regex(/[a-zA-Z]/, {
-        message:
-          "Use at least 6 characters, including one letter and one number.",
-      })
-      .regex(/[0-9]/, {
-        message:
-          "Use at least 6 characters, including one letter and one number.",
-      }),
+    name: z.string().trim().min(1),
+    email: emailField,
+    password: passwordField,
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -36,33 +33,20 @@ export const registerSchema = z
 export type RegisterInput = z.infer<typeof registerSchema>;
 
 export const resendSchema = z.object({
-  email: z.string().email({ message: "Please enter a valid email address." }),
+  email: emailField,
 });
 
 export type ResendInput = z.infer<typeof resendSchema>;
 
 export const forgotPasswordSchema = z.object({
-  email: z.string().email({ message: "Please enter a valid email address." }),
+  email: emailField,
 });
 
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 
 export const resetPasswordSchema = z
   .object({
-    password: z
-      .string()
-      .min(6, {
-        message:
-          "Use at least 6 characters, including one letter and one number.",
-      })
-      .regex(/[a-zA-Z]/, {
-        message:
-          "Use at least 6 characters, including one letter and one number.",
-      })
-      .regex(/[0-9]/, {
-        message:
-          "Use at least 6 characters, including one letter and one number.",
-      }),
+    password: passwordField,
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {

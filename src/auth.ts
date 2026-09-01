@@ -72,7 +72,7 @@ export const auth = betterAuth({
     enabled: true,
     requireEmailVerification: true,
     autoSignIn: false,
-    minPasswordLength: 6,
+    minPasswordLength: 8,
     maxPasswordLength: 128,
     resetPasswordTokenExpiresIn: 3600,
     revokeSessionsOnPasswordReset: true,

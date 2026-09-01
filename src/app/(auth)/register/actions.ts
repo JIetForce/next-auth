@@ -7,7 +7,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { getClientIp } from "@/lib/auth/client-ip";
 import { consumeRateLimit } from "@/lib/auth/rate-limit";
-import { isValidPassword } from "@/lib/auth/validation";
+import { registerSchema } from "@/lib/auth/schemas";
 
 export type RegisterState = { error: string | null };
 
@@ -15,30 +15,40 @@ const genericFailure: RegisterState = {
   error: "Could not complete sign-up. Check your details and try again.",
 };
 
-function isValidEmail(value: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-}
-
 export async function registerAction(
   _state: RegisterState,
   formData: FormData,
 ): Promise<RegisterState> {
-  const name = String(formData.get("name") ?? "").trim();
-  const email = String(formData.get("email") ?? "")
-    .trim()
-    .toLowerCase();
-  const password = String(formData.get("password") ?? "");
-  const confirmation = String(formData.get("confirmPassword") ?? "");
+  const parseResult = registerSchema.safeParse({
+    name: String(formData.get("name") ?? ""),
+    email: String(formData.get("email") ?? ""),
+    password: String(formData.get("password") ?? ""),
+    confirmPassword: String(formData.get("confirmPassword") ?? ""),
+  });
 
-  if (!name || !isValidEmail(email)) return genericFailure;
-  if (!isValidPassword(password)) {
-    return {
-      error: "Use at least 6 characters, including one letter and one number.",
-    };
+  if (!parseResult.success) {
+    const issues = parseResult.error.issues;
+
+    // Preserve the existing reply ordering: name/email, then password,
+    // then confirmation mismatch.
+    if (
+      issues.some(
+        (issue) => issue.path[0] === "name" || issue.path[0] === "email",
+      )
+    ) {
+      return genericFailure;
+    }
+    if (issues.some((issue) => issue.path[0] === "password")) {
+      return { error: "Use at least 8 characters." };
+    }
+    if (issues.some((issue) => issue.path[0] === "confirmPassword")) {
+      return { error: "The two passwords do not match." };
+    }
+
+    return genericFailure;
   }
-  if (password !== confirmation) {
-    return { error: "The two passwords do not match." };
-  }
+
+  const { name, email, password } = parseResult.data;
 
   const ip = getClientIp(await headers());
 

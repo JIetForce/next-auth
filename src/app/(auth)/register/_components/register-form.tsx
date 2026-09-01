@@ -120,7 +120,7 @@ export function RegisterForm() {
           <Input
             id="register-password"
             type="password"
-            placeholder="At least 6 characters"
+            placeholder="At least 8 characters"
             autoComplete="new-password"
             className="pl-9"
             aria-invalid={!!errors.password}
@@ -131,7 +131,7 @@ export function RegisterForm() {
           <p className="text-xs text-destructive">{errors.password.message}</p>
         ) : (
           <p className="text-[11px] text-muted-foreground">
-            Must be at least 6 characters with letters and numbers.
+            Must be at least 8 characters.
           </p>
         )}
       </div>

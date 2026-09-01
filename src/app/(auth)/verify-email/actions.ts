@@ -6,6 +6,7 @@ import { headers } from "next/headers";
 import { auth } from "@/auth";
 import { getClientIp } from "@/lib/auth/client-ip";
 import { consumeRateLimit } from "@/lib/auth/rate-limit";
+import { resendSchema } from "@/lib/auth/schemas";
 
 export type ResendState = { message: string | null };
 
@@ -17,11 +18,15 @@ export async function resendVerificationAction(
   _state: ResendState,
   formData: FormData,
 ): Promise<ResendState> {
-  const email = String(formData.get("email") ?? "")
-    .trim()
-    .toLowerCase();
+  const parseResult = resendSchema.safeParse({
+    email: String(formData.get("email") ?? ""),
+  });
 
-  if (!email) return uniformReply;
+  if (!parseResult.success) {
+    return uniformReply;
+  }
+
+  const { email } = parseResult.data;
 
   const ip = getClientIp(await headers());
 

@@ -8,6 +8,7 @@ import { auth } from "@/auth";
 import { getClientIp } from "@/lib/auth/client-ip";
 import { isGoogleAuthConfigured } from "@/lib/auth/environment";
 import { consumeRateLimit } from "@/lib/auth/rate-limit";
+import { signInSchema } from "@/lib/auth/schemas";
 
 export async function signInWithGoogle() {
   if (!isGoogleAuthConfigured()) {
@@ -38,15 +39,16 @@ export async function signInWithCredentials(
   _state: SignInState,
   formData: FormData,
 ): Promise<SignInState> {
-  const email = String(formData.get("email") ?? "")
-    .trim()
-    .toLowerCase();
-  const password = String(formData.get("password") ?? "");
+  const parseResult = signInSchema.safeParse({
+    email: String(formData.get("email") ?? ""),
+    password: String(formData.get("password") ?? ""),
+  });
 
-  if (!email || !password) {
+  if (!parseResult.success) {
     return { error: "Enter your email and password." };
   }
 
+  const { email, password } = parseResult.data;
   const ip = getClientIp(await headers());
 
   if (!(await consumeRateLimit(`signin:ip:${ip}`, 20, 15 * 60 * 1000))) {

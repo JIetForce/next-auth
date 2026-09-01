@@ -75,32 +75,24 @@ test("shows a client-side error for a password that is too short", async ({
   await page.getByLabel("Confirm password").fill("abc1");
   await page.getByRole("button", { name: "Create account" }).click();
 
-  await expect(
-    page.getByText(
-      "Use at least 6 characters, including one letter and one number.",
-    ),
-  ).toBeVisible();
+  await expect(page.getByText("Use at least 8 characters.")).toBeVisible();
   await expect(page).toHaveURL(/\/register$/);
 });
 
-test("shows a client-side error for a password missing a letter or number", async ({
+test("does not require a number or a letter when the password is long enough", async ({
   page,
 }) => {
-  const email = uniqueEmail("no-number-password");
+  const email = uniqueEmail("no-composition-password");
 
   await page.goto("/register");
-  await page.getByLabel("Name").fill("No Number Password");
+  await page.getByLabel("Name").fill("No Composition Password");
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password", { exact: true }).fill("onlyletters");
   await page.getByLabel("Confirm password").fill("onlyletters");
   await page.getByRole("button", { name: "Create account" }).click();
 
-  await expect(
-    page.getByText(
-      "Use at least 6 characters, including one letter and one number.",
-    ),
-  ).toBeVisible();
-  await expect(page).toHaveURL(/\/register$/);
+  // Composition rules were removed; a long enough all-letters password is accepted.
+  await expect(page).toHaveURL(/\/verify-email$/);
 });
 
 test("shows a client-side error when the confirmation password does not match", async ({
