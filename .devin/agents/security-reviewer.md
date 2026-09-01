@@ -1,7 +1,7 @@
 ---
 name: security-reviewer
 description: 'Read-only security review of a diff. Covers authn/authz, injection, secrets, SSRF and unsafe deserialisation. Never edits.'
-model: sonnet
+model: swe-1-7
 allowed-tools:
   - read
   - grep

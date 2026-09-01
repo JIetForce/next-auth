@@ -1,7 +1,7 @@
 ---
 name: quality-reviewer
 description: 'Read-only review of a diff for maintainability, consistency with the surrounding codebase, and dead or duplicated code. Never edits.'
-model: sonnet
+model: swe-1-7
 allowed-tools:
   - read
   - grep

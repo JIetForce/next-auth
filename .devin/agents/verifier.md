@@ -1,7 +1,7 @@
 ---
 name: verifier
 description: 'Runs the build, lint, test suite and any end-to-end check, and reports the evidence. Executes commands but does not modify source.'
-model: sonnet
+model: swe-1-7
 allowed-tools:
   - read
   - grep

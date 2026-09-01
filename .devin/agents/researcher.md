@@ -1,7 +1,7 @@
 ---
 name: researcher
 description: 'Read-only investigator. Answers a specific question about this codebase or its libraries and returns findings with file:line citations. Never edits.'
-model: sonnet
+model: swe-1-7
 allowed-tools:
   - read
   - grep
