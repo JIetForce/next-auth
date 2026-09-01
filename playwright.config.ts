@@ -75,6 +75,7 @@ const webServerAuthEnvironment = {
 export default defineConfig({
   testDir: "./e2e",
   globalSetup: "./e2e/global-setup.ts",
+  globalTeardown: "./e2e/global-teardown.ts",
   outputDir: ".next/playwright",
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),

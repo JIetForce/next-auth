@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 
+import { teardownAuthTestInstance } from "./helpers/auth-test-instance";
 import { addAuthenticatedSession, E2E_VIEWER } from "./helpers/auth-session";
 
 const sessionCookieName = "better-auth.session_token";
@@ -22,6 +23,10 @@ function accountMenuButton(page: import("@playwright/test").Page) {
 async function openAccountMenu(page: import("@playwright/test").Page) {
   await accountMenuButton(page).click();
 }
+
+test.afterAll(async () => {
+  await teardownAuthTestInstance();
+});
 
 test("renders anonymous account navigation on desktop and mobile", async ({
   page,
