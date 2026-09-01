@@ -94,6 +94,11 @@ export const auth = betterAuth({
       });
     },
   },
+  session: {
+    // Without this every getSession() is a SELECT. The trade is that a revoked
+    // session stays usable for up to maxAge — see docs/auth-architecture.md.
+    cookieCache: { enabled: true, maxAge: 300 },
+  },
   emailVerification: {
     sendOnSignUp: true,
     callbackURL: "/login",
