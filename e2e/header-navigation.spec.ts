@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test";
 
+import { assertPageAccessibility } from "./helpers/a11y";
+
 const navLinks = [
   { name: "Home", href: "/" },
   { name: "Features", href: "/features" },
@@ -7,6 +9,13 @@ const navLinks = [
 ] as const;
 
 test.describe("header navigation", () => {
+  for (const link of navLinks) {
+    test(`passes accessibility checks on ${link.href}`, async ({ page }) => {
+      await page.goto(link.href);
+      await assertPageAccessibility(page);
+    });
+  }
+
   for (const link of navLinks) {
     test(`navigates to ${link.name} without a 404`, async ({ page }) => {
       const response = await page.goto(link.href);

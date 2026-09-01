@@ -1,6 +1,7 @@
 // e2e/reset-password.spec.ts
 import { expect, test } from "@playwright/test";
 
+import { assertPageAccessibility } from "./helpers/a11y";
 import { extractFirstUrl, readLatestMessageTo } from "./helpers/mail";
 
 const password = "correct-horse-1";
@@ -11,6 +12,11 @@ function uniqueEmail(label: string) {
     .toString(36)
     .slice(2, 8)}@example.invalid`;
 }
+
+test("passes accessibility checks on reset password page", async ({ page }) => {
+  await page.goto("/reset-password");
+  await assertPageAccessibility(page);
+});
 
 test("requests a reset, opens the link, sets a new password, and signs in", async ({
   page,

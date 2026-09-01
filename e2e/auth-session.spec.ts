@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 
+import { assertPageAccessibility } from "./helpers/a11y";
 import { teardownAuthTestInstance } from "./helpers/auth-test-instance";
 import { addAuthenticatedSession, E2E_VIEWER } from "./helpers/auth-session";
 
@@ -204,6 +205,15 @@ test.describe("authenticated session", () => {
       /noindex/,
     );
     await expect(page.locator("body")).not.toContainText("private-e2e-subject");
+  });
+
+  test("passes accessibility checks on the profile page", async ({
+    context,
+    page,
+  }) => {
+    await addAuthenticatedSession(context);
+    await page.goto("/profile");
+    await assertPageAccessibility(page);
   });
 
   test("redirects an authenticated login request to home", async ({

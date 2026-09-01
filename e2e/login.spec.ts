@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test";
 
+import { assertPageAccessibility } from "./helpers/a11y";
+
 const googleAuthEnvironmentKeys = [
   "BETTER_AUTH_SECRET",
   "GOOGLE_CLIENT_ID",
@@ -73,6 +75,11 @@ test("renders the Google sign-in page with accessible metadata", async ({
     "content",
     /noindex/,
   );
+});
+
+test("passes accessibility checks on login page", async ({ page }) => {
+  await page.goto("/login");
+  await assertPageAccessibility(page);
 });
 
 test("shows a safe configuration state without auth environment variables", async ({

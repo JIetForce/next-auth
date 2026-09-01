@@ -1,6 +1,7 @@
 // e2e/registration.spec.ts
 import { expect, test } from "@playwright/test";
 
+import { assertPageAccessibility } from "./helpers/a11y";
 import { extractFirstUrl, readLatestMessageTo } from "./helpers/mail";
 
 const password = "correct-horse-1";
@@ -10,6 +11,11 @@ function uniqueEmail(label: string) {
     .toString(36)
     .slice(2, 8)}@example.invalid`;
 }
+
+test("passes accessibility checks on register page", async ({ page }) => {
+  await page.goto("/register");
+  await assertPageAccessibility(page);
+});
 
 test("registers, confirms by email, then signs in", async ({ page }) => {
   const email = uniqueEmail("happy");
