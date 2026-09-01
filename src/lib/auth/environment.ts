@@ -1,24 +1,16 @@
 // src/lib/auth/environment.ts
 import "server-only";
 
-const googleProviderEnvironmentKeys = [
-  "GOOGLE_CLIENT_ID",
-  "GOOGLE_CLIENT_SECRET",
-] as const;
+import { env } from "@/env";
 
 export function isAuthSessionConfigured() {
-  return (
-    Boolean(process.env.BETTER_AUTH_SECRET?.trim()) &&
-    Boolean(process.env.DATABASE_URL?.trim())
-  );
+  return Boolean(env.BETTER_AUTH_SECRET && env.DATABASE_URL);
 }
 
 export function isGoogleAuthConfigured() {
   return (
     isAuthSessionConfigured() &&
-    googleProviderEnvironmentKeys.every((key) =>
-      Boolean(process.env[key]?.trim()),
-    )
+    Boolean(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET)
   );
 }
 
@@ -31,7 +23,7 @@ export function isGoogleAuthConfigured() {
 //    used when there is no production URL to fall back to.
 // 4. http://localhost:3000 — the local development default.
 export function getPublicBaseUrl() {
-  const explicitUrl = process.env.BETTER_AUTH_URL?.trim();
+  const explicitUrl = env.BETTER_AUTH_URL;
   if (explicitUrl) {
     return explicitUrl;
   }

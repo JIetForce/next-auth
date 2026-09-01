@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
-const devAllowedOrigin = process.env.NEXT_DEV_ALLOWED_ORIGIN;
+import { env } from "./src/env";
+
+const devAllowedOrigin = env.NEXT_DEV_ALLOWED_ORIGIN;
 // For testing the dev server from another device on the same network.
 // Unset in CI and most local setups; defaults to no extra allowed origins.
 const allowedDevOrigins = devAllowedOrigin ? [devAllowedOrigin] : [];
