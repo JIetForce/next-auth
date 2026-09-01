@@ -1,7 +1,14 @@
 // tests/discovery.test.mjs
 import { after, describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import {
+  mkdirSync,
+  mkdtempSync,
+  realpathSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import {
@@ -44,20 +51,29 @@ describe("definitionsAt", () => {
   it("names a .toml definition by its basename", () => {
     const root = sandbox();
     file(root, ".codex/agents/developer.toml");
-    assert.deepEqual([...definitionsAt(".codex/agents", root).keys()], ["developer"]);
+    assert.deepEqual(
+      [...definitionsAt(".codex/agents", root).keys()],
+      ["developer"],
+    );
   });
 
   it("names a directory-layout definition by its directory", () => {
     const root = sandbox();
     file(root, ".agent/agents/developer/agent.md");
-    assert.deepEqual([...definitionsAt(".agent/agents", root).keys()], ["developer"]);
+    assert.deepEqual(
+      [...definitionsAt(".agent/agents", root).keys()],
+      ["developer"],
+    );
   });
 
   it("resolves a symlinked definition to the directory it points at", () => {
     const root = sandbox();
     file(root, ".agents/skills/shadcn/SKILL.md");
     mkdirSync(join(root, ".devin/skills"), { recursive: true });
-    symlinkSync(join(root, ".agents/skills/shadcn"), join(root, ".devin/skills/shadcn"));
+    symlinkSync(
+      join(root, ".agents/skills/shadcn"),
+      join(root, ".devin/skills/shadcn"),
+    );
 
     assert.equal(
       definitionsAt(".devin/skills", root).get("shadcn"),
@@ -104,10 +120,17 @@ describe("auditCollisions", () => {
     const root = sandbox();
     file(root, ".agents/skills/shadcn/SKILL.md");
     mkdirSync(join(root, ".devin/skills"), { recursive: true });
-    symlinkSync(join(root, ".agents/skills/shadcn"), join(root, ".devin/skills/shadcn"));
+    symlinkSync(
+      join(root, ".agents/skills/shadcn"),
+      join(root, ".devin/skills/shadcn"),
+    );
 
     const devin = forTool(auditCollisions(SKILLS, root), "devin");
-    assert.deepEqual(devin.collisions, [], "a symlink to the same skill is not a collision");
+    assert.deepEqual(
+      devin.collisions,
+      [],
+      "a symlink to the same skill is not a collision",
+    );
     assert.equal(devin.count, 1);
   });
 
@@ -129,16 +152,25 @@ describe("auditCollisions", () => {
     const root = sandbox();
     file(root, ".agents/skills/shadcn/SKILL.md", "same");
     file(root, ".devin/skills/shadcn/SKILL.md", "same");
-    assert.equal(forTool(auditCollisions(SKILLS, root), "devin").collisions.length, 1);
+    assert.equal(
+      forTool(auditCollisions(SKILLS, root), "devin").collisions.length,
+      1,
+    );
   });
 
   it("honours a Devin import the operator has switched off", () => {
     const root = sandbox();
-    file(root, ".devin/config.json", JSON.stringify({ read_config_from: { claude: false } }));
+    file(
+      root,
+      ".devin/config.json",
+      JSON.stringify({ read_config_from: { claude: false } }),
+    );
     file(root, ".claude/skills/review-loop/SKILL.md", "claude copy");
     file(root, ".devin/skills/review-loop/SKILL.md", "devin copy");
 
-    assert.deepEqual(suppressed(root), { devin: [".claude/agents", ".claude/skills"] });
+    assert.deepEqual(suppressed(root), {
+      devin: [".claude/agents", ".claude/skills"],
+    });
     const devin = forTool(auditCollisions(SKILLS, root), "devin");
     assert.deepEqual(devin.sources, [".devin/skills"]);
     assert.deepEqual(devin.collisions, []);
@@ -177,12 +209,18 @@ describe("strayPaths", () => {
     // one dropped dot away from `.agents/skills` and must stay exempt.
     const root = sandbox();
     file(root, "agents/skills/review-loop/SKILL.md");
-    assert.deepEqual(strayPaths({ ".agents/skills": ["antigravity", "devin"] }, root), []);
+    assert.deepEqual(
+      strayPaths({ ".agents/skills": ["antigravity", "devin"] }, root),
+      [],
+    );
   });
 
   it("is empty when nothing stray exists", () => {
     const root = sandbox();
     file(root, ".agent/skills/review-loop/SKILL.md");
-    assert.deepEqual(strayPaths({ ".agent/skills": ["antigravity"] }, root), []);
+    assert.deepEqual(
+      strayPaths({ ".agent/skills": ["antigravity"] }, root),
+      [],
+    );
   });
 });

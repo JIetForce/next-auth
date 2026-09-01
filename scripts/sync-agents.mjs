@@ -1,7 +1,12 @@
 #!/usr/bin/env node
 import {
-  existsSync, mkdirSync, readdirSync, readFileSync,
-  rmSync, writeFileSync, rmdirSync,
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+  rmdirSync,
 } from "node:fs";
 import { dirname, join } from "node:path";
 
@@ -37,7 +42,9 @@ function parseFrontmatter(raw, path) {
     if (!meta[k]) throw new Error(`${path}: frontmatter is missing \`${k}\``);
   }
   if (meta.type) {
-    throw new Error(`${path}: \`type\` was replaced by \`class\` (readonly|verifier|implementer)`);
+    throw new Error(
+      `${path}: \`type\` was replaced by \`class\` (readonly|verifier|implementer)`,
+    );
   }
   if (meta.description.includes("\n")) {
     throw new Error(`${path}: description must be a single line`);
@@ -153,7 +160,8 @@ const renderers = {
     if (cfg.model_reasoning_effort) {
       out += `model_reasoning_effort = ${tomlStr(cfg.model_reasoning_effort)}\n`;
     }
-    if (cfg.sandbox_mode) out += `sandbox_mode = ${tomlStr(cfg.sandbox_mode)}\n`;
+    if (cfg.sandbox_mode)
+      out += `sandbox_mode = ${tomlStr(cfg.sandbox_mode)}\n`;
     out += `developer_instructions = ${tomlMultiline(body)}\n`;
     return out;
   },
@@ -215,7 +223,10 @@ for (const { meta, body } of roles) {
     // `npm run validate:agents` re-checks the *generated* file against the
     // class invariants, so an override that widened a readonly role's tools
     // would still fail the build.
-    const cfg = { ...classCfg, ...(config.tools[tool]?.role_overrides?.[meta.name] ?? {}) };
+    const cfg = {
+      ...classCfg,
+      ...(config.tools[tool]?.role_overrides?.[meta.name] ?? {}),
+    };
     const render = renderers[tool];
     if (!render) throw new Error(`no renderer for tool "${tool}"`);
     generated.set(
@@ -253,24 +264,30 @@ if (existsSync(MCP_FILE)) {
       return [name, rest];
     }),
   );
-  generated.set(".mcp.json", JSON.stringify({ mcpServers: servers }, null, 2) + "\n");
+  generated.set(
+    ".mcp.json",
+    JSON.stringify({ mcpServers: servers }, null, 2) + "\n",
+  );
 }
 
 const previous = existsSync(MANIFEST_FILE)
-  ? JSON.parse(readFileSync(MANIFEST_FILE, "utf8")).files ?? []
+  ? (JSON.parse(readFileSync(MANIFEST_FILE, "utf8")).files ?? [])
   : [];
 
 if (CHECK) {
   const drift = [];
   for (const [path, content] of generated) {
     if (!existsSync(path)) drift.push(`missing: ${path}`);
-    else if (readFileSync(path, "utf8") !== content) drift.push(`changed: ${path}`);
+    else if (readFileSync(path, "utf8") !== content)
+      drift.push(`changed: ${path}`);
   }
   for (const path of previous) {
     if (!generated.has(path) && existsSync(path)) drift.push(`stale: ${path}`);
   }
   if (drift.length) {
-    console.error("Generated agent profiles are out of date:\n" + drift.join("\n"));
+    console.error(
+      "Generated agent profiles are out of date:\n" + drift.join("\n"),
+    );
     console.error("\nRun `npm run sync:agents`.");
     process.exit(1);
   }
@@ -299,7 +316,10 @@ for (const [path, content] of generated) {
 writeFileSync(
   MANIFEST_FILE,
   JSON.stringify(
-    { generator: "scripts/sync-agents.mjs", files: [...generated.keys()].sort() },
+    {
+      generator: "scripts/sync-agents.mjs",
+      files: [...generated.keys()].sort(),
+    },
     null,
     2,
   ) + "\n",

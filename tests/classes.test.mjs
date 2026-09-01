@@ -13,10 +13,13 @@ const roles = readdirSync("agents/roles", { withFileTypes: true })
     const raw = readFileSync(join("agents/roles", e.name, "role.md"), "utf8");
     const fm = raw.match(/^---\n([\s\S]*?)\n---/)[1];
     const meta = Object.fromEntries(
-      fm.split("\n").filter(Boolean).map((l) => {
-        const kv = l.match(/^([A-Za-z0-9_-]+)\s*:\s*(.*)$/);
-        return [kv[1], kv[2].trim().replace(/^['"]|['"]$/g, "")];
-      }),
+      fm
+        .split("\n")
+        .filter(Boolean)
+        .map((l) => {
+          const kv = l.match(/^([A-Za-z0-9_-]+)\s*:\s*(.*)$/);
+          return [kv[1], kv[2].trim().replace(/^['"]|['"]$/g, "")];
+        }),
     );
     return { dir: e.name, meta };
   });
@@ -25,7 +28,10 @@ describe("capability classes", () => {
   it("every role declares a known class", () => {
     for (const { dir, meta } of roles) {
       assert.ok(meta.class, `${dir}: role.md has no \`class\``);
-      assert.ok(CLASSES.has(meta.class), `${dir}: unknown class "${meta.class}"`);
+      assert.ok(
+        CLASSES.has(meta.class),
+        `${dir}: unknown class "${meta.class}"`,
+      );
     }
   });
 
@@ -43,7 +49,11 @@ describe("capability classes", () => {
 
   it("no role declares the removed `type` key", () => {
     for (const { dir, meta } of roles) {
-      assert.equal(meta.type, undefined, `${dir}: \`type\` was replaced by \`class\``);
+      assert.equal(
+        meta.type,
+        undefined,
+        `${dir}: \`type\` was replaced by \`class\``,
+      );
     }
   });
 });

@@ -58,4 +58,3 @@ export function GoogleSignInButton({ disabled }: { disabled: boolean }) {
     </Button>
   );
 }
-

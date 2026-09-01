@@ -71,8 +71,9 @@ describe("harness generation", () => {
 // Roles of class `readonly`, read from the same source the generator uses, so
 // this suite covers every one of them as roles are added.
 const classOf = (role) => {
-  const fm = readFileSync(`agents/roles/${role}/role.md`, "utf8")
-    .match(/^---\n([\s\S]*?)\n---/)[1];
+  const fm = readFileSync(`agents/roles/${role}/role.md`, "utf8").match(
+    /^---\n([\s\S]*?)\n---/,
+  )[1];
   return fm.match(/^class:\s*(.+)$/m)?.[1].trim();
 };
 const READONLY = ROLES.filter((r) => classOf(r) === "readonly");
@@ -90,12 +91,28 @@ describe("readonly roles keep the shape that makes them read-only", () => {
   it("antigravity: allowlist excludes write and exec tools", () => {
     for (const role of READONLY) {
       const f = readFileSync(`.agent/agents/${role}/agent.md`, "utf8");
-      for (const t of ["write_to_file", "replace_file_content", "run_command"]) {
+      for (const t of [
+        "write_to_file",
+        "replace_file_content",
+        "run_command",
+      ]) {
         assert.ok(!f.includes(t), `.agent/agents/${role}/agent.md grants ${t}`);
       }
-      assert.match(f, /^tools:\n(?:  - .+\n)+/m, `${role}: no antigravity tool allowlist`);
-      assert.match(f, /commandExecutionPolicy: 'off'/, `${role}: policy is not 'off'`);
-      assert.match(f, /mainAgent: false/, `${role}: is exposed as a main agent`);
+      assert.match(
+        f,
+        /^tools:\n(?:  - .+\n)+/m,
+        `${role}: no antigravity tool allowlist`,
+      );
+      assert.match(
+        f,
+        /commandExecutionPolicy: 'off'/,
+        `${role}: policy is not 'off'`,
+      );
+      assert.match(
+        f,
+        /mainAgent: false/,
+        `${role}: is exposed as a main agent`,
+      );
     }
   });
 
@@ -166,15 +183,28 @@ describe("harness skill projection", () => {
     ];
     for (const [path, needle] of cases) {
       const text = readFileSync(path, "utf8");
-      assert.ok(text.includes(needle), `${path}: missing dispatch instruction "${needle}"`);
-      assert.ok(!text.includes("<!-- DISPATCH -->"), `${path}: marker left unreplaced`);
-      assert.ok(text.includes("DO NOT EDIT"), `${path}: missing generated banner`);
+      assert.ok(
+        text.includes(needle),
+        `${path}: missing dispatch instruction "${needle}"`,
+      );
+      assert.ok(
+        !text.includes("<!-- DISPATCH -->"),
+        `${path}: marker left unreplaced`,
+      );
+      assert.ok(
+        text.includes("DO NOT EDIT"),
+        `${path}: missing generated banner`,
+      );
     }
   });
 
   it("devin's dispatch line names the profile, not the general subagent", () => {
     const text = readFileSync(".devin/skills/review-loop/SKILL.md", "utf8");
-    assert.match(text, /profile: "<role>"/, "dispatch line does not pass a named profile");
+    assert.match(
+      text,
+      /profile: "<role>"/,
+      "dispatch line does not pass a named profile",
+    );
     // Pin the direction, not just the presence of `is_background`. A writer
     // dispatched in the background has its `exec` and `edit` tools auto-denied
     // without a prompt, so it returns a report having changed nothing — the
@@ -198,11 +228,17 @@ describe("harness skill projection", () => {
 describe("per-role model overrides", () => {
   it("devin: code-reviewer is pinned to swe-1-7, every other role to glm-5-2", () => {
     const modelOf = (role) =>
-      readFileSync(`.devin/agents/${role}.md`, "utf8").match(/^model: (.+)$/m)?.[1];
+      readFileSync(`.devin/agents/${role}.md`, "utf8").match(
+        /^model: (.+)$/m,
+      )?.[1];
 
     assert.equal(modelOf("code-reviewer"), "swe-1-7");
     for (const role of ROLES.filter((r) => r !== "code-reviewer")) {
-      assert.equal(modelOf(role), "glm-5-2", `${role}: expected the primary model`);
+      assert.equal(
+        modelOf(role),
+        "glm-5-2",
+        `${role}: expected the primary model`,
+      );
     }
   });
 
@@ -237,7 +273,10 @@ describe("per-role model overrides", () => {
       } catch (e) {
         err = e;
       }
-      assert.ok(err, "sync accepted an override naming a role that does not exist");
+      assert.ok(
+        err,
+        "sync accepted an override naming a role that does not exist",
+      );
       assert.match(String(err.stderr ?? err.message), /no-such-role/);
     } finally {
       writeFileSync("config/agents.json", original);

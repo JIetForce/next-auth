@@ -12,6 +12,8 @@
     "start": "next start",
     "test": "playwright test",
     "lint": "eslint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "db:studio": "prisma studio",
     "sync:agents": "node scripts/sync-agents.mjs",
     "check:agents": "node scripts/sync-agents.mjs --check",
@@ -54,6 +56,7 @@
     "dotenv": "17.4.2",
     "eslint": "^9",
     "eslint-config-next": "16.3.3",
+    "prettier": "^3.9.6",
     "prisma": "7.10.0",
     "tailwindcss": "^4",
     "typescript": "^5"

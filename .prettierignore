@@ -1,0 +1,12 @@
+node_modules/
+.next/
+package-lock.json
+src/generated/
+.roster/
+.claude/
+.codex/
+.cursor/
+.devin/
+.agent/
+agents/
+.mcp.json

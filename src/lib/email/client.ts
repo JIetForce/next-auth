@@ -14,7 +14,11 @@ export type SendEmailInput = {
 
 async function captureEmail(path: string, message: SendEmailInput) {
   await mkdir(dirname(path), { recursive: true });
-  await appendFile(path, `${JSON.stringify({ ...message, at: Date.now() })}\n`, "utf8");
+  await appendFile(
+    path,
+    `${JSON.stringify({ ...message, at: Date.now() })}\n`,
+    "utf8",
+  );
 }
 
 function createTransport() {

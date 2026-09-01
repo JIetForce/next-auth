@@ -26,13 +26,13 @@ task is one run of the `AGENTS.md` loop. The phases are ordered by the audit's o
 moves: password policy travels with validation unification (same files), and database growth
 travels with the rate-limit migration (same migration).
 
-| Phase | Plan | Covers |
-| --- | --- | --- |
-| 1. Security | `2026-08-31-audit-01-security.md` | 2.1–2.7, 2.9, 2.10 |
-| 2. Architecture & performance | `2026-08-31-audit-02-architecture.md` | 2.8, 3.1–3.5, 4.1, 5.1–5.3 |
-| 3. Documentation | `2026-08-31-audit-03-documentation.md` | 1.1–1.3 |
-| 4. Infrastructure & tooling | `2026-08-31-audit-04-infrastructure.md` | 4.4, 7.1–7.3 |
-| 5. UI, accessibility, SEO, content | `2026-08-31-audit-05-ui-content.md` | 3.6, 4.2, 4.3, 5.4, 5.5, §6, 7.2 (email templates) |
+| Phase                              | Plan                                    | Covers                                             |
+| ---------------------------------- | --------------------------------------- | -------------------------------------------------- |
+| 1. Security                        | `2026-08-31-audit-01-security.md`       | 2.1–2.7, 2.9, 2.10                                 |
+| 2. Architecture & performance      | `2026-08-31-audit-02-architecture.md`   | 2.8, 3.1–3.5, 4.1, 5.1–5.3                         |
+| 3. Documentation                   | `2026-08-31-audit-03-documentation.md`  | 1.1–1.3                                            |
+| 4. Infrastructure & tooling        | `2026-08-31-audit-04-infrastructure.md` | 4.4, 7.1–7.3                                       |
+| 5. UI, accessibility, SEO, content | `2026-08-31-audit-05-ui-content.md`     | 3.6, 4.2, 4.3, 5.4, 5.5, §6, 7.2 (email templates) |
 
 Phases 1 and 2 are ordered: phase 2's `cacheComponents` work depends on phase 1 having settled
 `next.config.ts`, and phase 2's `Viewer` change depends on nothing in phase 1 but touches files
@@ -291,57 +291,57 @@ Recorded so a reviewer does not read these as omissions:
 Every finding in `docs/audit-2026-08-31.md`, and where it is answered. "Accepted" means the finding
 is real and the decision is to not change the code; the reason is in `## Out of scope` or `## Decisions`.
 
-| # | Finding | Phase | Task |
-| --- | --- | --- | --- |
-| 1.1 | `auth-architecture.md` describes the pre-Better-Auth app | 3 | 1 |
-| 1.2 | `README.md` — title, structure, secret-rotation instruction, missing `npm test` | 3 | 2 |
-| 1.3 | `nextjs-research.md` written for Auth.js v5 | 3 | 3 |
-| 2.1 | Rate limiting bypassed by one HTTP request | 1 | 1, 3 |
-| 2.2 | In-memory limiter: per-instance, unbounded key growth | 1 | 2 |
-| 2.3 | IP derived with `.pop()` on `x-forwarded-for` | 1 | 2 |
-| 2.4 | `resetPasswordAction` has no limit | 1 | 2 |
-| 2.5 | No security headers | 1 | 4 |
-| 2.6 | `BETTER_AUTH_URL` / no `trustedOrigins` | 1 | 5 |
-| 2.7 | Google provider registered unconditionally | 1 | 6 |
-| 2.8 | Password policy below current guidance | 2 | 3 |
-| 2.9 | `session` / `verification` grow without bound | 1 | 1, 7 |
-| 2.10 | Personal IP in `next.config.ts` | 1 | 4 |
-| 3.1 | Every route renders dynamically | 2 | 6 |
-| 3.2 | Session `SELECT` on every request | 2 | 4 |
-| 3.3 | `Viewer` carries no `id` or `emailVerified` | 2 | 1 |
-| 3.4 | Two divergent validation systems | 2 | 3 |
-| 3.5 | No `error` / `not-found` / `loading` conventions | 2 | 5 |
-| 3.6 | FAQ content split between `content.ts` and the page | 5 | 7 |
-| 4.1 | Profile always says "Provider: Google" | 2 | 2 |
-| 4.2 | Decorative layers broken in the light theme | 5 | 1 |
-| 4.3 | Dead code (`.sl-faq-*`, `clearMailbox`, `Geist_Mono`, two unused vars) | 5 | 3 |
-| 4.4 | E2E Prisma pool never destroyed | 4 | 7 |
-| 5.1 | Everything dynamic | 2 | 6 (same as 3.1) |
-| 5.2 | Session `SELECT` per request | 2 | 4 (same as 3.2) |
-| 5.3 | React Compiler runs through Babel | 2 | 7 |
-| 5.4 | `Geist_Mono` loaded and never used | 5 | 3 |
-| 5.5 | Three `blur(90–100px)` layers on every public page | 5 | 2 |
-| 6 | No `<main>` on `/`, `/features`, `/pricing` | 5 | 4 |
-| 6 | No skip link | 5 | 4 |
-| 6 | `<footer>` only on `/` | 5 | 4 |
-| 6 | Terms / Privacy links point at `/` | 5 | 6 |
-| 6 | No per-page `metadata` on three public pages | 5 | 5 |
-| 6 | No `metadataBase`, `openGraph`, `twitter`, OG image | 5 | 5 |
-| 6 | No `robots.ts` / `sitemap.ts` | 5 | 5 |
-| 6 | No `prefers-reduced-motion` | 5 | 2 |
-| 6 | `/verify-email` makes the user retype their address | 5 | 8 |
-| 6 | Unsubstantiated marketing statistics | 5 | 7 |
-| 7.1 | `npm audit` — 3 high via `prisma` CLI | 4 | 10 (accepted, monitored) |
-| 7.1 | Safe minor upgrades outstanding | 4 | 1 |
-| 7.1 | `@types/node` 20 against Node 26; no `engines`, no `.nvmrc` | 4 | 1 |
-| 7.2 | No CI | 4 | 9 |
-| 7.2 | No unit tests | 4 | 4 |
-| 7.2 | No Prettier; style already diverged | 4 | 3 |
-| 7.2 | Environment variables validated by `Boolean(...trim())` | 4 | 5 |
-| 7.2 | Emails are plain-text string literals | 5 | 9 |
-| 7.2 | Gmail SMTP as production transport | — | Accepted (D3) |
-| 7.2 | No accessibility testing | 4 | 8 |
-| 7.2 | No shared rate-limit store | 1 | 2 (via the `rateLimit` table, not Upstash) |
-| 7.2 | Telemetry is two `console.error` calls | 4 | 6 |
-| 7.3 | `target: "ES2017"` | 4 | 2 |
-| 7.3 | No `noUncheckedIndexedAccess` | 4 | 2 |
+| #    | Finding                                                                         | Phase | Task                                       |
+| ---- | ------------------------------------------------------------------------------- | ----- | ------------------------------------------ |
+| 1.1  | `auth-architecture.md` describes the pre-Better-Auth app                        | 3     | 1                                          |
+| 1.2  | `README.md` — title, structure, secret-rotation instruction, missing `npm test` | 3     | 2                                          |
+| 1.3  | `nextjs-research.md` written for Auth.js v5                                     | 3     | 3                                          |
+| 2.1  | Rate limiting bypassed by one HTTP request                                      | 1     | 1, 3                                       |
+| 2.2  | In-memory limiter: per-instance, unbounded key growth                           | 1     | 2                                          |
+| 2.3  | IP derived with `.pop()` on `x-forwarded-for`                                   | 1     | 2                                          |
+| 2.4  | `resetPasswordAction` has no limit                                              | 1     | 2                                          |
+| 2.5  | No security headers                                                             | 1     | 4                                          |
+| 2.6  | `BETTER_AUTH_URL` / no `trustedOrigins`                                         | 1     | 5                                          |
+| 2.7  | Google provider registered unconditionally                                      | 1     | 6                                          |
+| 2.8  | Password policy below current guidance                                          | 2     | 3                                          |
+| 2.9  | `session` / `verification` grow without bound                                   | 1     | 1, 7                                       |
+| 2.10 | Personal IP in `next.config.ts`                                                 | 1     | 4                                          |
+| 3.1  | Every route renders dynamically                                                 | 2     | 6                                          |
+| 3.2  | Session `SELECT` on every request                                               | 2     | 4                                          |
+| 3.3  | `Viewer` carries no `id` or `emailVerified`                                     | 2     | 1                                          |
+| 3.4  | Two divergent validation systems                                                | 2     | 3                                          |
+| 3.5  | No `error` / `not-found` / `loading` conventions                                | 2     | 5                                          |
+| 3.6  | FAQ content split between `content.ts` and the page                             | 5     | 7                                          |
+| 4.1  | Profile always says "Provider: Google"                                          | 2     | 2                                          |
+| 4.2  | Decorative layers broken in the light theme                                     | 5     | 1                                          |
+| 4.3  | Dead code (`.sl-faq-*`, `clearMailbox`, `Geist_Mono`, two unused vars)          | 5     | 3                                          |
+| 4.4  | E2E Prisma pool never destroyed                                                 | 4     | 7                                          |
+| 5.1  | Everything dynamic                                                              | 2     | 6 (same as 3.1)                            |
+| 5.2  | Session `SELECT` per request                                                    | 2     | 4 (same as 3.2)                            |
+| 5.3  | React Compiler runs through Babel                                               | 2     | 7                                          |
+| 5.4  | `Geist_Mono` loaded and never used                                              | 5     | 3                                          |
+| 5.5  | Three `blur(90–100px)` layers on every public page                              | 5     | 2                                          |
+| 6    | No `<main>` on `/`, `/features`, `/pricing`                                     | 5     | 4                                          |
+| 6    | No skip link                                                                    | 5     | 4                                          |
+| 6    | `<footer>` only on `/`                                                          | 5     | 4                                          |
+| 6    | Terms / Privacy links point at `/`                                              | 5     | 6                                          |
+| 6    | No per-page `metadata` on three public pages                                    | 5     | 5                                          |
+| 6    | No `metadataBase`, `openGraph`, `twitter`, OG image                             | 5     | 5                                          |
+| 6    | No `robots.ts` / `sitemap.ts`                                                   | 5     | 5                                          |
+| 6    | No `prefers-reduced-motion`                                                     | 5     | 2                                          |
+| 6    | `/verify-email` makes the user retype their address                             | 5     | 8                                          |
+| 6    | Unsubstantiated marketing statistics                                            | 5     | 7                                          |
+| 7.1  | `npm audit` — 3 high via `prisma` CLI                                           | 4     | 10 (accepted, monitored)                   |
+| 7.1  | Safe minor upgrades outstanding                                                 | 4     | 1                                          |
+| 7.1  | `@types/node` 20 against Node 26; no `engines`, no `.nvmrc`                     | 4     | 1                                          |
+| 7.2  | No CI                                                                           | 4     | 9                                          |
+| 7.2  | No unit tests                                                                   | 4     | 4                                          |
+| 7.2  | No Prettier; style already diverged                                             | 4     | 3                                          |
+| 7.2  | Environment variables validated by `Boolean(...trim())`                         | 4     | 5                                          |
+| 7.2  | Emails are plain-text string literals                                           | 5     | 9                                          |
+| 7.2  | Gmail SMTP as production transport                                              | —     | Accepted (D3)                              |
+| 7.2  | No accessibility testing                                                        | 4     | 8                                          |
+| 7.2  | No shared rate-limit store                                                      | 1     | 2 (via the `rateLimit` table, not Upstash) |
+| 7.2  | Telemetry is two `console.error` calls                                          | 4     | 6                                          |
+| 7.3  | `target: "ES2017"`                                                              | 4     | 2                                          |
+| 7.3  | No `noUncheckedIndexedAccess`                                                   | 4     | 2                                          |

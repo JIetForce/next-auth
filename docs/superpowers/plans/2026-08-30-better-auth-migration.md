@@ -39,16 +39,18 @@
 ### Task 1: Two Postgres databases and env scaffolding
 
 **Files:**
+
 - Create: `.env.example`
 - Modify: `.env.local` (untracked; edit by hand, never commit)
 
 **Interfaces:**
+
 - Consumes: nothing.
 - Produces: databases `appdev` and `apptest` on the machine's existing Postgres. Later tasks read `DATABASE_URL` and `DIRECT_URL`.
 
 **Infrastructure decision — Docker is not a requirement of this plan.**
 
-What the plan actually needs is two *separate databases*: one for development whose data survives, and one for tests that `prisma migrate reset` wipes on every run (Task 6). The isolation comes from that reset, not from a container or from `tmpfs`. Any Postgres 17 server provides it — Postgres.app, Homebrew, a container, or a remote server.
+What the plan actually needs is two _separate databases_: one for development whose data survives, and one for tests that `prisma migrate reset` wipes on every run (Task 6). The isolation comes from that reset, not from a container or from `tmpfs`. Any Postgres 17 server provides it — Postgres.app, Homebrew, a container, or a remote server.
 
 **Do not run a containerised Postgres beside a local one.** A container publishing `*:5432` and a local server bound to `127.0.0.1:5432` and `[::1]:5432` both start successfully, but `localhost` resolves to the specific binds first. Every connection then reaches the local server while `docker compose ps` reports the container healthy, and migrations land in a database nobody inspects.
 
@@ -106,6 +108,7 @@ git commit -m "chore: add env template and the appdev/apptest databases"
 ### Task 2: Prisma 7.10 wired with a server-only client singleton
 
 **Files:**
+
 - Create: `prisma.config.ts`
 - Create: `prisma/schema.prisma`
 - Create: `src/lib/db.ts`
@@ -113,6 +116,7 @@ git commit -m "chore: add env template and the appdev/apptest databases"
 - Modify: `package.json`
 
 **Interfaces:**
+
 - Consumes: `DATABASE_URL` and `DIRECT_URL` from Task 1.
 - Produces: `import { prisma } from "@/lib/db"` — a `PrismaClient` singleton. Task 3 passes it to `prismaAdapter`.
 
@@ -244,11 +248,13 @@ git commit -m "feat: wire Prisma 7.10 with a server-only client singleton"
 ### Task 3: Better Auth configured and its schema migrated
 
 **Files:**
+
 - Modify (full replacement): `src/auth.ts`
 - Modify: `prisma/schema.prisma` (the CLI appends models)
 - Create: `prisma/migrations/**` (generated)
 
 **Interfaces:**
+
 - Consumes: `prisma` from Task 2.
 - Produces: `import { auth } from "@/auth"` — a Better Auth instance exposing `auth.handler`, `auth.api.getSession`, `auth.api.signOut`, `auth.api.signInSocial`, and `auth.$context`.
 
@@ -334,10 +340,12 @@ git commit -m "feat: configure Better Auth with the Prisma adapter and migrate i
 ### Task 4: Auth route handler moved to the Better Auth catch-all
 
 **Files:**
+
 - Create: `src/app/api/auth/[...all]/route.ts`
 - Delete: `src/app/api/auth/[...nextauth]/route.ts`
 
 **Interfaces:**
+
 - Consumes: `auth` from Task 3.
 - Produces: the live HTTP surface at `/api/auth/*`, including `GET /api/auth/get-session`.
 
@@ -383,12 +391,14 @@ git commit -m "feat: serve auth from the Better Auth catch-all route"
 ### Task 5: DAL, environment, and actions rewritten behind unchanged exports
 
 **Files:**
+
 - Modify: `src/lib/auth/session.ts`
 - Modify: `src/lib/auth/environment.ts`
 - Modify: `src/lib/auth/actions.ts`
 - Modify: `src/app/(auth)/login/actions.ts`
 
 **Interfaces:**
+
 - Consumes: `auth` from Task 3.
 - Produces: unchanged public signatures — `getCurrentViewer(): Promise<Viewer | null>`, `requireCurrentViewer(): Promise<Viewer>`, `signOutAction(): Promise<void>`, `signInWithGoogle(): Promise<void>`. No consumer of these is edited by this plan.
 
@@ -541,12 +551,14 @@ git commit -m "feat: move the auth DAL and actions onto Better Auth"
 ### Task 6: E2E seam rebuilt on the testUtils plugin
 
 **Files:**
+
 - Create: `e2e/helpers/auth-test-instance.ts`
 - Create: `e2e/global-setup.ts`
 - Modify (full replacement): `e2e/helpers/auth-session.ts`
 - Modify: `playwright.config.ts`
 
 **Interfaces:**
+
 - Consumes: `auth` configuration shape from Task 3.
 - Produces: the same three exports the current helper has, so `e2e/auth-session.spec.ts` needs no import change — `E2E_VIEWER`, `addAuthenticatedSession(context, viewer?)`, `addTamperedSession(context)`.
 
@@ -569,7 +581,9 @@ if (!connectionString) {
   throw new Error("DATABASE_URL is required for authenticated E2E tests");
 }
 
-const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString }) });
+const prisma = new PrismaClient({
+  adapter: new PrismaPg({ connectionString }),
+});
 
 export const testAuth = betterAuth({
   database: prismaAdapter(prisma, { provider: "postgresql" }),
@@ -740,10 +754,12 @@ git commit -m "test: rebuild the E2E auth seam on the Better Auth testUtils plug
 ### Task 7: E2E specs adapted to Better Auth endpoints
 
 **Files:**
+
 - Modify: `e2e/auth-session.spec.ts`
 - Modify: `e2e/login.spec.ts`
 
 **Interfaces:**
+
 - Consumes: the unchanged three exports from Task 6.
 - Produces: a green suite that asserts the same behaviour against Better Auth's HTTP surface.
 
@@ -826,11 +842,13 @@ git commit -m "test: adapt E2E contracts to Better Auth endpoints"
 ### Task 8: Auth.js removed and the suite proven green
 
 **Files:**
+
 - Modify: `package.json`
 - Modify: `.env.local` (untracked; edit by hand)
 - Modify: `README.md`
 
 **Interfaces:**
+
 - Consumes: everything above.
 - Produces: a tree with no `next-auth` dependency and a passing verification run.
 

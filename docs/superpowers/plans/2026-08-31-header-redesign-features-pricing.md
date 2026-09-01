@@ -24,25 +24,27 @@
 
 ## File Structure
 
-| File | Responsibility | Action |
-| --- | --- | --- |
-| `src/components/header-nav.tsx` | Client component: `usePathname()` + renders centered desktop nav with brand-pill active state | Create |
-| `src/components/header.tsx` | Server component: layout (logo left, `<HeaderNav>` center, actions right), exports `primaryLinks` | Modify |
-| `src/components/mobile-navigation.tsx` | Client component: add brand-pill active state to sheet links | Modify |
-| `src/app/(main)/features/page.tsx` | Static marketing page for `/features` | Create |
-| `src/app/(main)/pricing/page.tsx` | Static marketing page for `/pricing` | Create |
-| `e2e/header-navigation.spec.ts` | E2E: nav links resolve (no 404), active pill renders on each page | Create |
+| File                                   | Responsibility                                                                                    | Action |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------- | ------ |
+| `src/components/header-nav.tsx`        | Client component: `usePathname()` + renders centered desktop nav with brand-pill active state     | Create |
+| `src/components/header.tsx`            | Server component: layout (logo left, `<HeaderNav>` center, actions right), exports `primaryLinks` | Modify |
+| `src/components/mobile-navigation.tsx` | Client component: add brand-pill active state to sheet links                                      | Modify |
+| `src/app/(main)/features/page.tsx`     | Static marketing page for `/features`                                                             | Create |
+| `src/app/(main)/pricing/page.tsx`      | Static marketing page for `/pricing`                                                              | Create |
+| `e2e/header-navigation.spec.ts`        | E2E: nav links resolve (no 404), active pill renders on each page                                 | Create |
 
 ---
 
 ### Task 1: Header redesign with centered nav and brand active pill
 
 **Files:**
+
 - Create: `src/components/header-nav.tsx`
 - Modify: `src/components/header.tsx`
 - Modify: `src/components/mobile-navigation.tsx`
 
 **Interfaces:**
+
 - Consumes: `primaryLinks` array (type `readonly { href: string; label: string }[]`) exported from `src/components/header.tsx`.
 - Produces: `HeaderNav` component (props: `{ links: readonly NavigationLink[] }`) rendered by `Header`; `MobileNavigation` gains active-state styling.
 
@@ -277,9 +279,11 @@ git add src/components/header-nav.tsx src/components/header.tsx src/components/m
 ### Task 2: `/features` marketing page
 
 **Files:**
+
 - Create: `src/app/(main)/features/page.tsx`
 
 **Interfaces:**
+
 - Consumes: shadcn `Badge`, `Card`/`CardHeader`/`CardTitle`/`CardDescription`, `buttonVariants`, lucide icons, Siftloom CSS utilities from `globals.css`.
 - Produces: a static route at `/features` (server component, no props).
 
@@ -319,7 +323,11 @@ const categories = [
     color: "#3fa1de",
     description:
       "Increase your output with modern workflows. We sift through the noise to find tools that actually save you time.",
-    items: ["Text expanders & clipboard managers", "Note-taking & PKM systems", "Focus & time-blocking tools"],
+    items: [
+      "Text expanders & clipboard managers",
+      "Note-taking & PKM systems",
+      "Focus & time-blocking tools",
+    ],
   },
   {
     icon: Code2,
@@ -327,7 +335,11 @@ const categories = [
     color: "#2fb8ae",
     description:
       "Libraries, frameworks, and utilities for engineers who ship fast. Practical recommendations without the fluff.",
-    items: ["Frameworks & runtimes", "DevEx & debugging utilities", "API & testing tooling"],
+    items: [
+      "Frameworks & runtimes",
+      "DevEx & debugging utilities",
+      "API & testing tooling",
+    ],
   },
   {
     icon: Workflow,
@@ -335,7 +347,11 @@ const categories = [
     color: "#9fd37e",
     description:
       "Eliminate manual work and scale your operations. Discover Zapier alternatives, AI agents, and custom workflows.",
-    items: ["No-code & low-code platforms", "AI agent orchestration", "Custom workflow recipes"],
+    items: [
+      "No-code & low-code platforms",
+      "AI agent orchestration",
+      "Custom workflow recipes",
+    ],
   },
   {
     icon: Layers,
@@ -343,7 +359,11 @@ const categories = [
     color: "#cbe37c",
     description:
       "Hand-picked apps for digital professionals. We track clear updates across the entire software ecosystem.",
-    items: ["Project & task management", "CRM & sales enablement", "Design & collaboration suites"],
+    items: [
+      "Project & task management",
+      "CRM & sales enablement",
+      "Design & collaboration suites",
+    ],
   },
   {
     icon: Bot,
@@ -351,7 +371,11 @@ const categories = [
     color: "#2fb8ae",
     description:
       "Stay ahead of the curve. We review the latest LLMs, autonomous agents, and AI tools for real-world use.",
-    items: ["LLM benchmarks & comparisons", "Autonomous agent frameworks", "RAG & knowledge tooling"],
+    items: [
+      "LLM benchmarks & comparisons",
+      "Autonomous agent frameworks",
+      "RAG & knowledge tooling",
+    ],
   },
   {
     icon: TrendingUp,
@@ -359,7 +383,11 @@ const categories = [
     color: "#3fa1de",
     description:
       "Analytics, SEO, and acquisition channels. Tools to help you distribute your work and grow your audience.",
-    items: ["SEO & content analytics", "Email & lifecycle automation", "Social distribution tools"],
+    items: [
+      "SEO & content analytics",
+      "Email & lifecycle automation",
+      "Social distribution tools",
+    ],
   },
 ] as const;
 
@@ -402,13 +430,14 @@ export default function FeaturesPage() {
         </Badge>
 
         <h1 className="mt-8 font-heading text-4xl font-extrabold tracking-tight sm:text-6xl">
-          Everything we track, <span className="text-siftloom-gradient">curated</span>.
+          Everything we track,{" "}
+          <span className="text-siftloom-gradient">curated</span>.
         </h1>
 
         <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-          Six categories. One signal. Siftloom covers the tools modern teams
-          and digital professionals actually use — from AI agents to growth
-          stacks — with practical, tested recommendations.
+          Six categories. One signal. Siftloom covers the tools modern teams and
+          digital professionals actually use — from AI agents to growth stacks —
+          with practical, tested recommendations.
         </p>
 
         <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -449,42 +478,44 @@ export default function FeaturesPage() {
         </div>
 
         <div className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {categories.map(({ icon: Icon, title, color, description, items }) => (
-            <Card
-              key={title}
-              className="sl-card gap-0 rounded-2xl border border-border/80 bg-card/60 p-8 shadow-xs backdrop-blur-md"
-            >
-              <div
-                className="mb-6 flex size-13 items-center justify-center rounded-xl border bg-gradient-to-br from-[#3fa1de]/20 to-[#2fb8ae]/20"
-                style={{ borderColor: `${color}30`, color }}
+          {categories.map(
+            ({ icon: Icon, title, color, description, items }) => (
+              <Card
+                key={title}
+                className="sl-card gap-0 rounded-2xl border border-border/80 bg-card/60 p-8 shadow-xs backdrop-blur-md"
               >
-                <Icon className="size-6" />
-              </div>
-              <CardHeader className="gap-2 p-0">
-                <CardTitle className="font-heading text-lg font-bold text-foreground">
-                  {title}
-                </CardTitle>
-                <CardDescription className="text-sm leading-relaxed text-muted-foreground">
-                  {description}
-                </CardDescription>
-                <ul className="mt-3 flex flex-col gap-1.5">
-                  {items.map((item) => (
-                    <li
-                      key={item}
-                      className="flex items-center gap-2 text-xs text-muted-foreground"
-                    >
-                      <span
-                        className="size-1.5 shrink-0 rounded-full"
-                        style={{ backgroundColor: color }}
-                        aria-hidden="true"
-                      />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </CardHeader>
-            </Card>
-          ))}
+                <div
+                  className="mb-6 flex size-13 items-center justify-center rounded-xl border bg-gradient-to-br from-[#3fa1de]/20 to-[#2fb8ae]/20"
+                  style={{ borderColor: `${color}30`, color }}
+                >
+                  <Icon className="size-6" />
+                </div>
+                <CardHeader className="gap-2 p-0">
+                  <CardTitle className="font-heading text-lg font-bold text-foreground">
+                    {title}
+                  </CardTitle>
+                  <CardDescription className="text-sm leading-relaxed text-muted-foreground">
+                    {description}
+                  </CardDescription>
+                  <ul className="mt-3 flex flex-col gap-1.5">
+                    {items.map((item) => (
+                      <li
+                        key={item}
+                        className="flex items-center gap-2 text-xs text-muted-foreground"
+                      >
+                        <span
+                          className="size-1.5 shrink-0 rounded-full"
+                          style={{ backgroundColor: color }}
+                          aria-hidden="true"
+                        />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </CardHeader>
+              </Card>
+            ),
+          )}
         </div>
       </section>
 
@@ -573,9 +604,11 @@ git add "src/app/(main)/features/page.tsx"
 ### Task 3: `/pricing` marketing page
 
 **Files:**
+
 - Create: `src/app/(main)/pricing/page.tsx`
 
 **Interfaces:**
+
 - Consumes: shadcn `Badge`, `Card`/`CardHeader`/`CardTitle`/`CardDescription`/`CardContent`, `Accordion` family, `buttonVariants`, lucide icons, Siftloom CSS utilities.
 - Produces: a static route at `/pricing` (server component, no props).
 
@@ -585,12 +618,7 @@ A server component reflecting product reality: Siftloom is free, monetized via s
 
 ```tsx
 import Link from "next/link";
-import {
-  ArrowRight,
-  BadgeCheck,
-  Check,
-  Megaphone,
-} from "lucide-react";
+import { ArrowRight, BadgeCheck, Check, Megaphone } from "lucide-react";
 
 import {
   Accordion,
@@ -859,9 +887,11 @@ git add "src/app/(main)/pricing/page.tsx"
 ### Task 4: E2E spec for header navigation and active state
 
 **Files:**
+
 - Create: `e2e/header-navigation.spec.ts`
 
 **Interfaces:**
+
 - Consumes: the three nav routes `/`, `/features`, `/pricing` and the `Header` component's active-pill class `bg-primary`.
 
 - [ ] **Step 1: Create `e2e/header-navigation.spec.ts`**

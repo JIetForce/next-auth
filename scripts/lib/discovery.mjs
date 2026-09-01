@@ -3,7 +3,13 @@
 //
 // This module is the single copy of the discovery matrix. `doctor-agents.mjs`
 // reports it and the test suite exercises it; neither restates it.
-import { existsSync, readdirSync, readFileSync, realpathSync, statSync } from "node:fs";
+import {
+  existsSync,
+  readdirSync,
+  readFileSync,
+  realpathSync,
+  statSync,
+} from "node:fs";
 import { join } from "node:path";
 
 // Which tools scan which project paths for AGENT definitions.
@@ -30,7 +36,10 @@ export const SKILL_PATHS = {
 // Paths a tool reads only for cross-tool compatibility, and which a
 // higher-precedence path of its own shadows.
 export const SHADOWED = {
-  cursor: { by: ".cursor/agents", shadows: [".claude/agents", ".codex/agents"] },
+  cursor: {
+    by: ".cursor/agents",
+    shadows: [".claude/agents", ".codex/agents"],
+  },
 };
 
 // Devin can be told to stop importing another tool's config. A path the
@@ -60,7 +69,8 @@ export function suppressed(root = ".") {
   if (!existsSync(configPath)) return {};
   let importsFrom;
   try {
-    importsFrom = JSON.parse(readFileSync(configPath, "utf8")).read_config_from ?? {};
+    importsFrom =
+      JSON.parse(readFileSync(configPath, "utf8")).read_config_from ?? {};
   } catch {
     return {};
   }
@@ -144,7 +154,10 @@ export function auditCollisions(matrix, root = ".") {
       count: seen.size,
       collisions: [...seen]
         .filter(([, targets]) => targets.size > 1)
-        .map(([name, targets]) => ({ name, paths: [...targets.values()].sort() }))
+        .map(([name, targets]) => ({
+          name,
+          paths: [...targets.values()].sort(),
+        }))
         .sort((a, b) => a.name.localeCompare(b.name)),
     });
   }
@@ -164,7 +177,8 @@ export function strayPaths(matrix, root = ".") {
     if (!path.startsWith(".")) continue;
     const undotted = path.slice(1);
     if (known.has(undotted) || ROSTER_SOURCE_DIRS.has(undotted)) continue;
-    if (existsSync(join(root, undotted))) stray.push({ path: undotted, meant: path });
+    if (existsSync(join(root, undotted)))
+      stray.push({ path: undotted, meant: path });
   }
   return stray.sort((a, b) => a.path.localeCompare(b.path));
 }

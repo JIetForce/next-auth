@@ -20,15 +20,10 @@ export default function NotFound() {
           <CardTitle className="text-3xl font-extrabold tracking-tight">
             404
           </CardTitle>
-          <CardDescription>
-            This page could not be found.
-          </CardDescription>
+          <CardDescription>This page could not be found.</CardDescription>
         </CardHeader>
         <CardContent>
-          <Link
-            href="/"
-            className={cn(buttonVariants({ variant: "default" }))}
-          >
+          <Link href="/" className={cn(buttonVariants({ variant: "default" }))}>
             Return home
           </Link>
         </CardContent>

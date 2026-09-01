@@ -34,7 +34,10 @@ function auditSection(label, kind, matrix) {
       continue;
     }
     for (const { name, paths } of collisions) {
-      report(false, `${tool}: ${kind} "${name}" resolves to ${paths.length} definitions`);
+      report(
+        false,
+        `${tool}: ${kind} "${name}" resolves to ${paths.length} definitions`,
+      );
       for (const p of paths) console.log(`         ${p}`);
     }
     console.log(
@@ -46,7 +49,10 @@ function auditSection(label, kind, matrix) {
   }
 
   for (const { path, meant } of strayPaths(matrix)) {
-    report(false, `${path}/ is read by no tool — a dropped leading dot for ${meant}/`);
+    report(
+      false,
+      `${path}/ is read by no tool — a dropped leading dot for ${meant}/`,
+    );
     console.log(
       `         → nothing discovers ${path}/, so a definition parked there is an\n` +
         "           invisible second copy. Move it or delete it.",
@@ -61,11 +67,17 @@ auditSection("Skill discovery", "skill", SKILL_PATHS);
 
 console.log("\nMCP sources");
 const MCP_SOURCES = {
-  claude:      { path: ".mcp.json",              note: "project scope, generated" },
+  claude: { path: ".mcp.json", note: "project scope, generated" },
   antigravity: { path: ".agent/mcp_config.json", note: "customization root" },
-  devin:       { path: null,                     note: "global only — edit ~/.config/devin/mcp_config.json by hand" },
-  codex:       { path: null,                     note: "per-agent `mcp_servers` in .codex/agents/*.toml, or global ~/.codex/config.toml" },
-  cursor:      { path: null,                     note: "unverified" },
+  devin: {
+    path: null,
+    note: "global only — edit ~/.config/devin/mcp_config.json by hand",
+  },
+  codex: {
+    path: null,
+    note: "per-agent `mcp_servers` in .codex/agents/*.toml, or global ~/.codex/config.toml",
+  },
+  cursor: { path: null, note: "unverified" },
 };
 // Informational only — a project may legitimately have no per-tool MCP file
 // yet, so these never touch `problems` / the exit code.
@@ -89,23 +101,34 @@ console.log("\nGlobal skills (installed per harness, not vendored here)");
 const HOME = process.env.HOME ?? "";
 
 const claudePlugins = `${HOME}/.claude/plugins/installed_plugins.json`;
-const claudeFound = existsSync(claudePlugins) &&
+const claudeFound =
+  existsSync(claudePlugins) &&
   readFileSync(claudePlugins, "utf8").includes("superpowers@");
-console.log(`  ${claudeFound ? "found  " : "absent "} superpowers — Claude Code (${claudePlugins})`);
+console.log(
+  `  ${claudeFound ? "found  " : "absent "} superpowers — Claude Code (${claudePlugins})`,
+);
 
 const codexConfig = `${HOME}/.codex/config.toml`;
-const codexFound = existsSync(codexConfig) &&
-  readFileSync(codexConfig, "utf8").includes('[plugins."superpowers@claude-plugins-official"]');
-console.log(`  ${codexFound ? "found  " : "absent "} superpowers — Codex (${codexConfig})`);
+const codexFound =
+  existsSync(codexConfig) &&
+  readFileSync(codexConfig, "utf8").includes(
+    '[plugins."superpowers@claude-plugins-official"]',
+  );
+console.log(
+  `  ${codexFound ? "found  " : "absent "} superpowers — Codex (${codexConfig})`,
+);
 
 const geminiSkills = `${HOME}/.gemini/config/skills.json`;
 let antigravityFound = false;
 if (existsSync(geminiSkills)) {
   const raw = readFileSync(geminiSkills, "utf8");
-  antigravityFound = [...raw.matchAll(/"path"\s*:\s*"([^"]*)"/g)]
-    .some(([, p]) => p.includes("superpowers"));
+  antigravityFound = [...raw.matchAll(/"path"\s*:\s*"([^"]*)"/g)].some(
+    ([, p]) => p.includes("superpowers"),
+  );
 }
-console.log(`  ${antigravityFound ? "found  " : "absent "} superpowers — Antigravity (${geminiSkills})`);
+console.log(
+  `  ${antigravityFound ? "found  " : "absent "} superpowers — Antigravity (${geminiSkills})`,
+);
 
 console.log(
   "  info    superpowers — Devin: personal plugins are account-level and cloud-side, " +
@@ -117,8 +140,14 @@ console.log(
 );
 
 console.log("\nContract reachability");
-report(existsSync("AGENTS.md"), "AGENTS.md present (Devin, Antigravity, Cursor, Codex)");
-report(existsSync("CLAUDE.md"), "CLAUDE.md present (Claude Code does not read AGENTS.md)");
+report(
+  existsSync("AGENTS.md"),
+  "AGENTS.md present (Devin, Antigravity, Cursor, Codex)",
+);
+report(
+  existsSync("CLAUDE.md"),
+  "CLAUDE.md present (Claude Code does not read AGENTS.md)",
+);
 report(existsSync("GEMINI.md"), "GEMINI.md present (Antigravity)");
 report(
   existsSync(".cursor/rules/agent-roster.mdc"),
@@ -143,7 +172,9 @@ console.log("\nLedger");
 if (hasGit) {
   const ignored = (path) => {
     try {
-      execFileSync("git", ["check-ignore", "-q", "--", path], { stdio: "pipe" });
+      execFileSync("git", ["check-ignore", "-q", "--", path], {
+        stdio: "pipe",
+      });
       return true;
     } catch {
       return false;
@@ -162,7 +193,9 @@ if (hasGit) {
         : "no active ledger, and .roster/ledger.md is not ignored — the next one will be tracked",
   );
   if (!ignored(".roster/review/")) {
-    console.log("  warn .roster/review/ is not ignored — captured diffs are scratch, not source");
+    console.log(
+      "  warn .roster/review/ is not ignored — captured diffs are scratch, not source",
+    );
   }
   if (active) {
     console.log(
@@ -196,10 +229,16 @@ function checkAntigravityTrust() {
 const agyTrust = checkAntigravityTrust();
 if (agyTrust.checked) {
   if (agyTrust.trusted) {
-    console.log(`  ok   antigravity: workspace is trusted in ~/.gemini/trustedFolders.json (${agyTrust.matched})`);
+    console.log(
+      `  ok   antigravity: workspace is trusted in ~/.gemini/trustedFolders.json (${agyTrust.matched})`,
+    );
   } else {
-    console.log(`  warn antigravity: workspace is not in ~/.gemini/trustedFolders.json`);
-    console.log(`       (run 'agy' interactively or add '${process.cwd().toLowerCase()}' to trustedFolders.json for background/non-interactive subagents)`);
+    console.log(
+      `  warn antigravity: workspace is not in ~/.gemini/trustedFolders.json`,
+    );
+    console.log(
+      `       (run 'agy' interactively or add '${process.cwd().toLowerCase()}' to trustedFolders.json for background/non-interactive subagents)`,
+    );
   }
 }
 
@@ -218,7 +257,10 @@ if (!devinCli) {
 } else {
   let doctorOut = "";
   try {
-    doctorOut = execFileSync("devin", ["doctor"], { encoding: "utf8", stdio: "pipe" });
+    doctorOut = execFileSync("devin", ["doctor"], {
+      encoding: "utf8",
+      stdio: "pipe",
+    });
   } catch (e) {
     doctorOut = e.stdout ?? "";
   }
@@ -228,10 +270,12 @@ if (!devinCli) {
     // `doctor:agents` red for somebody else's stale config. Surface it without
     // failing, exactly as the antigravity trust check above does.
     if (/^\s*fail\b/i.test(line)) report(false, `devin doctor: ${line.trim()}`);
-    else if (/^\s*warn\b/i.test(line)) console.log(`  warn devin doctor: ${line.trim()}`);
+    else if (/^\s*warn\b/i.test(line))
+      console.log(`  warn devin doctor: ${line.trim()}`);
   }
   const loaded = doctorOut.match(/(\d+) profile\(s\) loaded/);
-  if (loaded) console.log(`  ok   devin doctor: ${loaded[1]} subagent profile(s) loaded`);
+  if (loaded)
+    console.log(`  ok   devin doctor: ${loaded[1]} subagent profile(s) loaded`);
 
   const config = JSON.parse(readFileSync("config/agents.json", "utf8"));
   const pins = pinnedModels(config).filter((p) => p.tool === "devin");
@@ -239,7 +283,10 @@ if (!devinCli) {
   let modelsFailed = false;
   try {
     catalog = parseModelCatalog(
-      execFileSync("devin", ["models", "list"], { encoding: "utf8", stdio: "pipe" }),
+      execFileSync("devin", ["models", "list"], {
+        encoding: "utf8",
+        stdio: "pipe",
+      }),
     );
   } catch (e) {
     // `devin models list` can fail two ways, and both must collapse to one
@@ -266,9 +313,14 @@ if (!devinCli) {
   for (const { where, model } of modelsFailed ? [] : pins) {
     const entry = catalog.get(model);
     if (!entry) {
-      report(false, `devin: ${where} pins model "${model}", which devin models list does not offer`);
+      report(
+        false,
+        `devin: ${where} pins model "${model}", which devin models list does not offer`,
+      );
     } else if (!entry.free) {
-      console.log(`  warn devin: ${where} pins "${model}" (${entry.label}) — no longer free`);
+      console.log(
+        `  warn devin: ${where} pins "${model}" (${entry.label}) — no longer free`,
+      );
     } else {
       console.log(`  ok   devin: ${where} → ${model} (${entry.label}, free)`);
     }
@@ -277,8 +329,11 @@ if (!devinCli) {
 
 console.log("\nInstalled CLIs");
 for (const [bin, name] of [
-  ["claude", "Claude Code"], ["devin", "Devin"],
-  ["agy", "Antigravity"], ["cursor-agent", "Cursor"], ["codex", "Codex"],
+  ["claude", "Claude Code"],
+  ["devin", "Devin"],
+  ["agy", "Antigravity"],
+  ["cursor-agent", "Cursor"],
+  ["codex", "Codex"],
 ]) {
   let found = false;
   try {

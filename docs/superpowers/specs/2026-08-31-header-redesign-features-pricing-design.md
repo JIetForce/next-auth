@@ -9,6 +9,7 @@ ambient glows, `text-siftloom-gradient`, `sl-card` hover lift, brand color `#2fb
 home page FAQ).
 
 The current `Header` (`src/components/header.tsx`) has two problems:
+
 1. Nav links are not centered — logo, nav, and actions sit in one left-aligned flex row.
 2. Active page is not highlighted with brand color.
 3. The nav links `/features` ("Tools") and `/pricing` ("Community") both 404 — those pages don't exist,
@@ -19,6 +20,7 @@ The current `Header` (`src/components/header.tsx`) has two problems:
 ### 1. Header redesign (`src/components/header.tsx` + new `src/components/header-nav.tsx`)
 
 **Layout — logo left, nav center, actions right:**
+
 - Outer `<header>` keeps `sticky top-0 z-50 w-full border-b border-border/80 bg-background/80 backdrop-blur-md`.
 - Inner `<div className="container relative flex h-14 items-center">` gains `relative` for absolute nav centering.
 - Logo `Link` stays on the left (unchanged markup).
@@ -39,6 +41,7 @@ exact match for `/`; `pathname === href || pathname.startsWith(href + "/")` for 
 active-state styling applies in `MobileNavigation` (which is already a client component).
 
 **Files:**
+
 - `src/components/header.tsx` — updated layout, updated `primaryLinks` labels, renders `<HeaderNav />`
   instead of inline `NavigationMenu`. Remains a server component.
 - `src/components/header-nav.tsx` — **new** client component: `usePathname()` + active pill rendering.
@@ -53,6 +56,7 @@ automatically. Reuses the Siftloom visual language (`sl-bg-grid`, ambient glows,
 `text-siftloom-gradient`, `sl-card`).
 
 **Sections:**
+
 1. **Hero** — `Badge` "Features", gradient headline, subtitle, `Join for Free` CTA → `/login`.
 2. **Category grid** — the 6 category cards from the home page (Productivity, Developer Tools,
    Automation, SaaS & Software, AI & Agents, Growth & Marketing), each expanded with a short bulleted
@@ -67,6 +71,7 @@ Server component, static, under `(main)/layout.tsx`. Reflects product reality: S
 monetized via sponsorships. No invented paid tiers.
 
 **Sections:**
+
 1. **Hero** — `Badge` "Pricing", headline "Free, forever", subtitle referencing the FAQ.
 2. **Free tier** — a single highlighted `Card` listing what's included (curated updates, community
    access, early alerts, no paywall) with a `Join for Free` button → `/login`.

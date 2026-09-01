@@ -79,7 +79,7 @@ docs/                     # project architecture, research, and audit records
 | `npm run dev`             | Start the development server with Turbopack                                          |
 | `npm run build`           | Create an optimized production build                                                 |
 | `npm run start`           | Start the production server                                                          |
-| `npm test`                | Run Playwright E2E tests (requires local PostgreSQL `apptest` database; human-gated)   |
+| `npm test`                | Run Playwright E2E tests (requires local PostgreSQL `apptest` database; human-gated) |
 | `npm run lint`            | Run ESLint                                                                           |
 | `npm run db:studio`       | Open Prisma Studio against the `appdev` database                                     |
 | `npm run sync:agents`     | Regenerate per-harness agent profiles                                                |

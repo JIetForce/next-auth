@@ -25,8 +25,8 @@ export function AuthShowcase() {
           </h2>
           <p className="max-w-lg text-base text-muted-foreground">
             Curated AI, SaaS, and workflow tools for modern teams and digital
-            professionals. Practical discoveries and clear updates without
-            the fluff.
+            professionals. Practical discoveries and clear updates without the
+            fluff.
           </p>
         </div>
 
@@ -65,7 +65,9 @@ export function AuthShowcase() {
               <Zap className="size-4" aria-hidden="true" />
             </div>
             <div className="flex flex-col gap-0.5">
-              <span className="text-sm font-medium">Productivity Workflows</span>
+              <span className="text-sm font-medium">
+                Productivity Workflows
+              </span>
               <span className="text-xs text-muted-foreground">
                 Tools that actually save time and accelerate output
               </span>
@@ -89,9 +91,12 @@ export function AuthShowcase() {
               <Bot className="size-4" aria-hidden="true" />
             </div>
             <div className="flex flex-col gap-0.5">
-              <span className="text-sm font-medium">AI, Agents &amp; Automation</span>
+              <span className="text-sm font-medium">
+                AI, Agents &amp; Automation
+              </span>
               <span className="text-xs text-muted-foreground">
-                Real-world autonomous agents, LLM integrations, and custom automations
+                Real-world autonomous agents, LLM integrations, and custom
+                automations
               </span>
             </div>
           </div>

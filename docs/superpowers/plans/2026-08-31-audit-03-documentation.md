@@ -29,11 +29,11 @@ document that is stale on arrival.
 
 ## File Structure
 
-| File | Responsibility | Action |
-| --- | --- | --- |
+| File                        | Responsibility                     | Action               |
+| --------------------------- | ---------------------------------- | -------------------- |
 | `docs/auth-architecture.md` | Source of truth for authentication | Rewrite from scratch |
-| `README.md` | Project entry point | Modify |
-| `docs/nextjs-research.md` | Historical research | Add banner |
+| `README.md`                 | Project entry point                | Modify               |
+| `docs/nextjs-research.md`   | Historical research                | Add banner           |
 
 ---
 
@@ -42,21 +42,22 @@ document that is stale on arrival.
 Answers 1.1.
 
 **Files:**
+
 - Rewrite: `docs/auth-architecture.md`
 
 - [ ] **Step 1: Read the audit's table at §1.1** — eleven specific false statements, with line
-  numbers. It is the checklist for what the old document got wrong, not the source for the new one.
+      numbers. It is the checklist for what the old document got wrong, not the source for the new one.
 
 - [ ] **Step 2: Read the code.** `src/auth.ts`, `src/lib/auth/*`, `src/app/(auth)/**`,
-  `src/app/api/auth/[...all]/route.ts`, `prisma/schema.prisma`, `e2e/helpers/auth-test-instance.ts`.
-  The new document is written from these files.
+      `src/app/api/auth/[...all]/route.ts`, `prisma/schema.prisma`, `e2e/helpers/auth-test-instance.ts`.
+      The new document is written from these files.
 
 - [ ] **Step 3: Delete the old file's content entirely and write a new one.** The audit is explicit
-  that line-by-line patching is the wrong approach: the invariants changed, not the phrasing. Cover:
+      that line-by-line patching is the wrong approach: the invariants changed, not the phrasing. Cover:
 
   - **Stack:** `better-auth@1.7.2` with `prismaAdapter`, sessions as rows in Postgres. Not
     `next-auth`, not JWT cookies, not "no database adapter".
-  - **Providers:** email + password *and* Google, with `accountLinking` enabled and
+  - **Providers:** email + password _and_ Google, with `accountLinking` enabled and
     `trustedProviders: ["google"]`, `requireLocalEmailVerified: true` (`src/auth.ts:66-72`).
   - **Environment variables:** `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `GOOGLE_CLIENT_ID`,
     `GOOGLE_CLIENT_SECRET`, `DATABASE_URL`, `DIRECT_URL`, SMTP variables, `CRON_SECRET`,
@@ -70,7 +71,7 @@ Answers 1.1.
   - **The sections that never existed:** registration, email verification, password reset, email
     dispatch, rate limiting. The audit puts this at roughly 60% of the current auth surface.
   - **The phase 1 invariant, stated as an invariant:** `disabledPaths` means Better Auth's HTTP
-    credential endpoints return 404 and the Server Actions are the only door. Explain *why* — the
+    credential endpoints return 404 and the Server Actions are the only door. Explain _why_ — the
     rate limiter runs only in the router's `onRequest` hook, so an open HTTP endpoint bypasses every
     per-action limit — and say plainly that adding a `better-auth/client` call will 404 until its
     path is removed from that list.
@@ -81,11 +82,11 @@ Answers 1.1.
     `authjs.session-token` cookie; neither exists.
 
 - [ ] **Step 4: Keep the "source of truth" claim, and earn it.** Add a line saying every statement is
-  cited to `file:line` and that a change to those files is a change to this document.
+      cited to `file:line` and that a change to those files is a change to this document.
 
 - [ ] **Step 5: Verify.** Re-read the finished document against the code and confirm every cited
-  `file:line` resolves. List in `### Test results` any claim you could not verify, rather than
-  leaving it in the text.
+      `file:line` resolves. List in `### Test results` any claim you could not verify, rather than
+      leaving it in the text.
 
 ---
 
@@ -94,35 +95,36 @@ Answers 1.1.
 Answers 1.2.
 
 **Files:**
+
 - Modify: `README.md`
 
 - [ ] **Step 1: The title.** Line 1 says `# next-auth`. `package.json` says `agent-roster-web`. The
-  application is branded Siftloom. Three names for one thing. Pick one for the heading — Siftloom, as
-  the user-facing name — and note the package name beneath it.
+      application is branded Siftloom. Three names for one thing. Pick one for the heading — Siftloom, as
+      the user-facing name — and note the package name beneath it.
 
 - [ ] **Step 2: The project structure block (lines 22-37).** It shows a flat `src/app/layout.tsx` and
-  `page.tsx` and describes `components/` and `lib/` as "create as needed". Reality: route groups
-  `(main)` and `(auth)`, `api/auth/[...all]`, and both directories long since populated. Regenerate
-  it from the tree.
+      `page.tsx` and describes `components/` and `lib/` as "create as needed". Reality: route groups
+      `(main)` and `(auth)`, `api/auth/[...all]`, and both directories long since populated. Regenerate
+      it from the tree.
 
 - [ ] **Step 3: The secret-rotation instruction (line 99) is actively wrong.** Every clause of it:
-  `no matching decryption secret` is a `jose`/Auth.js message Better Auth never emits; the endpoint is
-  `/api/auth/sign-out` with a hyphen, POST only, with no confirmation page, so a GET to
-  `/api/auth/signout` 404s; and sessions are rows in `session`, not JWTs. After phase 1, `/sign-out`
-  is in `disabledPaths` and 404s regardless. Replace with what is actually true: rotating
-  `BETTER_AUTH_SECRET` invalidates the signed session cookies, and the user signs in again — there is
-  nothing to visit.
+      `no matching decryption secret` is a `jose`/Auth.js message Better Auth never emits; the endpoint is
+      `/api/auth/sign-out` with a hyphen, POST only, with no confirmation page, so a GET to
+      `/api/auth/signout` 404s; and sessions are rows in `session`, not JWTs. After phase 1, `/sign-out`
+      is in `disabledPaths` and 404s regardless. Replace with what is actually true: rotating
+      `BETTER_AUTH_SECRET` invalidates the signed session cookies, and the user signs in again — there is
+      nothing to visit.
 
 - [ ] **Step 4: The command table.** Add `npm test` (Playwright E2E — note it needs a local Postgres
-  and does not run unattended), plus whatever phase 4 added: `npm run test:unit`, `npm run format`,
-  `npm run format:check`.
+      and does not run unattended), plus whatever phase 4 added: `npm run test:unit`, `npm run format`,
+      `npm run format:check`.
 
 - [ ] **Step 5: The routes.** Lines 40-50 document every roster script and not one application route.
-  Add `/`, `/features`, `/pricing`, `/login`, `/register`, `/verify-email`, `/reset-password`,
-  `/profile`, and the pages phase 5 adds.
+      Add `/`, `/features`, `/pricing`, `/login`, `/register`, `/verify-email`, `/reset-password`,
+      `/profile`, and the pages phase 5 adds.
 
 - [ ] **Step 6: Verify.** Run every command in the table and confirm it exists. Follow the structure
-  block against `find src -type f`. Report any line you could not verify.
+      block against `find src -type f`. Report any line you could not verify.
 
 ---
 
@@ -131,17 +133,18 @@ Answers 1.2.
 Answers 1.3.
 
 **Files:**
+
 - Modify: `docs/nextjs-research.md`
 
 - [ ] **Step 1: Add a banner at the top**, before any other content: this document was written for a
-  stack the project no longer uses — Auth.js v5 (`next-auth@beta`) — during the evaluation that
-  preceded the move to Better Auth. It is kept as a record of that evaluation. For current
-  authentication behaviour, read `docs/auth-architecture.md`.
+      stack the project no longer uses — Auth.js v5 (`next-auth@beta`) — during the evaluation that
+      preceded the move to Better Auth. It is kept as a record of that evaluation. For current
+      authentication behaviour, read `docs/auth-architecture.md`.
 
 - [ ] **Step 2: Fix the currency claim.** Line 3 says "Актуальность: август 2026", which reads as
-  current. Change it to a written-on date. Keep the rest of the 834 lines: the audit's recommendation
-  is to mark it, not to delete it, and its Next.js 16 research is still sound even where its auth
-  research is not.
+      current. Change it to a written-on date. Keep the rest of the 834 lines: the audit's recommendation
+      is to mark it, not to delete it, and its Next.js 16 research is still sound even where its auth
+      research is not.
 
 - [ ] **Step 3: Verify.** Confirm no other document links to it as current guidance:
 

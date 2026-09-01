@@ -220,18 +220,18 @@ Logout clears the local Auth.js JWT cookie. It does not revoke the user's Google
 
 ## Redirect and state matrix
 
-| State/action | Required result |
-| --- | --- |
-| Anonymous `GET /` | `200`; Header shows Sign in and no PII/Profile/Logout |
-| Authenticated `GET /` | `200`; Sign in absent; Avatar menu exposes Profile and Logout |
-| Anonymous/invalid/expired session `GET /profile` | fixed redirect to `/login`; private profile markup absent |
-| Authenticated `GET /profile` | `200`; safe Viewer fields only |
-| Anonymous `GET /login` | existing login/configuration UI |
-| Authenticated `GET /login` | fixed redirect to `/` |
-| Successful Google login | fixed redirect to `/`; authenticated Header rendered server-side |
-| Authenticated logout submit | JWT cookie cleared; fixed redirect to `/`; Header becomes anonymous |
-| Anonymous direct logout action | fixed redirect to `/` |
-| Any callback/redirect/provider browser input | ignored; no destination changes |
+| State/action                                     | Required result                                                     |
+| ------------------------------------------------ | ------------------------------------------------------------------- |
+| Anonymous `GET /`                                | `200`; Header shows Sign in and no PII/Profile/Logout               |
+| Authenticated `GET /`                            | `200`; Sign in absent; Avatar menu exposes Profile and Logout       |
+| Anonymous/invalid/expired session `GET /profile` | fixed redirect to `/login`; private profile markup absent           |
+| Authenticated `GET /profile`                     | `200`; safe Viewer fields only                                      |
+| Anonymous `GET /login`                           | existing login/configuration UI                                     |
+| Authenticated `GET /login`                       | fixed redirect to `/`                                               |
+| Successful Google login                          | fixed redirect to `/`; authenticated Header rendered server-side    |
+| Authenticated logout submit                      | JWT cookie cleared; fixed redirect to `/`; Header becomes anonymous |
+| Anonymous direct logout action                   | fixed redirect to `/`                                               |
+| Any callback/redirect/provider browser input     | ignored; no destination changes                                     |
 
 Layouts and Header state are UX only. Every future protected page, action, handler, or data function must invoke the DAL/authorization boundary itself.
 

@@ -29,10 +29,12 @@
 ### Task 9: SMTP transport with a file-capture test mode
 
 **Files:**
+
 - Create: `src/lib/email/client.ts`
 - Modify: `.env.example`, `.env.local` (untracked), `package.json`, `.gitignore`
 
 **Interfaces:**
+
 - Consumes: nothing from earlier tasks.
 - Produces: `sendEmail({ to, subject, text }): Promise<void>` from `@/lib/email/client`. Task 10 calls it.
 
@@ -98,7 +100,11 @@ export type SendEmailInput = {
 
 async function captureEmail(path: string, message: SendEmailInput) {
   await mkdir(dirname(path), { recursive: true });
-  await appendFile(path, `${JSON.stringify({ ...message, at: Date.now() })}\n`, "utf8");
+  await appendFile(
+    path,
+    `${JSON.stringify({ ...message, at: Date.now() })}\n`,
+    "utf8",
+  );
 }
 
 function createTransport() {
@@ -170,11 +176,13 @@ git commit -m "feat: add an SMTP transport with a file-capture test mode"
 ### Task 10: Enable email/password and verification in the auth config
 
 **Files:**
+
 - Modify: `src/auth.ts`
 - Modify: `prisma/schema.prisma` (regenerated)
 - Create: `prisma/migrations/**` (generated)
 
 **Interfaces:**
+
 - Consumes: `sendEmail` from Task 9.
 - Produces: `auth.api.signUpEmail`, `auth.api.signInEmail`, `auth.api.sendVerificationEmail`, plus the `POST /api/auth/sign-up/email` and `POST /api/auth/sign-in/email` HTTP routes.
 
@@ -233,6 +241,7 @@ curl -s -X POST http://localhost:3000/api/auth/sign-up/email \
   -H 'content-type: application/json' \
   -d '{"name":"Probe","email":"probe@example.invalid","password":"short"}'
 ```
+
 Expected: a `4xx` error mentioning password length — proving `minPasswordLength` is live.
 
 - [ ] **Step 4: Verify a valid sign-up creates no session and sends mail**
@@ -242,6 +251,7 @@ curl -s -X POST http://localhost:3000/api/auth/sign-up/email \
   -H 'content-type: application/json' \
   -d '{"name":"Probe","email":"probe@example.invalid","password":"correct-horse-1"}'
 ```
+
 Expected: `200`, and the JSON contains `"token": null` — no session, because `autoSignIn` is `false`.
 
 Run the dev server with `EMAIL_CAPTURE_FILE=.next/mail.log` set, then:
@@ -271,9 +281,11 @@ git commit -m "feat: enable email/password sign-up with mandatory verification"
 ### Task 11: Rate limiting for Server Actions
 
 **Files:**
+
 - Create: `src/lib/auth/rate-limit.ts`
 
 **Interfaces:**
+
 - Consumes: nothing.
 - Produces: `consumeRateLimit(key: string, max: number, windowMs: number): boolean` — returns `false` when the caller is over budget.
 
@@ -323,6 +335,7 @@ export function consumeRateLimit(
 - [ ] **Step 2: Verify the budget behaves**
 
 Run:
+
 ```bash
 npx tsx --eval "
 import { consumeRateLimit } from './src/lib/auth/rate-limit.ts';
@@ -330,6 +343,7 @@ const r = [1,2,3,4].map(() => consumeRateLimit('probe', 3, 60000));
 console.log(JSON.stringify(r));
 " 2>/dev/null || npx tsc --noEmit
 ```
+
 Expected: `[true,true,true,false]`. If `tsx` is unavailable, the fallback `tsc --noEmit` must at least pass; verify the behaviour through the E2E test in Task 15 instead.
 
 - [ ] **Step 3: Commit**
@@ -344,11 +358,13 @@ git commit -m "feat: add an in-process rate limiter for auth Server Actions"
 ### Task 12: Registration screen and action
 
 **Files:**
+
 - Create: `src/app/(auth)/register/page.tsx`
 - Create: `src/app/(auth)/register/actions.ts`
 - Create: `src/app/(auth)/register/_components/register-form.tsx`
 
 **Interfaces:**
+
 - Consumes: `auth`, `consumeRateLimit`, `getCurrentViewer`.
 - Produces: `registerAction(state, formData): Promise<RegisterState>` for `useActionState`.
 
@@ -384,15 +400,16 @@ export async function registerAction(
   formData: FormData,
 ): Promise<RegisterState> {
   const name = String(formData.get("name") ?? "").trim();
-  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const email = String(formData.get("email") ?? "")
+    .trim()
+    .toLowerCase();
   const password = String(formData.get("password") ?? "");
   const confirmation = String(formData.get("confirmPassword") ?? "");
 
   if (!name || !isValidEmail(email)) return genericFailure;
   if (!isValidPassword(password)) {
     return {
-      error:
-        "Use at least 12 characters, including one letter and one number.",
+      error: "Use at least 12 characters, including one letter and one number.",
     };
   }
   if (password !== confirmation) {
@@ -539,11 +556,13 @@ git commit -m "feat: add the registration screen and action"
 ### Task 13: Verification waiting screen and resend
 
 **Files:**
+
 - Create: `src/app/(auth)/verify-email/page.tsx`
 - Create: `src/app/(auth)/verify-email/actions.ts`
 - Create: `src/app/(auth)/verify-email/_components/resend-form.tsx`
 
 **Interfaces:**
+
 - Consumes: `auth`, `consumeRateLimit`.
 - Produces: `resendVerificationAction(state, formData): Promise<ResendState>`.
 
@@ -568,7 +587,9 @@ export async function resendVerificationAction(
   _state: ResendState,
   formData: FormData,
 ): Promise<ResendState> {
-  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const email = String(formData.get("email") ?? "")
+    .trim()
+    .toLowerCase();
 
   if (!email) return uniformReply;
   if (!consumeRateLimit(`resend:${email}`, 3, 60 * 60 * 1000)) {
@@ -598,10 +619,7 @@ import { useActionState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  resendVerificationAction,
-  type ResendState,
-} from "../actions";
+import { resendVerificationAction, type ResendState } from "../actions";
 
 const initialState: ResendState = { message: null };
 
@@ -690,11 +708,13 @@ git commit -m "feat: add the verification waiting screen and resend action"
 ### Task 14: Email and password sign-in on /login
 
 **Files:**
+
 - Create: `src/app/(auth)/login/_components/credentials-form.tsx`
 - Modify: `src/app/(auth)/login/actions.ts`
 - Modify: `src/app/(auth)/login/page.tsx`
 
 **Interfaces:**
+
 - Consumes: `auth`, `consumeRateLimit`.
 - Produces: `signInWithCredentials(state, formData): Promise<SignInState>`, alongside the existing `signInWithGoogle`.
 
@@ -711,7 +731,9 @@ export async function signInWithCredentials(
   _state: SignInState,
   formData: FormData,
 ): Promise<SignInState> {
-  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const email = String(formData.get("email") ?? "")
+    .trim()
+    .toLowerCase();
   const password = String(formData.get("password") ?? "");
 
   if (!email || !password) {
@@ -813,11 +835,13 @@ git commit -m "feat: add email and password sign-in to the login page"
 ### Task 15: End-to-end coverage of the registration flow
 
 **Files:**
+
 - Create: `e2e/helpers/mail.ts`
 - Create: `e2e/registration.spec.ts`
 - Modify: `playwright.config.ts`, `e2e/global-setup.ts`
 
 **Interfaces:**
+
 - Consumes: everything above.
 - Produces: `readLatestMessageTo(email)`, `extractFirstUrl(body)` and `clearMailbox()` from `e2e/helpers/mail.ts`.
 

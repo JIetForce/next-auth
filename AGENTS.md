@@ -26,7 +26,7 @@ sequence, keeping the two phases separate and applying the same output formats b
 
 ### This contract outranks the plan
 
-A plan document says *what* to build. This contract says *how* it is verified and accepted. Where a plan — or
+A plan document says _what_ to build. This contract says _how_ it is verified and accepted. Where a plan — or
 the generic planning skill that produced it — prescribes a commit, a review input, or a dispatch that differs
 from the loop below, the loop wins and the plan is adapted to it, never the reverse.
 
@@ -42,13 +42,13 @@ define what belongs in the commit.
 `superpowers` is installed at user scope on every harness here, and it is complementary to this contract —
 except for two of its skills, which answer the same question this contract answers, and answer it differently.
 
-| superpowers skill | Status in a repository carrying this contract |
-| --- | --- |
-| `brainstorming` | **Use it.** It produces the spec on the architectural path — step 1. |
-| `writing-plans` | **Use it.** It produces the plan — step 1. |
-| `test-driven-development`, `systematic-debugging`, `verification-before-completion`, `using-git-worktrees` | **Use them.** Discipline, no overlap. |
-| `subagent-driven-development` | **Superseded by this contract. Do not invoke it here.** |
-| `executing-plans` | **Superseded by this contract. Do not invoke it here.** |
+| superpowers skill                                                                                          | Status in a repository carrying this contract                        |
+| ---------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| `brainstorming`                                                                                            | **Use it.** It produces the spec on the architectural path — step 1. |
+| `writing-plans`                                                                                            | **Use it.** It produces the plan — step 1.                           |
+| `test-driven-development`, `systematic-debugging`, `verification-before-completion`, `using-git-worktrees` | **Use them.** Discipline, no overlap.                                |
+| `subagent-driven-development`                                                                              | **Superseded by this contract. Do not invoke it here.**              |
+| `executing-plans`                                                                                          | **Superseded by this contract. Do not invoke it here.**              |
 
 The two superseded skills are not merely redundant. They contradict this loop on four points, and running one
 inside it produces a review that silently examines nothing:
@@ -67,14 +67,14 @@ this section is the instruction: you have now read it, so you know not to invoke
 
 ## The loop
 
-1. **Spec, sized to the change.** Every run of this loop has a spec. What *form* it takes depends on the
+1. **Spec, sized to the change.** Every run of this loop has a spec. What _form_ it takes depends on the
    size of the change — and the ledger is written either way. A spec is never replaced by a ledger entry; it
    is copied into one.
 
-   | The change | Spec | Plan | This loop |
-   | --- | --- | --- | --- |
-   | A question, an explanation, read-only investigation | — | — | not engaged |
-   | **Bounded** — the flow you are changing already exists here to read, and one pass of one writer covers it | a paragraph **in chat** | — | one run |
+   | The change                                                                                                                          | Spec                                                                 | Plan                                                                 | This loop                 |
+   | ----------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------- | ------------------------- |
+   | A question, an explanation, read-only investigation                                                                                 | —                                                                    | —                                                                    | not engaged               |
+   | **Bounded** — the flow you are changing already exists here to read, and one pass of one writer covers it                           | a paragraph **in chat**                                              | —                                                                    | one run                   |
    | **Architectural** — a new subsystem, a change to an interface others depend on, or more than one independently testable deliverable | `superpowers:brainstorming` → a file under `docs/superpowers/specs/` | `superpowers:writing-plans` → a file under `docs/superpowers/plans/` | **one run per plan task** |
 
    Understanding the kind of application is not enough to call something bounded: bounded means the flow you
@@ -83,7 +83,7 @@ this section is the instruction: you have now read it, so you know not to invoke
 
    A spec in either form states three things: what changes, what must not change, and how it will be verified.
 
-   **This is a gate, not a notification.** Show the spec and *wait* for the user to agree before you dispatch
+   **This is a gate, not a notification.** Show the spec and _wait_ for the user to agree before you dispatch
    anything. The earlier wording was "show the spec", and it produced two populations of agents — those that
    paused for an answer and those that read it as a courtesy and carried on.
 
@@ -100,7 +100,7 @@ this section is the instruction: you have now read it, so you know not to invoke
    - **Nothing** → create it, in the shape below.
    - **It describes the change you are resuming** → read it first, then keep appending. It is the record of
      what already happened, and you do not redo that work.
-   - **It describes a *different* change** → that change was delivered and never closed out. Archive it and
+   - **It describes a _different_ change** → that change was delivered and never closed out. Archive it and
      start a fresh one. **Never overwrite it in place** — that is somebody's only record of why a decision
      was made.
 
@@ -111,8 +111,11 @@ this section is the instruction: you have now read it, so you know not to invoke
 
    ```markdown
    # <one-line description of the change>
+
    ## Spec
+
    <the spec, verbatim — on the architectural path, the plan task plus a link to the plan file>
+
    ## Cycle log
    ```
 
@@ -122,12 +125,14 @@ this section is the instruction: you have now read it, so you know not to invoke
    on some tools waiting is not automatic). If it returns a non-empty `### Blocked`, go to `## Escalation`.
 
 4. **Capture the diff.**
+
    ```bash
    mkdir -p .roster/review
    git add -N -- <the paths the developer touched>   # or `git add -N .`
    git diff > .roster/review/cycle-<N>.diff
    git status --porcelain >> .roster/review/cycle-<N>.diff
    ```
+
    `git add -N` records intent-to-add so a new file appears in `git diff` as a full addition. Without it the capture silently omits every file the change created, which is the same failure as an empty diff and harder to notice.
    Use `git diff HEAD` instead if the developer staged its work. `<N>` is the review cycle, starting at 1.
 
@@ -152,6 +157,7 @@ this section is the instruction: you have now read it, so you know not to invoke
 
    ```markdown
    ### Cycle <N>
+
    - verifier: <pass|fail> — <the failing command, if any>
    - code-reviewer: <verdict> — <count> required
    - security-reviewer: <verdict> — <count> required
@@ -179,7 +185,7 @@ this section is the instruction: you have now read it, so you know not to invoke
         this order is not stylistic — `git commit -- <paths>` only ever commits paths git already
         tracks, and under this ordering the archived ledger is always a **new** file. When the
         pathspec matches nothing tracked git aborts with `pathspec ... did not match any file(s)
-        known to git`; when it matches something tracked — the normal case here, since `.roster`
+known to git`; when it matches something tracked — the normal case here, since `.roster`
         always matches earlier archives — git exits 0 and silently omits the new file, so the
         commit looks complete but contains no ledger. On the architectural path, use the paths
         the plan's task specifies.
@@ -189,6 +195,7 @@ this section is the instruction: you have now read it, so you know not to invoke
      got swept into the feature commit just so `git mv` had something tracked to move.
 
      Then summarise for the user. Done.
+
    - Otherwise → merge all `### Required changes` into one list, hand it to `developer`, and go to
      step 3 with `<N>+1`.
 
@@ -376,11 +383,11 @@ repository is.
 - **Third-party project skills you did not put there.** A component-library or SDK installer will drop skills
   into this repository on its own. The convention it will follow is one real copy under the neutral
   `.agents/skills/`, symlinked into each tool's own directory, and that is fine: `npm run doctor:agents`
-  accepts several source directories, because what breaks a harness is not two directories but one *name*
+  accepts several source directories, because what breaks a harness is not two directories but one _name_
   resolving to two different definitions. What it rejects is a second divergent copy of one skill, and a
   directory that lost its leading dot — `agent/skills/` where `.agent/skills/` was meant — which no harness
   reads and which therefore parks a duplicate somewhere nothing will ever report it.
-- **Project (generated):** procedures specific to *this* repository. Source of truth is
+- **Project (generated):** procedures specific to _this_ repository. Source of truth is
   `agents/skills/<name>/SKILL.md`; `npm run sync:agents` projects it into each tool's skills directory with
   that tool's dispatch mechanism substituted for `<!-- DISPATCH -->`.
 - **The test for which:** would this skill make sense in another repository? Global. Does it name a path in

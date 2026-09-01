@@ -13,14 +13,19 @@ const roles = readdirSync(ROLES_DIR, { withFileTypes: true })
   .filter((e) => e.isDirectory())
   .map((e) => {
     const raw = readFileSync(join(ROLES_DIR, e.name, "role.md"), "utf8");
-    const m = raw.replace(/\r\n/g, "\n").match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
+    const m = raw
+      .replace(/\r\n/g, "\n")
+      .match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
     const meta = Object.fromEntries(
-      m[1].split("\n").filter(Boolean).map((l) => {
-        const kv = l.match(/^([A-Za-z0-9_-]+)\s*:\s*(.*)$/);
-        let v = kv[2].trim();
-        if (/^(".*"|'.*')$/.test(v)) v = v.slice(1, -1);
-        return [kv[1], v];
-      }),
+      m[1]
+        .split("\n")
+        .filter(Boolean)
+        .map((l) => {
+          const kv = l.match(/^([A-Za-z0-9_-]+)\s*:\s*(.*)$/);
+          let v = kv[2].trim();
+          if (/^(".*"|'.*')$/.test(v)) v = v.slice(1, -1);
+          return [kv[1], v];
+        }),
     );
     return { meta, body: m[2].trim() };
   });
@@ -43,7 +48,8 @@ for (const { meta, body } of roles) {
     // Compare the body, not the escaped frontmatter. The body is verbatim in
     // every format, so a mismatch means the file is stale or hand-edited.
     const firstLine = body.split("\n")[0];
-    if (!gen.includes(firstLine)) fail(`${path}: role body is stale or missing`);
+    if (!gen.includes(firstLine))
+      fail(`${path}: role body is stale or missing`);
   }
 }
 
@@ -67,16 +73,22 @@ const GRANT_FIELD = {
 const grantField = (tool, text) => (GRANT_FIELD[tool] ?? ((t) => t))(text);
 
 const WRITE_MARKERS = {
-  devin:       ["- write", "- edit", "- exec"],
-  antigravity: ["commandExecutionPolicy: 'auto'", "commandExecutionPolicy: 'eager'"],
-  claude:      ["Write", "Edit", "Bash"],
-  cursor:      ["readonly: false"],
-  codex:       ['sandbox_mode = "workspace-write"', 'sandbox_mode = "danger-full-access"'],
+  devin: ["- write", "- edit", "- exec"],
+  antigravity: [
+    "commandExecutionPolicy: 'auto'",
+    "commandExecutionPolicy: 'eager'",
+  ],
+  claude: ["Write", "Edit", "Bash"],
+  cursor: ["readonly: false"],
+  codex: [
+    'sandbox_mode = "workspace-write"',
+    'sandbox_mode = "danger-full-access"',
+  ],
 };
 
 const NO_WRITE_MARKERS = {
   claude: ["Write", "Edit", "NotebookEdit"],
-  devin:  ["- write", "- edit"],
+  devin: ["- write", "- edit"],
 };
 
 for (const { meta } of roles) {
@@ -91,7 +103,8 @@ for (const { meta } of roles) {
 
     if (meta.class === "readonly" && WRITE_MARKERS[tool]) {
       for (const n of WRITE_MARKERS[tool]) {
-        if (scope.includes(n)) fail(`${path}: ${meta.name} is readonly but can act (found "${n}")`);
+        if (scope.includes(n))
+          fail(`${path}: ${meta.name} is readonly but can act (found "${n}")`);
       }
     }
     // `verifier` deliberately keeps a shell. Assert only that it cannot edit
@@ -99,7 +112,8 @@ for (const { meta } of roles) {
     // document rather than pretend to have closed.
     if (meta.class === "verifier" && NO_WRITE_MARKERS[tool]) {
       for (const n of NO_WRITE_MARKERS[tool]) {
-        if (scope.includes(n)) fail(`${path}: ${meta.name} must not have edit tools (found "${n}")`);
+        if (scope.includes(n))
+          fail(`${path}: ${meta.name} must not have edit tools (found "${n}")`);
       }
     }
   }

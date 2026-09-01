@@ -38,19 +38,19 @@ scheduled route prunes every expiring table, including the new one.
 
 ## File Structure
 
-| File | Responsibility | Action |
-| --- | --- | --- |
-| `prisma/schema.prisma` | `RateLimit` model; `expiresAt` indexes on `Session` and `Verification` | Modify |
-| `prisma/migrations/<ts>_rate_limit_and_expiry_indexes/migration.sql` | The migration | Create |
-| `src/lib/auth/rate-limit.ts` | Durable, database-backed `consumeRateLimit`; same signature | Rewrite |
-| `src/lib/auth/client-ip.ts` | Single client-IP helper with an explicit fallback chain | Create |
-| `src/auth.ts` | `rateLimit`, `disabledPaths`, `trustedOrigins`, `baseURL`, conditional Google | Modify |
-| `src/lib/auth/environment.ts` | Resolve the public base URL from the deployment | Modify |
-| `src/app/(auth)/*/actions.ts` | Use the IP helper; add the missing limit to `resetPasswordAction` | Modify |
-| `next.config.ts` | `headers()`; `allowedDevOrigins` from the environment | Modify |
-| `src/app/api/cron/cleanup/route.ts` | Delete expired `session`, `verification`, `rateLimit` rows | Create |
-| `vercel.json` | Cron schedule | Create |
-| `.env.example` | Production guidance for `BETTER_AUTH_URL`; new variables | Modify |
+| File                                                                 | Responsibility                                                                | Action  |
+| -------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ------- |
+| `prisma/schema.prisma`                                               | `RateLimit` model; `expiresAt` indexes on `Session` and `Verification`        | Modify  |
+| `prisma/migrations/<ts>_rate_limit_and_expiry_indexes/migration.sql` | The migration                                                                 | Create  |
+| `src/lib/auth/rate-limit.ts`                                         | Durable, database-backed `consumeRateLimit`; same signature                   | Rewrite |
+| `src/lib/auth/client-ip.ts`                                          | Single client-IP helper with an explicit fallback chain                       | Create  |
+| `src/auth.ts`                                                        | `rateLimit`, `disabledPaths`, `trustedOrigins`, `baseURL`, conditional Google | Modify  |
+| `src/lib/auth/environment.ts`                                        | Resolve the public base URL from the deployment                               | Modify  |
+| `src/app/(auth)/*/actions.ts`                                        | Use the IP helper; add the missing limit to `resetPasswordAction`             | Modify  |
+| `next.config.ts`                                                     | `headers()`; `allowedDevOrigins` from the environment                         | Modify  |
+| `src/app/api/cron/cleanup/route.ts`                                  | Delete expired `session`, `verification`, `rateLimit` rows                    | Create  |
+| `vercel.json`                                                        | Cron schedule                                                                 | Create  |
+| `.env.example`                                                       | Production guidance for `BETTER_AUTH_URL`; new variables                      | Modify  |
 
 ---
 
@@ -59,17 +59,19 @@ scheduled route prunes every expiring table, including the new one.
 Answers 2.1 (storage prerequisite) and 2.9 (indexes).
 
 **Files:**
+
 - Modify: `prisma/schema.prisma`
 - Create: `prisma/migrations/<timestamp>_rate_limit_and_expiry_indexes/migration.sql`
 
 **Interfaces:**
+
 - Produces: a `rateLimit` table matching what Better Auth's database storage expects, and
   `expiresAt` indexes that make Task 7's `DELETE` an index scan rather than a sequential one.
 
 - [ ] **Step 1: Add the `RateLimit` model.** The canonical shape is
-  `node_modules/@better-auth/core/dist/db/get-tables.mjs:33-56` — `key` (string, unique),
-  `count` (number), `lastRequest` (number, `bigint: true`), plus the implicit `id`. Default model
-  name is `rateLimit`. Follow the file's existing convention of an explicit `@@map`:
+      `node_modules/@better-auth/core/dist/db/get-tables.mjs:33-56` — `key` (string, unique),
+      `count` (number), `lastRequest` (number, `bigint: true`), plus the implicit `id`. Default model
+      name is `rateLimit`. Follow the file's existing convention of an explicit `@@map`:
 
 ```prisma
 model RateLimit {
@@ -84,7 +86,7 @@ model RateLimit {
 ```
 
 - [ ] **Step 2: Add the expiry indexes** to the existing models — `@@index([expiresAt])` on
-  `Session` and on `Verification`. Do not remove the indexes already there.
+      `Session` and on `Verification`. Do not remove the indexes already there.
 
 - [ ] **Step 3: Cross-check against the generator** rather than trusting Step 1:
 
@@ -92,23 +94,23 @@ model RateLimit {
 npx @better-auth/cli generate --config src/auth.ts
 ```
 
-  Compare its output for the rate-limit table against what you wrote. If it disagrees on a column
-  name or type, the generator is right — take its version and note the difference in your report.
-  Do not let it rewrite the rest of the schema.
+Compare its output for the rate-limit table against what you wrote. If it disagrees on a column
+name or type, the generator is right — take its version and note the difference in your report.
+Do not let it rewrite the rest of the schema.
 
 - [ ] **Step 4: Create the migration.** The Prisma CLI reads the unpooled URL via
-  `prisma.config.ts`, so this needs `DIRECT_URL` (or `DATABASE_URL_UNPOOLED`) in `.env.local`:
+      `prisma.config.ts`, so this needs `DIRECT_URL` (or `DATABASE_URL_UNPOOLED`) in `.env.local`:
 
 ```bash
 npx prisma migrate dev --name rate_limit_and_expiry_indexes
 ```
 
-  If no database is reachable, generate the SQL without applying it
-  (`npx prisma migrate diff --from-schema-datasource prisma/schema.prisma --to-schema-datamodel prisma/schema.prisma --script`),
-  write it to the migration directory by hand, and say clearly in `### Blocked` that it is unapplied.
+If no database is reachable, generate the SQL without applying it
+(`npx prisma migrate diff --from-schema-datasource prisma/schema.prisma --to-schema-datamodel prisma/schema.prisma --script`),
+write it to the migration directory by hand, and say clearly in `### Blocked` that it is unapplied.
 
 - [ ] **Step 5: Verify.** `npx prisma validate`, then `npm run build` (which runs `prisma generate`)
-  and `npx tsc --noEmit`.
+      and `npx tsc --noEmit`.
 
 ---
 
@@ -117,20 +119,22 @@ npx prisma migrate dev --name rate_limit_and_expiry_indexes
 Answers 2.2, 2.3, 2.4. Read spec C1 and C4 first.
 
 **Files:**
+
 - Rewrite: `src/lib/auth/rate-limit.ts`
 - Create: `src/lib/auth/client-ip.ts`
 - Modify: `src/app/(auth)/login/actions.ts`, `register/actions.ts`, `reset-password/actions.ts`, `verify-email/actions.ts`
 
 **Interfaces:**
+
 - Produces: `consumeRateLimit(key: string, max: number, windowMs: number): Promise<boolean>` — the
   signature gains a `Promise`, everything else is unchanged. Call sites become `await`ed.
 - Produces: `getClientIp(headers: Headers): string`.
 - Consumes: `prisma` from `@/lib/db`; the `rateLimit` table from Task 1.
 
 - [ ] **Step 1: Create `src/lib/auth/client-ip.ts`.** One helper, `server-only`, with a comment
-  explaining why the fallback exists — `ipAddress()` reads `x-real-ip`
-  (`node_modules/@vercel/functions/headers.js:58-61`), which nothing sets off Vercel, and the
-  `x-forwarded-for` fallback must take the **client-most** entry, not `.pop()`.
+      explaining why the fallback exists — `ipAddress()` reads `x-real-ip`
+      (`node_modules/@vercel/functions/headers.js:58-61`), which nothing sets off Vercel, and the
+      `x-forwarded-for` fallback must take the **client-most** entry, not `.pop()`.
 
 ```ts
 // src/lib/auth/client-ip.ts
@@ -156,7 +160,7 @@ export function getClientIp(headers: Headers): string {
 ```
 
 - [ ] **Step 2: Rewrite `src/lib/auth/rate-limit.ts`** over the `rateLimit` table. Keep the existing
-  doc comment's intent and keep the key convention. Requirements:
+      doc comment's intent and keep the key convention. Requirements:
   - Prefix every key written by this module with `action:` so it cannot collide with the keys Better
     Auth writes for its own endpoints into the same table.
   - Store the window boundary the way Better Auth does — `lastRequest` in epoch milliseconds — and
@@ -169,19 +173,19 @@ export function getClientIp(headers: Headers): string {
   - Delete the module-level `Map` entirely. It is the defect.
 
 - [ ] **Step 3: Update the four actions.** In each, replace the inline
-  `(await headers()).get("x-forwarded-for")?.split(",").pop()?.trim() ?? "unknown"` with
-  `getClientIp(await headers())`, and `await` each `consumeRateLimit` call. The rejection value for
-  each call site must stay byte-identical to what it returns today — `{ error: "Too many attempts. Try again later." }`
-  in `login`, `genericFailure` in `register`, `uniformReply` in `reset-password` and `verify-email`.
+      `(await headers()).get("x-forwarded-for")?.split(",").pop()?.trim() ?? "unknown"` with
+      `getClientIp(await headers())`, and `await` each `consumeRateLimit` call. The rejection value for
+      each call site must stay byte-identical to what it returns today — `{ error: "Too many attempts. Try again later." }`
+      in `login`, `genericFailure` in `register`, `uniformReply` in `reset-password` and `verify-email`.
 
 - [ ] **Step 4: Add the missing limit to `resetPasswordAction`** (`reset-password/actions.ts:52`),
-  the only action with none. Limit by IP only — the token is the subject and it must not become a
-  bucket key, since that would let an attacker with one valid token lock nothing and an attacker with
-  many tokens evade the bucket entirely. `10` attempts per hour per IP, returning the existing
-  `genericFailure`.
+      the only action with none. Limit by IP only — the token is the subject and it must not become a
+      bucket key, since that would let an attacker with one valid token lock nothing and an attacker with
+      many tokens evade the bucket entirely. `10` attempts per hour per IP, returning the existing
+      `genericFailure`.
 
 - [ ] **Step 5: Verify.** `npm run build`, `npx tsc --noEmit`, `npm run lint`. Then confirm by
-  reading `src/lib/auth/rate-limit.ts` that no `Map`, `Set` or module-level mutable object survives.
+      reading `src/lib/auth/rate-limit.ts` that no `Map`, `Set` or module-level mutable object survives.
 
 ---
 
@@ -190,17 +194,19 @@ export function getClientIp(headers: Headers): string {
 Answers 2.1. Read spec C1 first — this task is where the audit's own proposal is deliberately not followed.
 
 **Files:**
+
 - Modify: `src/auth.ts`
 
 **Interfaces:**
+
 - Consumes: the `rateLimit` table from Task 1.
 - Produces: a 404 from every Better Auth HTTP endpoint the application does not use.
 
 - [ ] **Step 1: Establish which endpoints are actually reached** before disabling anything. Grep for
-  `better-auth/client`, `createAuthClient`, and `fetch("/api/auth` across `src/` and `e2e/`. The
-  expectation from the audit-verification pass is that there are none and every credential flow goes
-  through a Server Action. **If that grep finds a caller, stop and file `### Blocked`** — the list
-  below is wrong and the design needs revisiting.
+      `better-auth/client`, `createAuthClient`, and `fetch("/api/auth` across `src/` and `e2e/`. The
+      expectation from the audit-verification pass is that there are none and every credential flow goes
+      through a Server Action. **If that grep finds a caller, stop and file `### Blocked`** — the list
+      below is wrong and the design needs revisiting.
 
 - [ ] **Step 2: Add `disabledPaths`** to the `betterAuth({...})` options:
 
@@ -240,33 +246,33 @@ Answers 2.1. Read spec C1 first — this task is where the audit's own proposal 
 ```
 
 - [ ] **Step 3a: Understand why this list is safe, before trusting it.** `disabledPaths` is an
-  **exact string match** against a normalized path (`api/index.mjs:164-166`), and
-  `normalizePathname` (`@better-auth/core/dist/utils/url.mjs:18-30`) strips the query string, the
-  trailing slash and the `/api/auth` base path. Two consequences the list above depends on:
+      **exact string match** against a normalized path (`api/index.mjs:164-166`), and
+      `normalizePathname` (`@better-auth/core/dist/utils/url.mjs:18-30`) strips the query string, the
+      trailing slash and the `/api/auth` base path. Two consequences the list above depends on:
   - `"/reset-password"` disables the **POST** that submits a new password. It does **not** disable
     `GET /reset-password/:token`, the emailed link, because `"/reset-password/abc123"` is a different
     string. That is the intended outcome, and it is why the entry is safe.
   - `"/verify-email"` is deliberately **absent** from the list. `GET /api/auth/verify-email?token=...`
     normalizes to `/verify-email`, so disabling it would break every verification email. The POST
-    that resends one is `/send-verification-email`, which *is* disabled.
+    that resends one is `/send-verification-email`, which _is_ disabled.
 
   Confirm both of these against the running server in Step 4 rather than taking this on trust.
 
 - [ ] **Step 4: Verify the disabled paths really 404.** Start the dev server and check one disabled
-  path and one open path:
+      path and one open path:
 
 ```bash
 curl -s -o /dev/null -w "sign-in/email: %{http_code}\n" -X POST http://localhost:3000/api/auth/sign-in/email -H 'content-type: application/json' -d '{"email":"a@b.co","password":"xxxxxxxx"}'
 curl -s -o /dev/null -w "verify-email:  %{http_code}\n" "http://localhost:3000/api/auth/verify-email?token=not-a-real-token"
 ```
 
-  Expect `404` for the first and **not** `404` for the second — a 4xx from token validation is the
-  right answer there, a 404 means Step 3a's reasoning was wrong and the verification link is broken.
-  Report the actual codes you observed; do not assert them from the config.
+Expect `404` for the first and **not** `404` for the second — a 4xx from token validation is the
+right answer there, a 404 means Step 3a's reasoning was wrong and the verification link is broken.
+Report the actual codes you observed; do not assert them from the config.
 
 - [ ] **Step 5: Verify the app still works.** `npm run build`, `npx tsc --noEmit`, `npm run lint`.
-  The E2E suite covers login, registration and reset end to end and is the real check here; report it
-  as requiring the human.
+      The E2E suite covers login, registration and reset end to end and is the real check here; report it
+      as requiring the human.
 
 ---
 
@@ -275,44 +281,46 @@ curl -s -o /dev/null -w "verify-email:  %{http_code}\n" "http://localhost:3000/a
 Answers 2.5 and 2.10. Read spec C3 — the CSP here is deliberately partial.
 
 **Files:**
+
 - Modify: `next.config.ts`
 - Modify: `.env.example`
 
 **Interfaces:**
+
 - Produces: response headers on every route; `allowedDevOrigins` sourced from `NEXT_DEV_ALLOWED_ORIGIN`.
 
 - [ ] **Step 1: Add `headers()`** to `next.config.ts`, applied to `/:path*`:
-  `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`,
-  `X-Frame-Options: DENY`, `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload`,
-  `Permissions-Policy: camera=(), microphone=(), geolocation=()`.
+      `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`,
+      `X-Frame-Options: DENY`, `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload`,
+      `Permissions-Policy: camera=(), microphone=(), geolocation=()`.
 
 - [ ] **Step 2: Add the CSP directives that do not interact with inline scripts**, as one
-  `Content-Security-Policy` header:
-  `frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'`.
-  Add a comment recording **why `script-src` and `default-src` are absent**: they need a per-request
-  nonce, a nonce needs dynamic rendering
-  (`node_modules/next/dist/docs/01-app/02-guides/content-security-policy.md`), and dynamic rendering
-  is exactly what phase 2 removes. Do not add `unsafe-inline` — a `script-src` that permits inline
-  scripts is worse than no `script-src`, because it reads as protection while providing none.
+      `Content-Security-Policy` header:
+      `frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'`.
+      Add a comment recording **why `script-src` and `default-src` are absent**: they need a per-request
+      nonce, a nonce needs dynamic rendering
+      (`node_modules/next/dist/docs/01-app/02-guides/content-security-policy.md`), and dynamic rendering
+      is exactly what phase 2 removes. Do not add `unsafe-inline` — a `script-src` that permits inline
+      scripts is worse than no `script-src`, because it reads as protection while providing none.
 
 - [ ] **Step 3: Move the hard-coded LAN address out.**
-  `allowedDevOrigins: ["192.168.31.145"]` becomes a read of `NEXT_DEV_ALLOWED_ORIGIN`, defaulting to
-  an empty array. Document the variable in `.env.example` with a comment saying it is for testing the
-  dev server from another device on the same network.
+      `allowedDevOrigins: ["192.168.31.145"]` becomes a read of `NEXT_DEV_ALLOWED_ORIGIN`, defaulting to
+      an empty array. Document the variable in `.env.example` with a comment saying it is for testing the
+      dev server from another device on the same network.
 
 - [ ] **Step 4: `e2e/login.spec.ts:13` depends on that address.** Read it, and make it read the same
-  environment variable with a skip when unset — an E2E test must not fail because a developer is on a
-  different network. If it turns out to reference the address for a different reason, say so in
-  `### Concerns` and leave it.
+      environment variable with a skip when unset — an E2E test must not fail because a developer is on a
+      different network. If it turns out to reference the address for a different reason, say so in
+      `### Concerns` and leave it.
 
 - [ ] **Step 5: Verify.** `npm run build`, then start the production server and confirm the headers
-  are actually on the wire:
+      are actually on the wire:
 
 ```bash
 curl -sI http://localhost:3000/ | grep -iE 'x-frame-options|content-security-policy|strict-transport|x-content-type|referrer-policy|permissions-policy'
 ```
 
-  Paste the real output into `### Test results`.
+Paste the real output into `### Test results`.
 
 ---
 
@@ -321,36 +329,38 @@ curl -sI http://localhost:3000/ | grep -iE 'x-frame-options|content-security-pol
 Answers 2.6.
 
 **Files:**
+
 - Modify: `src/auth.ts`, `src/lib/auth/environment.ts`, `.env.example`
 
 **Interfaces:**
+
 - Produces: `getPublicBaseUrl(): string` in `environment.ts`, consumed by `src/auth.ts`.
 
 - [ ] **Step 1: Add `getPublicBaseUrl()`** to `src/lib/auth/environment.ts`, resolving in order:
-  `BETTER_AUTH_URL` when set (explicit wins, so a custom domain keeps working) → 
-  `https://${VERCEL_PROJECT_PRODUCTION_URL}` → `https://${VERCEL_URL}` (preview deployments) →
-  `http://localhost:3000`. Comment why the order is that way.
+      `BETTER_AUTH_URL` when set (explicit wins, so a custom domain keeps working) →
+      `https://${VERCEL_PROJECT_PRODUCTION_URL}` → `https://${VERCEL_URL}` (preview deployments) →
+      `http://localhost:3000`. Comment why the order is that way.
 
 - [ ] **Step 2: Pass `baseURL: getPublicBaseUrl()`** in `src/auth.ts`, and set `trustedOrigins`
-  explicitly to the resolved base URL plus, when `VERCEL_ENV === "preview"`, the preview host. Note
-  in a comment that CSRF protection on the endpoints that stay open derives from this, so it is not
-  cosmetic.
+      explicitly to the resolved base URL plus, when `VERCEL_ENV === "preview"`, the preview host. Note
+      in a comment that CSRF protection on the endpoints that stay open derives from this, so it is not
+      cosmetic.
 
 - [ ] **Step 3: Document it in `.env.example`.** The current line
-  `BETTER_AUTH_URL="http://localhost:3000"` is a deployment trap — copied into Vercel it produces
-  `redirect_uri=http://localhost:3000/...` on every OAuth request. Add a comment above it saying:
-  local development only; in production either leave it unset so it derives from
-  `VERCEL_PROJECT_PRODUCTION_URL`, or set it to the real public origin.
+      `BETTER_AUTH_URL="http://localhost:3000"` is a deployment trap — copied into Vercel it produces
+      `redirect_uri=http://localhost:3000/...` on every OAuth request. Add a comment above it saying:
+      local development only; in production either leave it unset so it derives from
+      `VERCEL_PROJECT_PRODUCTION_URL`, or set it to the real public origin.
 
 - [ ] **Step 4: Verify.** `npm run build`, `npx tsc --noEmit`. Then prove the resolution order works
-  without a rebuild:
+      without a rebuild:
 
 ```bash
 VERCEL_PROJECT_PRODUCTION_URL=example.com node --input-type=module -e "process.env.BETTER_AUTH_URL=''; const m = await import('./src/lib/auth/environment.ts').catch(() => null); console.log(m ? 'imported' : 'needs a compiled entry — verify via the unit test instead')"
 ```
 
-  If that import cannot run against TypeScript directly, say so and verify by reading the code
-  instead; phase 4 adds Vitest, which is where this belongs permanently.
+If that import cannot run against TypeScript directly, say so and verify by reading the code
+instead; phase 4 adds Vitest, which is where this belongs permanently.
 
 ---
 
@@ -359,21 +369,22 @@ VERCEL_PROJECT_PRODUCTION_URL=example.com node --input-type=module -e "process.e
 Answers 2.7.
 
 **Files:**
+
 - Modify: `src/auth.ts`
 
 - [ ] **Step 1: Make the provider conditional.** `socialProviders` currently always registers Google
-  with `?? ""`, so a direct call with empty keys reaches Google with an empty `client_id` instead of
-  failing legibly. Build the object from `isGoogleAuthConfigured()` — spread in `google` only when it
-  returns true. Keep `isGoogleAuthConfigured()` as the single source of that truth; do not duplicate
-  the check.
+      with `?? ""`, so a direct call with empty keys reaches Google with an empty `client_id` instead of
+      failing legibly. Build the object from `isGoogleAuthConfigured()` — spread in `google` only when it
+      returns true. Keep `isGoogleAuthConfigured()` as the single source of that truth; do not duplicate
+      the check.
 
 - [ ] **Step 2: Confirm the Server Action still behaves.** `login/actions.ts:12` already redirects to
-  `/login?error=configuration` when unconfigured; that path must be unchanged. With Task 3's
-  `disabledPaths` also covering `/sign-in/social`, there is now no way to reach an unconfigured
-  provider at all — state that in `### Concerns` so the reviewers see the two tasks interlock.
+      `/login?error=configuration` when unconfigured; that path must be unchanged. With Task 3's
+      `disabledPaths` also covering `/sign-in/social`, there is now no way to reach an unconfigured
+      provider at all — state that in `### Concerns` so the reviewers see the two tasks interlock.
 
 - [ ] **Step 3: Verify.** `npm run build` and `npx tsc --noEmit` with `GOOGLE_CLIENT_ID` unset, and
-  again with it set. Both must build.
+      again with it set. Both must build.
 
 ---
 
@@ -382,11 +393,13 @@ Answers 2.7.
 Answers 2.9. Read spec C4 — the new `rateLimit` table needs pruning too.
 
 **Files:**
+
 - Create: `src/app/api/cron/cleanup/route.ts`
 - Create: `vercel.json`
 - Modify: `.env.example`
 
 **Interfaces:**
+
 - Consumes: `prisma` from `@/lib/db`; `CRON_SECRET`.
 - Produces: `GET /api/cron/cleanup` returning the deleted-row counts.
 
@@ -409,10 +422,10 @@ Answers 2.9. Read spec C4 — the new `rateLimit` table needs pruning too.
 ```
 
 - [ ] **Step 3: Document `CRON_SECRET`** in `.env.example`, noting that Vercel injects the
-  `Authorization: Bearer` header from the project's own `CRON_SECRET` environment variable.
+      `Authorization: Bearer` header from the project's own `CRON_SECRET` environment variable.
 
 - [ ] **Step 4: Verify.** `npm run build`, `npx tsc --noEmit`, `npm run lint`, then exercise both
-  branches against the dev server and paste the real status codes:
+      branches against the dev server and paste the real status codes:
 
 ```bash
 curl -s -o /dev/null -w "no-auth: %{http_code}\n" http://localhost:3000/api/cron/cleanup
