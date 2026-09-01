@@ -159,6 +159,17 @@ npx prisma generate
 
 `migrate dev` creates and applies the migration against `appdev` (via `DIRECT_URL`); with this schema's custom generator `output`, Prisma 7 does not also regenerate the client, so `prisma generate` has to run afterward or the app keeps seeing the old schema.
 
+## Known advisories
+
+Running `npm audit` reports high-severity advisories that have been evaluated and accepted:
+
+- **`deepmerge-ts <8.0.0`** ([GHSA-ggr8-5vv4-36mx](https://github.com/advisories/GHSA-ggr8-5vv4-36mx)): Reaches the project via `prisma` &rarr; `@prisma/config` &rarr; `deepmerge-ts` (stack exhaustion when merging recursive object graphs).
+- **`mysql2 <3.22.0`** ([GHSA-3f6p-5ww8-9rcr](https://github.com/advisories/GHSA-3f6p-5ww8-9rcr)): Reaches the project via `prisma` CLI's internal dependencies.
+
+Both advisories reach the tree exclusively through the `prisma` CLI dev dependency (`devDependencies`) and never enter runtime or production bundles. Fixing them requires downgrading to Prisma 6 (`prisma@6.19.3`), which is a breaking functional regression.
+
+The decision is to accept and monitor these advisories via the non-blocking `npm audit --audit-level=high` step in [`.github/workflows/ci.yml`](.github/workflows/ci.yml), which surfaces security reports on CI and will flag upstream updates once available.
+
 ## agent-roster (brief)
 
 This repository defines its agent operating contract once in `AGENTS.md` and `agents/`, then projects it into each supported harness (Claude Code, Devin, Antigravity, Codex, Cursor). Run `npm run sync:agents` after any change to roles or config. See `AGENTS.md` for the full contract.
