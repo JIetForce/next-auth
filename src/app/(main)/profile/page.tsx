@@ -10,6 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { UserAvatar } from "@/components/user-avatar";
+import { getLinkedAccountProviderLabels } from "@/lib/auth/accounts";
 import { signOutAction } from "@/lib/auth/actions";
 import { requireCurrentViewer } from "@/lib/auth/session";
 
@@ -26,6 +27,10 @@ export default async function ProfilePage() {
   const viewer = await requireCurrentViewer();
   const displayName = viewer.name ?? "Not provided";
   const displayEmail = viewer.email ?? "Not provided";
+
+  const providerLabels = await getLinkedAccountProviderLabels(viewer.id);
+  const displayProviders =
+    providerLabels.length > 0 ? providerLabels.join(", ") : "Not available";
 
   return (
     <main className="relative flex flex-1 items-center justify-center overflow-hidden p-4 sm:p-6">
@@ -63,7 +68,7 @@ export default async function ProfilePage() {
             <div className="flex items-start justify-between gap-4">
               <dt className="text-sm text-muted-foreground">Provider</dt>
               <dd className="text-right text-sm font-medium text-foreground">
-                Google
+                {displayProviders}
               </dd>
             </div>
           </dl>

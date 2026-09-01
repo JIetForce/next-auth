@@ -1,5 +1,6 @@
 // e2e/helpers/auth-session.ts
 import type { BrowserContext } from "@playwright/test";
+import { createLocalAccountIssuer } from "@better-auth/core/db";
 
 import type { Viewer } from "@/lib/auth/types";
 import { testAuth } from "./auth-test-instance";
@@ -48,6 +49,39 @@ async function findOrCreateUser(viewer: E2eViewer) {
   }
 }
 
+const CREDENTIAL_PROVIDER_ID = "credential";
+
+async function hasCredentialAccount(user: { id: string }) {
+  const ctx = await testAuth.$context;
+  const issuer = createLocalAccountIssuer(CREDENTIAL_PROVIDER_ID);
+  const accounts = await ctx.internalAdapter.findAccountByUserId(user.id);
+  return accounts.some(
+    (account) =>
+      account.providerId === CREDENTIAL_PROVIDER_ID &&
+      account.issuer === issuer,
+  );
+}
+
+async function ensureCredentialAccount(user: { id: string }) {
+  if (await hasCredentialAccount(user)) return;
+
+  const ctx = await testAuth.$context;
+  const issuer = createLocalAccountIssuer(CREDENTIAL_PROVIDER_ID);
+
+  try {
+    await ctx.internalAdapter.createAccount({
+      userId: user.id,
+      providerId: CREDENTIAL_PROVIDER_ID,
+      issuer,
+      accountId: user.id,
+    });
+  } catch (error) {
+    // Another parallel worker may have created the account first.
+    if (await hasCredentialAccount(user)) return;
+    throw error;
+  }
+}
+
 /**
  * Seeds a real database-backed Better Auth session and installs its cookie.
  * Defaults to E2E_VIEWER; pass a `viewer` override to exercise other identity
@@ -60,6 +94,7 @@ export async function addAuthenticatedSession(
 ) {
   const ctx = await testAuth.$context;
   const user = await findOrCreateUser(viewer);
+  await ensureCredentialAccount(user);
 
   const cookies = await ctx.test.getCookies({
     userId: user.id,

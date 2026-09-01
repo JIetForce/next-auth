@@ -180,7 +180,9 @@ test.describe("authenticated session", () => {
     ).toBeVisible();
     await expect(page.getByText(E2E_VIEWER.name)).toBeVisible();
     await expect(page.getByText(E2E_VIEWER.email)).toBeVisible();
-    await expect(page.getByText("Google", { exact: true })).toBeVisible();
+    await expect(
+      page.getByText("Email and password", { exact: true }),
+    ).toBeVisible();
     await expect(page.getByText("EU", { exact: true })).toHaveCount(2);
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
       "content",
