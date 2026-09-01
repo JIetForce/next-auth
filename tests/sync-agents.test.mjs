@@ -109,13 +109,29 @@ describe("readonly roles keep the shape that makes them read-only", () => {
     }
   });
 
-  it("devin: denies write, edit and exec explicitly", () => {
+  it("devin: readonly roles grant exactly read, grep and glob", () => {
+    // `allowed-tools` is an allowlist and Devin enforces it: a subagent under a
+    // readonly profile is handed `find_file_by_name`, `grep`, `read` and nothing
+    // else. `permissions` is NOT enforced (CFG005: unsupported key), so this
+    // assertion deliberately reads the field that binds.
     for (const role of READONLY) {
       const f = readFileSync(`.devin/agents/${role}.md`, "utf8");
-      const deny = f.match(/^permissions:\n  deny:\n(?:    - .*\n)+/m)?.[0] ?? "";
-      for (const t of ["write", "edit", "exec"]) {
-        assert.ok(deny.includes(`- ${t}\n`), `${role}: devin profile does not deny ${t}`);
-      }
+      const grant = f.match(/^allowed-tools:\n(?:  - .*\n)*/m)?.[0] ?? "";
+      assert.equal(
+        grant,
+        "allowed-tools:\n  - read\n  - grep\n  - glob\n",
+        `${role}: devin allowlist is not exactly the read-only three`,
+      );
+    }
+  });
+
+  it("devin: no profile carries the unsupported permissions key", () => {
+    for (const role of ROLES) {
+      const f = readFileSync(`.devin/agents/${role}.md`, "utf8");
+      assert.ok(
+        !/^permissions:/m.test(f),
+        `${role}: devin ignores \`permissions\` (CFG005) — remove it from config/agents.json`,
+      );
     }
   });
 
@@ -153,6 +169,79 @@ describe("harness skill projection", () => {
       assert.ok(text.includes(needle), `${path}: missing dispatch instruction "${needle}"`);
       assert.ok(!text.includes("<!-- DISPATCH -->"), `${path}: marker left unreplaced`);
       assert.ok(text.includes("DO NOT EDIT"), `${path}: missing generated banner`);
+    }
+  });
+
+  it("devin's dispatch line names the profile, not the general subagent", () => {
+    const text = readFileSync(".devin/skills/review-loop/SKILL.md", "utf8");
+    assert.match(text, /profile: "<role>"/, "dispatch line does not pass a named profile");
+    // Pin the direction, not just the presence of `is_background`. A writer
+    // dispatched in the background has its `exec` and `edit` tools auto-denied
+    // without a prompt, so it returns a report having changed nothing — the
+    // empty-diff failure mode AGENTS.md devotes its "empty diff stops the loop"
+    // paragraph to. The line contains both `true` and `false`, so asserting
+    // only that each appears somewhere would pass under a reversal. Bind each
+    // value to the roles it applies to by matching the surrounding words.
+    assert.match(
+      text,
+      /`developer` and `verifier` run with `is_background: false`/,
+      "dispatch line does not put the writers (developer, verifier) in the foreground",
+    );
+    assert.match(
+      text,
+      /the researcher and the three reviewers run with `is_background: true`/,
+      "dispatch line does not put the readers (researcher, three reviewers) in the background",
+    );
+  });
+});
+
+describe("per-role model overrides", () => {
+  it("devin: code-reviewer is pinned to swe-1-7, every other role to glm-5-2", () => {
+    const modelOf = (role) =>
+      readFileSync(`.devin/agents/${role}.md`, "utf8").match(/^model: (.+)$/m)?.[1];
+
+    assert.equal(modelOf("code-reviewer"), "swe-1-7");
+    for (const role of ROLES.filter((r) => r !== "code-reviewer")) {
+      assert.equal(modelOf(role), "glm-5-2", `${role}: expected the primary model`);
+    }
+  });
+
+  it("an override refines its class without dropping the class's other keys", () => {
+    // code-reviewer is `readonly`: the override changes the model only, so the
+    // class's tool allowlist must survive the merge intact.
+    const f = readFileSync(".devin/agents/code-reviewer.md", "utf8");
+    assert.match(f, /^allowed-tools:\n  - read\n  - grep\n  - glob\n/m);
+  });
+
+  it("claude profiles are untouched by devin's overrides", () => {
+    for (const role of ROLES) {
+      assert.match(
+        readFileSync(`.claude/agents/${role}.md`, "utf8"),
+        /^model: sonnet$/m,
+        `${role}: claude profile lost its model`,
+      );
+    }
+  });
+
+  it("rejects an override for a role that does not exist", () => {
+    const original = readFileSync("config/agents.json", "utf8");
+    const cfg = JSON.parse(original);
+    cfg.tools.devin.role_overrides = { "no-such-role": { model: "glm-5-2" } };
+    writeFileSync("config/agents.json", JSON.stringify(cfg, null, 2) + "\n");
+    try {
+      // execFileSync throws an Error whose *message* is only "Command failed";
+      // the generator's own text lands on stderr, so assert against that.
+      let err;
+      try {
+        run(["scripts/sync-agents.mjs"]);
+      } catch (e) {
+        err = e;
+      }
+      assert.ok(err, "sync accepted an override naming a role that does not exist");
+      assert.match(String(err.stderr ?? err.message), /no-such-role/);
+    } finally {
+      writeFileSync("config/agents.json", original);
+      run(["scripts/sync-agents.mjs"]);
     }
   });
 });

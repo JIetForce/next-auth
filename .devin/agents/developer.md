@@ -1,7 +1,7 @@
 ---
 name: developer
 description: 'Feature developer. Implements a spec, writes tests, runs lint and tests, reports results.'
-model: swe-1-7
+model: glm-5-2
 allowed-tools:
   - read
   - grep

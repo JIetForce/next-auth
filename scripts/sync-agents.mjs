@@ -98,12 +98,10 @@ const renderers = {
     if (cfg["allowed-tools"]) {
       fm += `allowed-tools:\n${yamlBlockList(cfg["allowed-tools"])}\n`;
     }
-    if (cfg.permissions) {
-      fm += "permissions:\n";
-      for (const [k, v] of Object.entries(cfg.permissions)) {
-        fm += `  ${k}:\n${v.map((i) => `    - ${i}`).join("\n")}\n`;
-      }
-    }
+    // No `permissions` block here, deliberately. Devin reports
+    // `CFG005: unsupported frontmatter key(s) ignored: permissions` and drops
+    // it; it enforces `allowed-tools` alone, so emitting `permissions` would
+    // write a control that does not exist on this harness.
     return `---\n${fm}---\n\n${MD_BANNER}\n\n${body}\n`;
   },
 
@@ -183,18 +181,41 @@ const roles = readdirSync(ROLES_DIR, { withFileTypes: true })
     return parseFrontmatter(readFileSync(path, "utf8"), path);
   });
 
+// An override keyed by a name no role has is a typo that would otherwise apply
+// to nothing, silently, forever.
+const roleNames = new Set(roles.map((r) => r.meta.name));
+for (const [tool, toolCfg] of Object.entries(config.tools)) {
+  for (const name of Object.keys(toolCfg.role_overrides ?? {})) {
+    if (!roleNames.has(name)) {
+      throw new Error(
+        `config/agents.json: tools.${tool}.role_overrides."${name}" names no role ` +
+          `(known roles: ${[...roleNames].sort().join(", ")})`,
+      );
+    }
+  }
+}
+
 // Build every file in memory first. Nothing touches disk until we know the
 // whole set renders — a half-written harness is worse than none.
 const generated = new Map();
 for (const { meta, body } of roles) {
   for (const [tool, toolMeta] of Object.entries(config.tool_meta)) {
-    const cfg = config.tools[tool]?.[meta.class];
-    if (!cfg) {
+    const classCfg = config.tools[tool]?.[meta.class];
+    if (!classCfg) {
       throw new Error(
         `config/agents.json: tool "${tool}" has no entry for class ` +
           `"${meta.class}" (role ${meta.name}). Add one, or remove the tool.`,
       );
     }
+    // The class grants permissions; a role override refines what differs per
+    // role — in practice the model. It is a shallow, *replacing* merge: an
+    // override key that holds an array replaces the class's array outright
+    // rather than extending it, so a future per-role `allowed-tools` would
+    // drop the class allowlist entirely. It is not a security boundary:
+    // `npm run validate:agents` re-checks the *generated* file against the
+    // class invariants, so an override that widened a readonly role's tools
+    // would still fail the build.
+    const cfg = { ...classCfg, ...(config.tools[tool]?.role_overrides?.[meta.name] ?? {}) };
     const render = renderers[tool];
     if (!render) throw new Error(`no renderer for tool "${tool}"`);
     generated.set(
