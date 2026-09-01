@@ -1,4 +1,6 @@
-# next-auth
+# Siftloom
+
+Package name: `agent-roster-web` (`package.json`).
 
 A Next.js 16 application with App Router, Tailwind CSS v4, Turbopack and TypeScript.
 
@@ -15,40 +17,76 @@ A Next.js 16 application with App Router, Tailwind CSS v4, Turbopack and TypeScr
 - **Turbopack** (default for `next dev`)
 - **TypeScript 5** with strict mode
 - **ESLint 9** with `eslint-config-next`
-- **Babel React Compiler** for automatic memoization
+- **Next.js native Turbopack React Compiler** (`turbopackRustReactCompiler`) for automatic memoization
 
 ## Project structure
 
 ```text
 src/
-  app/              # App Router routes
-    layout.tsx      # root layout with Geist font
-    page.tsx        # home page
-    globals.css     # Tailwind imports and global styles
-  components/       # shared UI components (create as needed)
-  lib/              # utilities, auth, db, server actions (create as needed)
-public/             # static assets
-agents/             # agent-roster role definitions
-config/             # agent-roster config and MCP
-scripts/            # agent-roster generator and validator
-tests/              # agent-roster test suite
-docs/               # project research and notes
+  app/
+    (auth)/               # authentication routes (login, register, verify-email, reset-password)
+    (main)/               # application and marketing routes (home, features, pricing, profile)
+    api/
+      auth/[...all]/      # Better Auth API route handler
+      cron/cleanup/       # scheduled session, verification, and rate-limit cleanup
+    layout.tsx            # root layout with theme provider and toaster
+    globals.css           # Tailwind imports, theme variables, and global styles
+  auth.ts                 # Better Auth server configuration
+  components/             # UI and layout components
+    ui/                   # reusable UI primitives (shadcn / Base UI)
+  lib/
+    auth/                 # session helpers, server actions, validation schemas, rate limiting
+    email/                # email transport and dispatch
+    db.ts                 # Prisma singleton and connection pool
+    content.ts            # marketing and landing page content
+    utils.ts              # styling and class merging utilities
+prisma/                   # schema, migrations, and database configuration
+e2e/                      # Playwright end-to-end test suite
+public/                   # static assets
+agents/                   # agent-roster role definitions
+config/                   # agent-roster config and MCP
+scripts/                  # agent-roster generator and validator
+tests/                    # agent-roster test suite
+docs/                     # project architecture, research, and audit records
 ```
+
+## Routes
+
+### Application pages
+
+| Route             | Description                                                   | Access        |
+| ----------------- | ------------------------------------------------------------- | ------------- |
+| `/`               | Landing page with product overview, features preview, and FAQ | Public        |
+| `/features`       | Detailed platform capabilities and feature walkthrough        | Public        |
+| `/pricing`        | Pricing tiers, plan breakdown, and FAQ                        | Public        |
+| `/login`          | Sign-in page with email/password and Google OAuth             | Public        |
+| `/register`       | Account registration page                                     | Public        |
+| `/verify-email`   | Email verification confirmation and token resend              | Public        |
+| `/reset-password` | Password reset request and confirmation form                  | Public        |
+| `/profile`        | User profile details, linked OAuth providers, and sign out    | Authenticated |
+
+### API routes
+
+| Route                | Description                                                          | Access                  |
+| -------------------- | -------------------------------------------------------------------- | ----------------------- |
+| `/api/auth/[...all]` | Better Auth API handler for OAuth callbacks and internal auth routes | Public (rate-limited)   |
+| `/api/cron/cleanup`  | Prunes expired sessions, verification tokens, and rate-limit records | `Bearer ${CRON_SECRET}` |
 
 ## Commands
 
-| Command                   | Description                                          |
-| ------------------------- | ---------------------------------------------------- |
-| `npm run dev`             | Start the development server with Turbopack          |
-| `npm run build`           | Create an optimized production build                 |
-| `npm run start`           | Start the production server                          |
-| `npm run lint`            | Run ESLint                                           |
-| `npm run db:studio`       | Open Prisma Studio against the `appdev` database     |
-| `npm run sync:agents`     | Regenerate per-harness agent profiles                |
-| `npm run test:agents`     | Run agent-roster tests                               |
-| `npm run check:agents`    | Fail if agent profiles drifted from source           |
-| `npm run validate:agents` | Validate role permissions against capability classes |
-| `npm run doctor:agents`   | Check discovery, collisions and installed harnesses  |
+| Command                   | Description                                                                          |
+| ------------------------- | ------------------------------------------------------------------------------------ |
+| `npm run dev`             | Start the development server with Turbopack                                          |
+| `npm run build`           | Create an optimized production build                                                 |
+| `npm run start`           | Start the production server                                                          |
+| `npm test`                | Run Playwright E2E tests (requires local PostgreSQL `apptest` database; human-gated)   |
+| `npm run lint`            | Run ESLint                                                                           |
+| `npm run db:studio`       | Open Prisma Studio against the `appdev` database                                     |
+| `npm run sync:agents`     | Regenerate per-harness agent profiles                                                |
+| `npm run test:agents`     | Run agent-roster tests                                                               |
+| `npm run check:agents`    | Fail if agent profiles drifted from source                                           |
+| `npm run validate:agents` | Validate role permissions against capability classes                                 |
+| `npm run doctor:agents`   | Check discovery, collisions and installed harnesses                                  |
 
 ## Notes
 
@@ -96,7 +134,7 @@ Restart the application after changing environment variables. Without `BETTER_AU
 
 Leave `EMAIL_CAPTURE_FILE` empty in your own `.env.local`. When it is set, `src/lib/email/client.ts` appends every outgoing message to that file as JSON and never actually sends it — including the account verification email, so registration will look like it succeeded while silently sending nothing. `playwright.config.ts` sets this variable automatically, only in the environment of the `next dev` process the test suite starts, so it never affects your own `npm run dev` as long as it stays unset in `.env.local`.
 
-Keep `BETTER_AUTH_SECRET` stable across restarts and deployments. Rotating it invalidates existing JWT sessions; if a stale browser cookie causes `no matching decryption secret`, visit `/api/auth/signout` and confirm **Sign out** (POST), or clear the site's cookies, then return to `/login`. Do not restore the previous secret to recover old sessions.
+Keep `BETTER_AUTH_SECRET` stable across restarts and deployments. Rotating `BETTER_AUTH_SECRET` invalidates signed session cookies, requiring users to sign in again — invalid cookies fail signature verification and are treated as signed-out with no endpoint or confirmation page to visit. Do not restore the previous secret to recover old sessions.
 
 Application auth architecture, extension rules, redirect contracts, and test strategy are documented in [`docs/auth-architecture.md`](docs/auth-architecture.md). Read it before changing authentication, session handling, protected routes, Header account state, or logout.
 
