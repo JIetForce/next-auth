@@ -11,6 +11,7 @@
     "build": "prisma generate && next build",
     "start": "next start",
     "test": "playwright test",
+    "test:unit": "vitest run",
     "lint": "eslint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
@@ -19,7 +20,7 @@
     "check:agents": "node scripts/sync-agents.mjs --check",
     "validate:agents": "node scripts/validate-agents.mjs",
     "doctor:agents": "node scripts/doctor-agents.mjs",
-    "test:agents": "node --test"
+    "test:agents": "node --test 'tests/**/*.test.mjs'"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",
@@ -59,7 +60,8 @@
     "prettier": "^3.9.6",
     "prisma": "7.10.0",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.11"
   },
   "allowScripts": {
     "prisma@7.10.0": true,
