@@ -4,13 +4,17 @@ import type { BrowserContext } from "@playwright/test";
 import type { Viewer } from "@/lib/auth/types";
 import { testAuth } from "./auth-test-instance";
 
+// Only the display fields are seeded; the real `id` and `emailVerified`
+// come from the database when `findOrCreateUser` calls `ctx.test.createUser`.
+type E2eViewer = Partial<Pick<Viewer, "name" | "email" | "image">>;
+
 export const E2E_VIEWER = {
   name: "E2E User",
   email: "e2e-user@example.invalid",
   image: null,
 } as const;
 
-async function findOrCreateUser(viewer: Viewer) {
+async function findOrCreateUser(viewer: E2eViewer) {
   const ctx = await testAuth.$context;
   // Distinguish explicit `null` (let it flow through) from `undefined` (fall
   // back to the default). The User table's `name`/`email` columns are NOT NULL
@@ -52,7 +56,7 @@ async function findOrCreateUser(viewer: Viewer) {
  */
 export async function addAuthenticatedSession(
   context: BrowserContext,
-  viewer: Viewer = E2E_VIEWER,
+  viewer: E2eViewer = E2E_VIEWER,
 ) {
   const ctx = await testAuth.$context;
   const user = await findOrCreateUser(viewer);

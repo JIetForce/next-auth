@@ -16,9 +16,14 @@ export const getCurrentViewer = cache(async (): Promise<Viewer | null> => {
   if (!session?.user) return null;
 
   return {
+    // `id` is projected into the DTO because server-side ownership checks
+    // (e.g. `row.authorId === viewer.id`) are impossible without it. The
+    // alternatives are a second database round-trip or comparing by email.
+    id: session.user.id,
     name: session.user.name?.trim() ? session.user.name : null,
     email: session.user.email?.trim() ? session.user.email : null,
     image: session.user.image ?? null,
+    emailVerified: session.user.emailVerified,
   };
 });
 
