@@ -10,9 +10,22 @@ const googleConfigured = googleAuthEnvironmentKeys.every((key) =>
   Boolean(process.env[key]?.trim()),
 );
 
+// The approved origin is sourced from NEXT_DEV_ALLOWED_ORIGIN (the same env var
+// next.config.ts reads for allowedDevOrigins). An E2E test must not fail because
+// a developer is on a different network, so it is skipped when the var is unset.
+const devAllowedOrigin = process.env.NEXT_DEV_ALLOWED_ORIGIN?.trim();
+
 test("restricts Next.js dev chunks to the allowed LAN origin", async ({
   request,
 }) => {
+  test.skip(
+    !devAllowedOrigin,
+    "NEXT_DEV_ALLOWED_ORIGIN is not set for this run",
+  );
+
+  // Derive the approved origin host:port from the env var, stripping any path.
+  const approvedOrigin = new URL(devAllowedOrigin!).origin;
+
   const loginResponse = await request.get("/login");
   expect(loginResponse.ok()).toBe(true);
 
@@ -29,12 +42,17 @@ test("restricts Next.js dev chunks to the allowed LAN origin", async ({
   );
 
   const approvedResponse = await request.get(assetUrl.toString(), {
-    headers: { Origin: "http://192.168.31.145:3000" },
+    headers: { Origin: approvedOrigin },
   });
   expect(approvedResponse.status()).toBe(200);
 
+  // An origin not in allowedDevOrigins is rejected. Use a different port on the
+  // same host — guaranteed not to match the single approved origin in the list.
+  const unapprovedUrl = new URL(approvedOrigin);
+  const unapprovedOrigin = `${unapprovedUrl.protocol}//${unapprovedUrl.hostname}:${Number(unapprovedUrl.port || 3000) + 1}`;
+
   const unapprovedResponse = await request.get(assetUrl.toString(), {
-    headers: { Origin: "http://192.168.31.146:3000" },
+    headers: { Origin: unapprovedOrigin },
   });
   expect(unapprovedResponse.status()).toBe(403);
 });
