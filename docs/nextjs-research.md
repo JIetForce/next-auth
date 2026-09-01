@@ -1,6 +1,9 @@
+> **Historical Record / Исторический документ:**
+> This document was written for a stack the project no longer uses — Auth.js v5 (`next-auth@beta`) — during the evaluation that preceded the move to Better Auth. It is kept as an archive of that evaluation. For current authentication behaviour and architecture, read [`docs/auth-architecture.md`](auth-architecture.md).
+
 # Исследование: инициализация Next.js, best practices, архитектура и страница авторизации
 
-> **Актуальность:** август 2026. В документе используются Next.js 16.x, App Router, Turbopack по умолчанию и Auth.js v5 (`next-auth@beta`).
+> **Дата составления:** август 2026 (архивное исследование). В документе используются Next.js 16.x, App Router, Turbopack по умолчанию и Auth.js v5 (`next-auth@beta`).
 
 ---
 
