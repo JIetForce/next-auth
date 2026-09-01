@@ -23,6 +23,12 @@ export const metadata: Metadata = {
   },
 };
 
+// /profile still blocks on the session read at the page level
+// (requireCurrentViewer() below), which is a build error under Cache
+// Components without an opt-out. Remove this export once the session
+// read is moved behind a <Suspense> boundary.
+export const instant = false;
+
 export default async function ProfilePage() {
   const viewer = await requireCurrentViewer();
   const displayName = viewer.name ?? "Not provided";

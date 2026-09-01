@@ -9,6 +9,7 @@ const nextConfig: NextConfig = {
   /* config options here */
   allowedDevOrigins,
   reactCompiler: true,
+  cacheComponents: true,
 
   // Security response headers, applied at the response layer so they do not
   // affect rendering mode. The CSP is deliberately partial: `script-src` and

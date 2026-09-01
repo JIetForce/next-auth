@@ -3,14 +3,17 @@ import { NextResponse } from "next/server";
 
 import { prisma } from "@/lib/db";
 
-export const dynamic = "force-dynamic";
-
 // A stale rate-limit bucket is a fresh bucket, so it is safe to prune anything
 // older than the widest configured window. One hour comfortably exceeds every
 // window currently in use.
 const RATE_LIMIT_MAX_AGE_MS = 60 * 60 * 1000;
 
 export async function GET(request: Request) {
+  // Read a request property before any early return so Cache Components
+  // cannot prerender this handler as a static 503 when CRON_SECRET is unset
+  // at build time. Without force-dynamic (removed for cacheComponents), a
+  // GET handler that never touches runtime data is baked at build.
+  const authorization = request.headers.get("authorization");
   const cronSecret = process.env.CRON_SECRET;
 
   // Fail closed: an unconfigured secret must never let this endpoint run
@@ -22,7 +25,6 @@ export async function GET(request: Request) {
     );
   }
 
-  const authorization = request.headers.get("authorization");
   if (authorization !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

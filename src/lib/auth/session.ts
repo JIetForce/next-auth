@@ -1,7 +1,6 @@
 // src/lib/auth/session.ts
 import "server-only";
 
-import { cache } from "react";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -9,7 +8,12 @@ import { auth } from "@/auth";
 import { isAuthSessionConfigured } from "@/lib/auth/environment";
 import type { Viewer } from "@/lib/auth/types";
 
-export const getCurrentViewer = cache(async (): Promise<Viewer | null> => {
+// `cache()` was removed because "use cache: private" provides per-browser
+// caching that supersedes React's per-request deduplication. The directive
+// is the Cache Components replacement for the manual cache() wrapper.
+export async function getCurrentViewer(): Promise<Viewer | null> {
+  "use cache: private";
+
   if (!isAuthSessionConfigured()) return null;
 
   const session = await auth.api.getSession({ headers: await headers() });
@@ -25,7 +29,7 @@ export const getCurrentViewer = cache(async (): Promise<Viewer | null> => {
     image: session.user.image ?? null,
     emailVerified: session.user.emailVerified,
   };
-});
+}
 
 export async function requireCurrentViewer(): Promise<Viewer> {
   const viewer = await getCurrentViewer();
