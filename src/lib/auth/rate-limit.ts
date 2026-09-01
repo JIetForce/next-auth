@@ -42,7 +42,8 @@ export async function consumeRateLimit(
         SELECT count, "lastRequest" FROM "rateLimit" WHERE key = ${prefixedKey} FOR UPDATE
       `;
 
-      if (rows.length === 0) {
+      const row = rows[0];
+      if (!row) {
         await tx.rateLimit.create({
           data: {
             id: randomUUID(),
@@ -54,7 +55,6 @@ export async function consumeRateLimit(
         return true;
       }
 
-      const row = rows[0];
       const expired = row.lastRequest < windowStart;
 
       if (expired) {

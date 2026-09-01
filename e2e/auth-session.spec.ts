@@ -303,7 +303,7 @@ test.describe("authenticated session", () => {
         ["callbackUrl", "https://attacker.example"],
         ["redirectTo", "//attacker.example"],
         ["provider", "credentials"],
-      ]) {
+      ] as const) {
         const input = document.createElement("input");
         input.type = "hidden";
         input.name = name;

@@ -12,11 +12,15 @@ function firstCodePoint(value: string) {
 function initialsFromWords(words: string[]) {
   if (words.length === 0) return "";
 
+  const first = words[0];
+  if (!first) return "";
+
   if (words.length === 1) {
-    return Array.from(words[0]).slice(0, 2).join("");
+    return Array.from(first).slice(0, 2).join("");
   }
 
-  return `${firstCodePoint(words[0])}${firstCodePoint(words.at(-1)!)}`;
+  const last = words.at(-1);
+  return `${firstCodePoint(first)}${last ? firstCodePoint(last) : ""}`;
 }
 
 export function getViewerInitials(viewer: Viewer) {
