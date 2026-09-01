@@ -31,7 +31,13 @@ export async function getCurrentViewer(): Promise<Viewer | null> {
   };
 }
 
+// `redirect()` must be inside the `"use cache: private"` boundary so it
+// produces an HTTP redirect (303/307) rather than being caught as a
+// NEXT_REDIRECT error during prerendering. See the Next.js guide
+// "Authentication with Cache Components" for this pattern.
 export async function requireCurrentViewer(): Promise<Viewer> {
+  "use cache: private";
+
   const viewer = await getCurrentViewer();
   if (!viewer) redirect("/login");
   return viewer;

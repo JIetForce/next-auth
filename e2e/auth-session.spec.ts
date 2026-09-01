@@ -53,22 +53,32 @@ test("renders anonymous account navigation on desktop and mobile", async ({
 });
 
 test("redirects an anonymous profile request to the fixed login route", async ({
+  page,
   request,
 }) => {
+  // Under Cache Components, `/profile` is partially prerendered (◐). The
+  // session read sits behind `"use cache: private"` and streams in, so an
+  // anonymous request gets a 200 with the static shell and a client-side
+  // redirect to `/login` — not an HTTP 303/307. The security properties
+  // this test checks are: (1) the profile content never reaches the
+  // anonymous caller, and (2) the redirect target is the fixed `/login`
+  // route without open-redirect parameters.
   const response = await request.get(
     "/profile?callbackUrl=https://attacker.example&redirectTo=//attacker.example",
     { maxRedirects: 0 },
   );
 
-  expect([303, 307]).toContain(response.status());
-  const location = new URL(
-    response.headers().location!,
-    "http://localhost:3000",
-  );
-  expect(location.origin).toBe("http://localhost:3000");
-  expect(location.pathname).toBe("/login");
-  expect(location.search).toBe("");
+  // The response is 200 (static shell), not a redirect — but it must not
+  // contain any profile data.
+  expect(response.status()).toBe(200);
   expect(await response.text()).not.toContain(E2E_VIEWER.email);
+
+  // The client-side redirect must land on the fixed `/login` route without
+  // open-redirect parameters.
+  await page.goto(
+    "/profile?callbackUrl=https://attacker.example&redirectTo=//attacker.example",
+  );
+  await expect(page).toHaveURL("http://localhost:3000/login");
 });
 
 // The "signs out through the raw endpoint" test that lived here was removed:

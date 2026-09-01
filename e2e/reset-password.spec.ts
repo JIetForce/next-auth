@@ -77,8 +77,13 @@ test("requests a reset, opens the link, sets a new password, and signs in", asyn
   await expect(page).toHaveURL(/\/login$/);
 
   // The old password must no longer work — this proves the reset took effect.
+  // Under Cache Components, the server-action redirect to /login is a soft
+  // navigation, so the previous page's form fields may still be in the DOM
+  // briefly. Use { exact: true } to target only the login form's password
+  // field (label "Password"), not the reset form's "New password" /
+  // "Confirm password" fields.
   await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Password").fill(password);
+  await page.getByLabel("Password", { exact: true }).fill(password);
   await page.getByRole("button", { name: "Sign in" }).click();
 
   await expect(
@@ -88,7 +93,7 @@ test("requests a reset, opens the link, sets a new password, and signs in", asyn
 
   // Sign in with the new password
   await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Password").fill(newPassword);
+  await page.getByLabel("Password", { exact: true }).fill(newPassword);
   await page.getByRole("button", { name: "Sign in" }).click();
   await expect(page).toHaveURL("http://localhost:3000/");
 });

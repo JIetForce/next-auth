@@ -14,6 +14,12 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
+// The page calls getCurrentViewer() (which reads cookies via "use cache:
+// private") at the page level, which blocks prerendering under Cache
+// Components. Opt out of instant navigation until the session read is
+// moved behind a <Suspense> boundary.
+export const instant = false;
+
 export default async function VerifyEmailPage() {
   const viewer = await getCurrentViewer();
   if (viewer) redirect("/");

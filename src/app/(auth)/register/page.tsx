@@ -13,9 +13,16 @@ import { RegisterForm } from "./_components/register-form";
 
 export const metadata: Metadata = {
   title: "Create an account | Siftloom",
-  description: "Create an account for Siftloom to access curated AI and SaaS tools.",
+  description:
+    "Create an account for Siftloom to access curated AI and SaaS tools.",
   robots: { index: false, follow: false },
 };
+
+// The page calls getCurrentViewer() (which reads cookies via "use cache:
+// private") at the page level, which blocks prerendering under Cache
+// Components. Opt out of instant navigation until the session read is
+// moved behind a <Suspense> boundary.
+export const instant = false;
 
 export default async function RegisterPage() {
   const viewer = await getCurrentViewer();

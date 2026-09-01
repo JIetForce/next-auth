@@ -19,6 +19,12 @@ type ResetPasswordPageProps = {
   searchParams: Promise<{ token?: string | string[] }>;
 };
 
+// The page calls getCurrentViewer() (which reads cookies via "use cache:
+// private") and searchParams at the page level, both of which block
+// prerendering under Cache Components. Opt out of instant navigation until
+// the session read is moved behind a <Suspense> boundary.
+export const instant = false;
+
 export default async function ResetPasswordPage({
   searchParams,
 }: ResetPasswordPageProps) {
