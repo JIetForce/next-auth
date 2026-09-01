@@ -3,7 +3,10 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { nextCookies } from "better-auth/next-js";
 
-import { getPublicBaseUrl } from "@/lib/auth/environment";
+import {
+  getPublicBaseUrl,
+  isGoogleAuthConfigured,
+} from "@/lib/auth/environment";
 import { sendEmail } from "@/lib/email/client";
 import { prisma } from "@/lib/db";
 
@@ -19,6 +22,20 @@ const trustedOrigins = [new URL(baseURL).origin];
 if (process.env.VERCEL_ENV === "preview" && process.env.VERCEL_URL) {
   trustedOrigins.push(`https://${process.env.VERCEL_URL}`);
 }
+
+// Registering the Google provider with empty credentials would let a direct
+// call to /sign-in/social reach Google with an empty client_id instead of
+// failing legibly. isGoogleAuthConfigured() is the single source of truth for
+// whether the keys are present, so the provider is only ever built here when
+// it can actually work.
+const socialProviders = isGoogleAuthConfigured()
+  ? {
+      google: {
+        clientId: process.env.GOOGLE_CLIENT_ID!,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      },
+    }
+  : {};
 
 export const auth = betterAuth({
   baseURL,
@@ -100,12 +117,7 @@ export const auth = betterAuth({
       });
     },
   },
-  socialProviders: {
-    google: {
-      clientId: process.env.GOOGLE_CLIENT_ID ?? "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
-    },
-  },
+  socialProviders,
   account: {
     accountLinking: {
       enabled: true,
