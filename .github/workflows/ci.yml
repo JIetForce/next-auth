@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    name: CI
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check formatting
+        run: npm run format:check
+
+      - name: Check agent profiles sync
+        run: npm run check:agents
+
+      - name: Validate agent profiles
+        run: npm run validate:agents
+
+      - name: Run agent tests
+        run: npm run test:agents
+
+      - name: Build
+        run: npm run build
+        env:
+          DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/apptest"
+          BETTER_AUTH_SECRET: "ci-secret-value-must-be-long-enough-32char"
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Run unit tests
+        run: npm run test:unit
+
+      # NOTE: `npm test` (Playwright E2E) is intentionally omitted from CI.
+      # Running Playwright E2E requires a dedicated Postgres container, applying database migrations,
+      # and an SMTP capture service. Omitting it avoids a slow and flaky CI pipeline. E2E tests remain human-gated locally.
+
+      - name: Audit dependencies (non-blocking)
+        run: npm audit --audit-level=high
+        continue-on-error: true
