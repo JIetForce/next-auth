@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export function SiteFooter() {
   return (
@@ -44,12 +45,18 @@ export function SiteFooter() {
           >
             Telegram
           </a>
-          <a href="#" className="transition-colors hover:text-foreground">
+          <Link
+            href="/privacy"
+            className="transition-colors hover:text-foreground"
+          >
             Privacy Policy
-          </a>
-          <a href="#" className="transition-colors hover:text-foreground">
+          </Link>
+          <Link
+            href="/terms"
+            className="transition-colors hover:text-foreground"
+          >
             Terms of Service
-          </a>
+          </Link>
         </nav>
       </div>
     </footer>

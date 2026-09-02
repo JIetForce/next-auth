@@ -50,14 +50,14 @@ export function AuthCardShell({
         <p className="text-[11px] text-muted-foreground">
           By continuing, you agree to our{" "}
           <Link
-            href="/"
+            href="/terms"
             className="underline underline-offset-4 transition-colors hover:text-foreground"
           >
             Terms of Service
           </Link>{" "}
           and{" "}
           <Link
-            href="/"
+            href="/privacy"
             className="underline underline-offset-4 transition-colors hover:text-foreground"
           >
             Privacy Policy

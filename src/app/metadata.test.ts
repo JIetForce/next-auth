@@ -29,21 +29,33 @@ describe("public routes metadata", () => {
     });
   });
 
-  it("exports distinct static metadata for home, features, and pricing", async () => {
+  it("exports distinct static metadata for public routes", async () => {
     const home = await import("./(main)/page");
     const features = await import("./(main)/features/page");
     const pricing = await import("./(main)/pricing/page");
+    const terms = await import("./(main)/terms/page");
+    const privacy = await import("./(main)/privacy/page");
 
     expect(home.metadata).toBeDefined();
     expect(features.metadata).toBeDefined();
     expect(pricing.metadata).toBeDefined();
+    expect(terms.metadata).toBeDefined();
+    expect(privacy.metadata).toBeDefined();
 
-    expect(home.metadata.title).not.toEqual(features.metadata.title);
-    expect(features.metadata.title).not.toEqual(pricing.metadata.title);
-    expect(home.metadata.title).not.toEqual(pricing.metadata.title);
+    const titles = [
+      home.metadata.title,
+      features.metadata.title,
+      pricing.metadata.title,
+      terms.metadata.title,
+      privacy.metadata.title,
+    ];
+    const uniqueTitles = new Set(titles);
+    expect(uniqueTitles.size).toBe(5);
 
     expect(home.metadata.description).toBeDefined();
     expect(features.metadata.description).toBeDefined();
     expect(pricing.metadata.description).toBeDefined();
+    expect(terms.metadata.description).toBeDefined();
+    expect(privacy.metadata.description).toBeDefined();
   });
 });

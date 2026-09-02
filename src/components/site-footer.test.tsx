@@ -12,6 +12,8 @@ vi.mock("@/lib/auth/environment", () => ({
 import FeaturesPage from "@/app/(main)/features/page";
 import Home from "@/app/(main)/page";
 import PricingPage from "@/app/(main)/pricing/page";
+import PrivacyPage from "@/app/(main)/privacy/page";
+import TermsPage from "@/app/(main)/terms/page";
 import RootLayout from "@/app/layout";
 import { SiteFooter } from "@/components/site-footer";
 
@@ -33,7 +35,9 @@ describe("SiteFooter and Page Landmarks", () => {
     expect(html).toContain("Siftloom");
     expect(html).toContain("Twitter / X");
     expect(html).toContain("Telegram");
+    expect(html).toContain('href="/privacy"');
     expect(html).toContain("Privacy Policy");
+    expect(html).toContain('href="/terms"');
     expect(html).toContain("Terms of Service");
   });
 
@@ -76,6 +80,42 @@ describe("SiteFooter and Page Landmarks", () => {
 
   it("renders exactly one main id=main-content landmark and footer on Pricing page", () => {
     const html = renderToStaticMarkup(<PricingPage />);
+    const mainMatches = html.match(/<main\b[^>]*id="main-content"[^>]*>/g);
+    expect(mainMatches).not.toBeNull();
+    expect(mainMatches).toHaveLength(1);
+
+    const allMainMatches = html.match(/<main\b/g);
+    expect(allMainMatches).toHaveLength(1);
+
+    const footerMatches = html.match(/<footer\b/g);
+    expect(footerMatches).toHaveLength(1);
+
+    const mainEndIndex = html.indexOf("</main>");
+    const footerStartIndex = html.indexOf("<footer");
+    expect(mainEndIndex).toBeGreaterThan(-1);
+    expect(footerStartIndex).toBeGreaterThan(mainEndIndex);
+  });
+
+  it("renders exactly one main id=main-content landmark and footer on Terms page", () => {
+    const html = renderToStaticMarkup(<TermsPage />);
+    const mainMatches = html.match(/<main\b[^>]*id="main-content"[^>]*>/g);
+    expect(mainMatches).not.toBeNull();
+    expect(mainMatches).toHaveLength(1);
+
+    const allMainMatches = html.match(/<main\b/g);
+    expect(allMainMatches).toHaveLength(1);
+
+    const footerMatches = html.match(/<footer\b/g);
+    expect(footerMatches).toHaveLength(1);
+
+    const mainEndIndex = html.indexOf("</main>");
+    const footerStartIndex = html.indexOf("<footer");
+    expect(mainEndIndex).toBeGreaterThan(-1);
+    expect(footerStartIndex).toBeGreaterThan(mainEndIndex);
+  });
+
+  it("renders exactly one main id=main-content landmark and footer on Privacy page", () => {
+    const html = renderToStaticMarkup(<PrivacyPage />);
     const mainMatches = html.match(/<main\b[^>]*id="main-content"[^>]*>/g);
     expect(mainMatches).not.toBeNull();
     expect(mainMatches).toHaveLength(1);
