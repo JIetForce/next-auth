@@ -132,7 +132,7 @@ export default function PricingPage() {
             <div className="lg:col-span-7">
               <Badge
                 variant="outline"
-                className="h-auto gap-2 rounded-full border-white/10 bg-white/5 px-3.5 py-1 text-xs font-semibold text-muted-foreground"
+                className="h-auto gap-2 rounded-full border-border/80 bg-muted/50 px-3.5 py-1 text-xs font-semibold text-muted-foreground"
               >
                 <Megaphone className="size-3.5" aria-hidden="true" />
                 For Partners &amp; Sponsors
@@ -163,7 +163,7 @@ export default function PricingPage() {
                 <Card
                   key={stat.value}
                   className={cn(
-                    "gap-1 rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md",
+                    "gap-1 rounded-2xl border border-border/80 bg-card/60 p-6 backdrop-blur-md",
                     stat.highlight && "col-span-2",
                   )}
                 >
@@ -209,7 +209,7 @@ export default function PricingPage() {
               <AccordionItem
                 key={value}
                 value={value}
-                className="rounded-2xl border border-white/6 bg-white/[0.02] px-6 transition-colors hover:border-white/12 hover:bg-white/[0.035]"
+                className="rounded-2xl border border-border/80 bg-card/60 px-6 transition-colors hover:border-border hover:bg-card/80"
               >
                 <AccordionTrigger className="py-5 font-heading text-base font-bold text-foreground hover:no-underline">
                   {question}

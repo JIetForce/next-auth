@@ -298,7 +298,7 @@ export default function Home() {
               <AccordionItem
                 key={value}
                 value={value}
-                className="rounded-2xl border border-white/6 bg-white/[0.02] px-6 transition-colors hover:border-white/12 hover:bg-white/[0.035]"
+                className="rounded-2xl border border-border/80 bg-card/60 px-6 transition-colors hover:border-border hover:bg-card/80"
               >
                 <AccordionTrigger className="py-5 font-heading text-base font-bold text-foreground hover:no-underline">
                   {question}
@@ -310,7 +310,7 @@ export default function Home() {
             ))}
             <AccordionItem
               value="faq-4"
-              className="rounded-2xl border border-white/6 bg-white/[0.02] px-6 transition-colors hover:border-white/12 hover:bg-white/[0.035]"
+              className="rounded-2xl border border-border/80 bg-card/60 px-6 transition-colors hover:border-border hover:bg-card/80"
             >
               <AccordionTrigger className="py-5 font-heading text-base font-bold text-foreground hover:no-underline">
                 Can I submit a tool to be featured?
@@ -324,7 +324,7 @@ export default function Home() {
 
             <AccordionItem
               value="faq-5"
-              className="rounded-2xl border border-white/6 bg-white/[0.02] px-6 transition-colors hover:border-white/12 hover:bg-white/[0.035]"
+              className="rounded-2xl border border-border/80 bg-card/60 px-6 transition-colors hover:border-border hover:bg-card/80"
             >
               <AccordionTrigger className="py-5 font-heading text-base font-bold text-foreground hover:no-underline">
                 How is this different from other directories?
@@ -357,7 +357,7 @@ export default function Home() {
             <div className="lg:col-span-7">
               <Badge
                 variant="outline"
-                className="border-white/10 bg-white/5 text-muted-foreground gap-2 px-3.5 py-1 text-xs font-semibold h-auto rounded-full"
+                className="border-border/80 bg-muted/50 text-muted-foreground gap-2 px-3.5 py-1 text-xs font-semibold h-auto rounded-full"
               >
                 For Partners &amp; Sponsors
               </Badge>
@@ -383,7 +383,7 @@ export default function Home() {
                   href="/login"
                   className={cn(
                     buttonVariants({ variant: "outline" }),
-                    "h-12 px-6 text-sm font-medium border-white/15 bg-white/5 hover:bg-white/10",
+                    "h-12 px-6 text-sm font-medium border-border/80 bg-card/60 hover:bg-card/80",
                   )}
                 >
                   View Media Kit
@@ -396,7 +396,7 @@ export default function Home() {
                 <Card
                   key={stat.value}
                   className={cn(
-                    "gap-1 rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md",
+                    "gap-1 rounded-2xl border border-border/80 bg-card/60 p-6 backdrop-blur-md",
                     stat.highlight && "col-span-2",
                   )}
                 >
