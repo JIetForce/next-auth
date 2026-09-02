@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { KeyRound, Lock, ShieldCheck } from "lucide-react";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 
 import { getCurrentViewer } from "@/lib/auth/session";
 
 import { AuthCardShell } from "../_components/auth-card-shell";
+import { AuthCardSkeleton } from "../_components/auth-card-skeleton";
 import { ForgotPasswordForm } from "./_components/forgot-password-form";
 import { ResetPasswordForm } from "./_components/reset-password-form";
 
@@ -19,15 +21,21 @@ type ResetPasswordPageProps = {
   searchParams: Promise<{ token?: string | string[] }>;
 };
 
-// The page calls getCurrentViewer() (which reads cookies via "use cache:
-// private") and searchParams at the page level, both of which block
-// prerendering under Cache Components. Opt out of instant navigation until
-// the session read is moved behind a <Suspense> boundary.
-export const instant = false;
-
-export default async function ResetPasswordPage({
+export default function ResetPasswordPage({
   searchParams,
 }: ResetPasswordPageProps) {
+  return (
+    <Suspense fallback={<AuthCardSkeleton />}>
+      <ResetPasswordContent searchParams={searchParams} />
+    </Suspense>
+  );
+}
+
+async function ResetPasswordContent({
+  searchParams,
+}: {
+  searchParams: ResetPasswordPageProps["searchParams"];
+}) {
   const viewer = await getCurrentViewer();
   if (viewer) redirect("/");
 
