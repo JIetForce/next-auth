@@ -31,7 +31,7 @@ const roles = readdirSync(ROLES_DIR, { withFileTypes: true })
   });
 
 for (const { meta, body } of roles) {
-  for (const [tool, tm] of Object.entries(config.tool_meta)) {
+  for (const tm of Object.values(config.tool_meta)) {
     const path =
       tm.layout === "dir"
         ? join(tm.out_dir, meta.name, `${tm.file_name}${tm.ext}`)

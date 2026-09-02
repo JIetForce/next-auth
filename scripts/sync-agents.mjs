@@ -260,7 +260,8 @@ if (existsSync(MCP_FILE)) {
   const mcp = JSON.parse(readFileSync(MCP_FILE, "utf8"));
   const servers = Object.fromEntries(
     Object.entries(mcp.servers).map(([name, def]) => {
-      const { roles, ...rest } = def; // `roles` is ours, not the wire format
+      const rest = { ...def };
+      delete rest.roles; // `roles` is ours, not the wire format
       return [name, rest];
     }),
   );

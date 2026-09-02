@@ -1,5 +1,5 @@
 // e2e/helpers/mail.ts
-import { readFile, writeFile } from "node:fs/promises";
+import { readFile } from "node:fs/promises";
 
 import { MAIL_LOG } from "../global-setup";
 
@@ -23,10 +23,6 @@ async function readCaptured(): Promise<CapturedMessage[]> {
     .split("\n")
     .filter(Boolean)
     .map((line) => JSON.parse(line) as CapturedMessage);
-}
-
-export async function clearMailbox() {
-  await writeFile(MAIL_LOG, "");
 }
 
 /** Polls the capture file until a message addressed to `email` arrives. */
