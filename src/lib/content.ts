@@ -1,21 +1,3 @@
-export const partnerStats = [
-  {
-    value: "10,000+",
-    label: "Engaged newsletter subscribers",
-    highlight: true,
-  },
-  {
-    value: "48%",
-    label: "Avg. open rate",
-    highlight: false,
-  },
-  {
-    value: "5,000+",
-    label: "Community members",
-    highlight: false,
-  },
-] as const;
-
 export type FaqEntry = Readonly<{
   value: string;
   question: string;
@@ -40,5 +22,17 @@ export const sharedFaqs: readonly FaqEntry[] = [
     question: "What kind of tools do you feature?",
     answer:
       "We feature everything from emerging AI agents and developer utilities to proven marketing platforms and no-code builders. If it saves time, reduces friction, or creates leverage for digital professionals, it's on our radar.",
+  },
+  {
+    value: "faq-submit",
+    question: "Can I submit a tool to be featured?",
+    answer:
+      "Absolutely. We have a dedicated submission process for founders and makers. Reach out to us directly via email and we'll evaluate if your product is a good fit for our audience.",
+  },
+  {
+    value: "faq-different",
+    question: "How is this different from other directories?",
+    answer:
+      "We don't just list tools; we curate them. Every tool we mention has been tested or rigorously vetted by our team to ensure it actually solves a problem without unnecessary bloat.",
   },
 ];

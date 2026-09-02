@@ -17,7 +17,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { partnerStats, sharedFaqs } from "@/lib/content";
+import { sharedFaqs } from "@/lib/content";
 import { cn } from "@/lib/utils";
 import { SiteFooter } from "@/components/site-footer";
 
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
 
 const freeFeatures = [
   "Curated weekly newsletter",
-  "Active community access (5,000+ members)",
+  "Active community access",
   "Early alerts on emerging tools",
   "All categories: AI, dev, automation, growth",
   "No paywall, ever",
@@ -137,62 +137,33 @@ export default function PricingPage() {
                   "radial-gradient(circle at 88% 8%, rgba(47,184,174,0.18), transparent 46%), radial-gradient(circle at 8% 96%, rgba(63,161,222,0.14), transparent 50%)",
               }}
             />
-            <div className="relative grid grid-cols-1 gap-10 lg:grid-cols-12 lg:items-center">
-              <div className="lg:col-span-7">
-                <Badge
-                  variant="outline"
-                  className="h-auto gap-2 rounded-full border-border/80 bg-muted/50 px-3.5 py-1 text-xs font-semibold text-muted-foreground"
+            <div className="relative max-w-2xl">
+              <Badge
+                variant="outline"
+                className="h-auto gap-2 rounded-full border-border/80 bg-muted/50 px-3.5 py-1 text-xs font-semibold text-muted-foreground"
+              >
+                <Megaphone className="size-3.5" aria-hidden="true" />
+                For Partners &amp; Sponsors
+              </Badge>
+              <h2 className="mt-4 font-heading text-3xl font-extrabold tracking-tight sm:text-4xl">
+                Reach a highly engaged B2B audience
+              </h2>
+              <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+                Partner with Siftloom to put your SaaS or service in front of
+                founders, marketers, and decision-makers. We drive high-intent
+                traffic through our curated newsletter and active community.
+              </p>
+              <div className="mt-8">
+                <Link
+                  href="/login"
+                  className={cn(
+                    buttonVariants({ variant: "default" }),
+                    "h-12 gap-2.5 px-7 text-sm font-bold",
+                  )}
                 >
-                  <Megaphone className="size-3.5" aria-hidden="true" />
-                  For Partners &amp; Sponsors
-                </Badge>
-                <h2 className="mt-4 font-heading text-3xl font-extrabold tracking-tight sm:text-4xl">
-                  Reach a highly engaged B2B audience
-                </h2>
-                <p className="mt-4 max-w-lg text-base leading-relaxed text-muted-foreground">
-                  Partner with Siftloom to put your SaaS or service in front of
-                  founders, marketers, and decision-makers. We drive high-intent
-                  traffic through our curated newsletter and active community.
-                </p>
-                <div className="mt-8">
-                  <Link
-                    href="/login"
-                    className={cn(
-                      buttonVariants({ variant: "default" }),
-                      "h-12 gap-2.5 px-7 text-sm font-bold",
-                    )}
-                  >
-                    <span>Become a Partner</span>
-                    <ArrowRight className="size-4" aria-hidden="true" />
-                  </Link>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4 lg:col-span-5">
-                {partnerStats.map((stat) => (
-                  <Card
-                    key={stat.value}
-                    className={cn(
-                      "gap-1 rounded-2xl border border-border/80 bg-card/60 p-6 backdrop-blur-md",
-                      stat.highlight && "col-span-2",
-                    )}
-                  >
-                    <CardHeader className="gap-1 p-0">
-                      <CardTitle
-                        className={cn(
-                          "font-heading font-extrabold tracking-tight",
-                          stat.highlight
-                            ? "text-3xl text-siftloom-gradient sm:text-4xl"
-                            : "text-2xl text-foreground sm:text-3xl",
-                        )}
-                      >
-                        {stat.value}
-                      </CardTitle>
-                      <CardDescription className="text-xs text-muted-foreground sm:text-sm">
-                        {stat.label}
-                      </CardDescription>
-                    </CardHeader>
-                  </Card>
-                ))}
+                  <span>Become a Partner</span>
+                  <ArrowRight className="size-4" aria-hidden="true" />
+                </Link>
               </div>
             </div>
           </Card>

@@ -27,7 +27,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { sharedFaqs, partnerStats } from "@/lib/content";
+import { sharedFaqs } from "@/lib/content";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -100,8 +100,10 @@ export default function Home() {
             </div>
             <span>
               Trusted by{" "}
-              <strong className="font-semibold text-foreground">10,000+</strong>{" "}
-              modern professionals.
+              <strong className="font-semibold text-foreground">
+                modern professionals
+              </strong>
+              .
             </span>
           </div>
         </section>
@@ -316,34 +318,6 @@ export default function Home() {
                   </AccordionContent>
                 </AccordionItem>
               ))}
-              <AccordionItem
-                value="faq-4"
-                className="rounded-2xl border border-border/80 bg-card/60 px-6 transition-colors hover:border-border hover:bg-card/80"
-              >
-                <AccordionTrigger className="py-5 font-heading text-base font-bold text-foreground hover:no-underline">
-                  Can I submit a tool to be featured?
-                </AccordionTrigger>
-                <AccordionContent className="pb-5 text-sm leading-relaxed text-muted-foreground">
-                  Absolutely. We have a dedicated submission process for
-                  founders and makers. Reach out to us directly via email and
-                  we&apos;ll evaluate if your product is a good fit for our
-                  audience.
-                </AccordionContent>
-              </AccordionItem>
-
-              <AccordionItem
-                value="faq-5"
-                className="rounded-2xl border border-border/80 bg-card/60 px-6 transition-colors hover:border-border hover:bg-card/80"
-              >
-                <AccordionTrigger className="py-5 font-heading text-base font-bold text-foreground hover:no-underline">
-                  How is this different from other directories?
-                </AccordionTrigger>
-                <AccordionContent className="pb-5 text-sm leading-relaxed text-muted-foreground">
-                  We don&apos;t just list tools; we curate them. Every tool we
-                  mention has been tested or rigorously vetted by our team to
-                  ensure it actually solves a problem without unnecessary bloat.
-                </AccordionContent>
-              </AccordionItem>
             </Accordion>
           </div>
         </section>
@@ -362,70 +336,40 @@ export default function Home() {
               }}
             />
 
-            <div className="relative grid grid-cols-1 gap-12 lg:grid-cols-12 lg:items-center">
-              <div className="lg:col-span-7">
-                <Badge
-                  variant="outline"
-                  className="border-border/80 bg-muted/50 text-muted-foreground gap-2 px-3.5 py-1 text-xs font-semibold h-auto rounded-full"
+            <div className="relative max-w-2xl">
+              <Badge
+                variant="outline"
+                className="border-border/80 bg-muted/50 text-muted-foreground gap-2 px-3.5 py-1 text-xs font-semibold h-auto rounded-full"
+              >
+                For Partners &amp; Sponsors
+              </Badge>
+              <h2 className="mt-4 font-heading text-3xl font-extrabold tracking-tight sm:text-4xl">
+                Reach a Highly Engaged B2B Audience
+              </h2>
+              <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+                Partner with Siftloom to put your SaaS or service in front of
+                founders, marketers, and decision-makers. We drive high-intent
+                traffic through our curated newsletter and active community.
+              </p>
+              <div className="mt-8 flex flex-wrap gap-4">
+                <Link
+                  href="/login"
+                  className={cn(
+                    buttonVariants({ variant: "default" }),
+                    "h-12 px-7 font-bold text-sm",
+                  )}
                 >
-                  For Partners &amp; Sponsors
-                </Badge>
-                <h2 className="mt-4 font-heading text-3xl font-extrabold tracking-tight sm:text-4xl">
-                  Reach a Highly Engaged B2B Audience
-                </h2>
-                <p className="mt-4 max-w-lg text-base leading-relaxed text-muted-foreground">
-                  Partner with Siftloom to put your SaaS or service in front of
-                  founders, marketers, and decision-makers. We drive high-intent
-                  traffic through our curated newsletter and active community.
-                </p>
-                <div className="mt-8 flex flex-wrap gap-4">
-                  <Link
-                    href="/login"
-                    className={cn(
-                      buttonVariants({ variant: "default" }),
-                      "h-12 px-7 font-bold text-sm",
-                    )}
-                  >
-                    Become a Partner
-                  </Link>
-                  <Link
-                    href="/login"
-                    className={cn(
-                      buttonVariants({ variant: "outline" }),
-                      "h-12 px-6 text-sm font-medium border-border/80 bg-card/60 hover:bg-card/80",
-                    )}
-                  >
-                    View Media Kit
-                  </Link>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 lg:col-span-5">
-                {partnerStats.map((stat) => (
-                  <Card
-                    key={stat.value}
-                    className={cn(
-                      "gap-1 rounded-2xl border border-border/80 bg-card/60 p-6 backdrop-blur-md",
-                      stat.highlight && "col-span-2",
-                    )}
-                  >
-                    <CardHeader className="gap-1 p-0">
-                      <CardTitle
-                        className={cn(
-                          "font-heading font-extrabold tracking-tight",
-                          stat.highlight
-                            ? "text-3xl text-siftloom-gradient sm:text-4xl"
-                            : "text-2xl text-foreground sm:text-3xl",
-                        )}
-                      >
-                        {stat.value}
-                      </CardTitle>
-                      <CardDescription className="text-xs text-muted-foreground sm:text-sm">
-                        {stat.label}
-                      </CardDescription>
-                    </CardHeader>
-                  </Card>
-                ))}
+                  Become a Partner
+                </Link>
+                <Link
+                  href="/login"
+                  className={cn(
+                    buttonVariants({ variant: "outline" }),
+                    "h-12 px-6 text-sm font-medium border-border/80 bg-card/60 hover:bg-card/80",
+                  )}
+                >
+                  View Media Kit
+                </Link>
               </div>
             </div>
           </Card>

@@ -30,30 +30,30 @@ export function AuthShowcase() {
           </p>
         </div>
 
-        {/* Platform Metrics */}
+        {/* Qualitative Value Propositions */}
         <div className="grid grid-cols-3 gap-3 rounded-xl border border-border/80 bg-card/60 p-4 shadow-xs backdrop-blur-md">
           <div className="flex flex-col gap-1 border-r border-border/60 pr-2">
-            <span className="font-heading text-2xl font-extrabold tracking-tight text-siftloom-gradient">
-              10,000+
+            <span className="font-heading text-sm font-bold tracking-tight text-siftloom-gradient sm:text-base">
+              Curated Signal
             </span>
             <span className="text-xs text-muted-foreground">
-              Engaged Subscribers
+              Hand-picked discoveries
             </span>
           </div>
           <div className="flex flex-col gap-1 border-r border-border/60 px-2">
-            <span className="font-heading text-2xl font-extrabold tracking-tight text-foreground">
-              48%
+            <span className="font-heading text-sm font-bold tracking-tight text-foreground sm:text-base">
+              Vetted Tooling
             </span>
             <span className="text-xs text-muted-foreground">
-              Avg. Open Rate
+              Tested by operators
             </span>
           </div>
           <div className="flex flex-col gap-1 pl-2">
-            <span className="font-heading text-2xl font-extrabold tracking-tight text-foreground">
-              5,000+
+            <span className="font-heading text-sm font-bold tracking-tight text-foreground sm:text-base">
+              Active Community
             </span>
             <span className="text-xs text-muted-foreground">
-              Community Members
+              Makers and builders
             </span>
           </div>
         </div>

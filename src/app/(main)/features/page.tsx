@@ -116,7 +116,7 @@ const benefits = [
     icon: Users,
     title: "Community Access",
     description:
-      "Join 5,000+ operators, founders, and makers in an active community sharing real workflows and discoveries.",
+      "Connect with operators, founders, and makers in an active community sharing real workflows and discoveries.",
   },
   {
     icon: Bell,
@@ -282,8 +282,8 @@ export default function FeaturesPage() {
                 Ready to <span className="text-siftloom-gradient">scale</span>?
               </h2>
               <p className="max-w-lg text-base leading-relaxed text-muted-foreground">
-                Join 10,000+ modern professionals getting curated tools and
-                workflows every week. Free, forever.
+                Join modern professionals getting curated tools and workflows
+                every week. Free, forever.
               </p>
               <Link
                 href="/login"
