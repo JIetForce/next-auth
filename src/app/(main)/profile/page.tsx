@@ -39,7 +39,10 @@ export default async function ProfilePage() {
     providerLabels.length > 0 ? providerLabels.join(", ") : "Not available";
 
   return (
-    <main className="relative flex flex-1 items-center justify-center overflow-hidden p-4 sm:p-6">
+    <main
+      id="main-content"
+      className="relative flex flex-1 items-center justify-center overflow-hidden p-4 sm:p-6"
+    >
       <div className="sl-bg-grid" aria-hidden="true" />
       <div className="sl-ambient-glow-top" aria-hidden="true" />
 

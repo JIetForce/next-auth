@@ -7,7 +7,10 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-svh flex-1 flex-col bg-background text-foreground selection:bg-primary/30 selection:text-foreground">
       <Header />
-      <main className="relative flex min-h-[calc(100svh-3.5rem)] flex-1 overflow-hidden bg-background">
+      <main
+        id="main-content"
+        className="relative flex min-h-[calc(100svh-3.5rem)] flex-1 overflow-hidden bg-background"
+      >
         {/* Siftloom-inspired ambient background grid & radial glow effects */}
         <div className="sl-bg-grid" aria-hidden="true" />
         <div className="sl-ambient-glow-top" aria-hidden="true" />
