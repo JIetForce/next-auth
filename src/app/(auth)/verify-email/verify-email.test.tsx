@@ -29,7 +29,7 @@ vi.mock("./actions", () => ({
   resendVerificationAction: vi.fn(),
 }));
 
-import VerifyEmailPage from "./page";
+import { VerifyEmailContent } from "./page";
 import { ResendForm } from "./_components/resend-form";
 
 describe("ResendForm component", () => {
@@ -62,7 +62,7 @@ describe("ResendForm component", () => {
   });
 });
 
-describe("VerifyEmailPage", () => {
+describe("VerifyEmailContent", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockGetCurrentViewer.mockResolvedValue(null);
@@ -71,28 +71,26 @@ describe("VerifyEmailPage", () => {
   it("reads pending_verification_email cookie and passes it to ResendForm", async () => {
     mockCookieStore.get.mockReturnValue({ value: "pending@example.com" });
 
-    const page = await VerifyEmailPage();
-    const html = renderToStaticMarkup(page);
+    const content = await VerifyEmailContent();
+    const html = renderToStaticMarkup(content);
 
     expect(mockCookieStore.get).toHaveBeenCalledWith(
       "pending_verification_email",
     );
     expect(html).toContain('value="pending@example.com"');
-    expect(html).toContain("Confirm your email");
     expect(html).toContain("Verification link sent");
   });
 
   it("renders cleanly with empty form when no pending cookie is set", async () => {
     mockCookieStore.get.mockReturnValue(undefined);
 
-    const page = await VerifyEmailPage();
-    const html = renderToStaticMarkup(page);
+    const content = await VerifyEmailContent();
+    const html = renderToStaticMarkup(content);
 
     expect(mockCookieStore.get).toHaveBeenCalledWith(
       "pending_verification_email",
     );
     expect(html).not.toContain('value="');
-    expect(html).toContain("Confirm your email");
     expect(html).toContain("Verification link sent");
   });
 
@@ -105,7 +103,8 @@ describe("VerifyEmailPage", () => {
       image: null,
     });
 
-    await expect(VerifyEmailPage()).rejects.toThrow("REDIRECT:/");
+    await expect(VerifyEmailContent()).rejects.toThrow("REDIRECT:/");
     expect(mockRedirect).toHaveBeenCalledWith("/");
+    expect(mockCookieStore.get).not.toHaveBeenCalled();
   });
 });

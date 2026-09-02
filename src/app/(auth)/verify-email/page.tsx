@@ -3,10 +3,12 @@ import Link from "next/link";
 import { MailCheck, ShieldCheck } from "lucide-react";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 
 import { getCurrentViewer } from "@/lib/auth/session";
 
 import { AuthCardShell } from "../_components/auth-card-shell";
+import { AuthContentSkeleton } from "../_components/auth-content-skeleton";
 import { ResendForm } from "./_components/resend-form";
 
 export const metadata: Metadata = {
@@ -15,19 +17,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-// The page calls getCurrentViewer() (which reads cookies via "use cache:
-// private") at the page level, which blocks prerendering under Cache
-// Components. Opt out of instant navigation until the session read is
-// moved behind a <Suspense> boundary.
-export const instant = false;
-
-export default async function VerifyEmailPage() {
-  const viewer = await getCurrentViewer();
-  if (viewer) redirect("/");
-
-  const cookieStore = await cookies();
-  const initialEmail = cookieStore.get("pending_verification_email")?.value;
-
+export default function VerifyEmailPage() {
   return (
     <AuthCardShell
       badge={
@@ -39,6 +29,22 @@ export default async function VerifyEmailPage() {
       title="Confirm your email"
       description="We sent a verification link to your email. Open it to finish creating your account."
     >
+      <Suspense fallback={<AuthContentSkeleton />}>
+        <VerifyEmailContent />
+      </Suspense>
+    </AuthCardShell>
+  );
+}
+
+export async function VerifyEmailContent() {
+  const viewer = await getCurrentViewer();
+  if (viewer) redirect("/");
+
+  const cookieStore = await cookies();
+  const initialEmail = cookieStore.get("pending_verification_email")?.value;
+
+  return (
+    <>
       <div className="flex items-start gap-3 rounded-lg border border-border/70 bg-muted/40 p-3.5">
         <div className="flex size-9 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
           <MailCheck className="size-4.5" aria-hidden="true" />
@@ -75,6 +81,6 @@ export default async function VerifyEmailPage() {
           Sign in
         </Link>
       </p>
-    </AuthCardShell>
+    </>
   );
 }
