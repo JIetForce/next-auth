@@ -8,6 +8,8 @@ import {
   isGoogleAuthConfigured,
 } from "@/lib/auth/environment";
 import { sendEmail } from "@/lib/email/client";
+import { renderResetPassword } from "@/lib/email/templates/reset-password";
+import { renderVerifyEmail } from "@/lib/email/templates/verify-email";
 import { prisma } from "@/lib/db";
 import { MIN_PASSWORD_LENGTH } from "@/lib/auth/schemas";
 import { logger } from "@/lib/logger";
@@ -81,17 +83,21 @@ export const auth = betterAuth({
     sendResetPassword: async ({ user, url }) => {
       // Not awaited: response timing must not reveal whether the address exists.
       // The catch keeps a transport failure from becoming an unhandled rejection.
-      void sendEmail({
-        to: user.email,
-        subject: "Reset your password",
-        text: [
-          "Click the link to reset your password:",
-          "",
-          url,
-          "",
-          "If you did not request this, you can ignore this message.",
-        ].join("\n"),
-      }).catch((error: unknown) => {
+      void (async () => {
+        const html = await renderResetPassword({ url });
+        await sendEmail({
+          to: user.email,
+          subject: "Reset your password",
+          text: [
+            "Click the link to reset your password:",
+            "",
+            url,
+            "",
+            "If you did not request this, you can ignore this message.",
+          ].join("\n"),
+          html,
+        });
+      })().catch((error: unknown) => {
         logger.error({ err: error }, "Failed to send reset password email");
       });
     },
@@ -109,17 +115,21 @@ export const auth = betterAuth({
       // The catch keeps a transport failure (e.g. SMTP down) from becoming an
       // unhandled rejection, which would crash the process outside dev — it
       // must not change what this action or any HTTP response returns.
-      void sendEmail({
-        to: user.email,
-        subject: "Confirm your email address",
-        text: [
-          "Confirm your address to finish creating your account:",
-          "",
-          url,
-          "",
-          "If you did not sign up, you can ignore this message.",
-        ].join("\n"),
-      }).catch((error: unknown) => {
+      void (async () => {
+        const html = await renderVerifyEmail({ url });
+        await sendEmail({
+          to: user.email,
+          subject: "Confirm your email address",
+          text: [
+            "Confirm your address to finish creating your account:",
+            "",
+            url,
+            "",
+            "If you did not sign up, you can ignore this message.",
+          ].join("\n"),
+          html,
+        });
+      })().catch((error: unknown) => {
         logger.error({ err: error }, "Failed to send verification email");
       });
     },

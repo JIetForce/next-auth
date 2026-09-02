@@ -10,6 +10,7 @@ export type SendEmailInput = {
   to: string;
   subject: string;
   text: string;
+  html?: string;
 };
 
 async function captureEmail(path: string, message: SendEmailInput) {
