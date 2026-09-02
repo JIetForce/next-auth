@@ -2,11 +2,11 @@ import { expect, test } from "@playwright/test";
 import { instant } from "@next/playwright";
 
 import { addAuthenticatedSession, E2E_VIEWER } from "./helpers/auth-session";
-import { teardownAuthTestInstance } from "./helpers/auth-test-instance";
 
-test.afterAll(async () => {
-  await teardownAuthTestInstance();
-});
+// No per-file teardown anywhere in this suite: e2e/helpers/auth-test-instance.ts
+// holds a per-worker pg pool, and an afterAll teardown would end the pool for
+// any sibling spec file scheduled into the same worker. Worker processes
+// close their own pools at exit.
 
 test.describe("instant navigation", () => {
   test("client navigation to /pricing is instant", async ({ page }) => {

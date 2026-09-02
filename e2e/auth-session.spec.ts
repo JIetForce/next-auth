@@ -1,7 +1,6 @@
 import { expect, test } from "@playwright/test";
 
 import { assertPageAccessibility } from "./helpers/a11y";
-import { teardownAuthTestInstance } from "./helpers/auth-test-instance";
 import { addAuthenticatedSession, E2E_VIEWER } from "./helpers/auth-session";
 
 const sessionCookieName = "better-auth.session_token";
@@ -25,9 +24,10 @@ async function openAccountMenu(page: import("@playwright/test").Page) {
   await accountMenuButton(page).click();
 }
 
-test.afterAll(async () => {
-  await teardownAuthTestInstance();
-});
+// No per-file teardown here: e2e/helpers/auth-test-instance.ts holds a
+// per-worker pg pool, and an afterAll teardown would end the pool for
+// any sibling spec file scheduled into the same worker. Worker processes
+// close their own pools at exit.
 
 test("renders anonymous account navigation on desktop and mobile", async ({
   page,
