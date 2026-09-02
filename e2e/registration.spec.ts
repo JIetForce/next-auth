@@ -12,6 +12,8 @@ function uniqueEmail(label: string) {
     .slice(2, 8)}@example.invalid`;
 }
 
+test.describe.configure({ mode: "serial" });
+
 test("passes accessibility checks on register page", async ({ page }) => {
   await page.goto("/register");
   await assertPageAccessibility(page);

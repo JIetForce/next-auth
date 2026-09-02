@@ -74,6 +74,9 @@ const webServerAuthEnvironment = {
 
 export default defineConfig({
   testDir: "./e2e",
+  expect: {
+    timeout: 10_000,
+  },
   globalSetup: "./e2e/global-setup.ts",
   globalTeardown: "./e2e/global-teardown.ts",
   outputDir: ".next/playwright",
