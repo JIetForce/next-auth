@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { MailCheck, ShieldCheck } from "lucide-react";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { getCurrentViewer } from "@/lib/auth/session";
@@ -23,6 +24,9 @@ export const instant = false;
 export default async function VerifyEmailPage() {
   const viewer = await getCurrentViewer();
   if (viewer) redirect("/");
+
+  const cookieStore = await cookies();
+  const initialEmail = cookieStore.get("pending_verification_email")?.value;
 
   return (
     <AuthCardShell
@@ -50,7 +54,7 @@ export default async function VerifyEmailPage() {
         </div>
       </div>
 
-      <ResendForm />
+      <ResendForm defaultEmail={initialEmail} />
 
       <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
         <span className="inline-flex items-center gap-1">

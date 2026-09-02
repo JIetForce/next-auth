@@ -1,7 +1,7 @@
 // src/app/(auth)/register/actions.ts
 "use server";
 
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
@@ -67,6 +67,15 @@ export async function registerAction(
   } catch {
     return genericFailure;
   }
+
+  const cookieStore = await cookies();
+  cookieStore.set("pending_verification_email", email, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 30 * 60,
+    path: "/verify-email",
+  });
 
   redirect("/verify-email");
 }

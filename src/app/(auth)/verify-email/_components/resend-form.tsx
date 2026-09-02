@@ -15,7 +15,11 @@ import { resendVerificationAction, type ResendState } from "../actions";
 
 const initialState: ResendState = { message: null };
 
-export function ResendForm() {
+interface ResendFormProps {
+  defaultEmail?: string;
+}
+
+export function ResendForm({ defaultEmail }: ResendFormProps = {}) {
   const [state, formAction, pending] = useActionState(
     resendVerificationAction,
     initialState,
@@ -27,6 +31,9 @@ export function ResendForm() {
     formState: { errors },
   } = useForm<ResendInput>({
     resolver: zodResolver(resendSchema),
+    defaultValues: {
+      email: defaultEmail ?? "",
+    },
   });
 
   const onValid = (data: ResendInput) => {
@@ -66,6 +73,7 @@ export function ResendForm() {
             autoComplete="email"
             className="pl-9"
             aria-invalid={!!errors.email}
+            defaultValue={defaultEmail}
             {...register("email")}
           />
         </div>
