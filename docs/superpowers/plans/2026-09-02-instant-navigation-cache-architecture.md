@@ -342,6 +342,9 @@ git commit -m "feat(profile): stream viewer details behind Suspense for instant 
 - Create: `src/app/(auth)/_components/auth-card-skeleton.tsx`
 - Modify: `src/app/(auth)/loading.tsx` (body becomes `AuthCardSkeleton`)
 - Modify: `src/app/(auth)/login/page.tsx` (full restructure, code below)
+- Modify: `e2e/instant-navigation.spec.ts` (serial mode — the `instant()`
+  helper's cookie release is unsafe under `fullyParallel` workers;
+  `test.describe.configure({ mode: "serial" })` with a comment)
 
 **Interfaces:**
 
@@ -361,13 +364,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export function AuthContentSkeleton() {
   return (
-    <div className="flex flex-col gap-4" aria-hidden="true">
-      <Skeleton className="h-10 w-full" />
-      <Skeleton className="h-10 w-full" />
-      <Skeleton className="h-3 w-32 self-end" />
-      <Skeleton className="h-3 w-40 self-center" />
-      <Skeleton className="h-10 w-full" />
-      <Skeleton className="h-3 w-48 self-center" />
+    <div className="flex flex-col gap-4">
+      <Skeleton className="h-10 w-full" aria-hidden="true" />
+      <Skeleton className="h-10 w-full" aria-hidden="true" />
+      <Skeleton className="h-3 w-32 self-end" aria-hidden="true" />
+      <Skeleton className="h-3 w-40 self-center" aria-hidden="true" />
+      <Skeleton className="h-10 w-full" aria-hidden="true" />
+      <Skeleton className="h-3 w-48 self-center" aria-hidden="true" />
     </div>
   );
 }
@@ -536,7 +539,7 @@ Expected: all four instant tests PASS; every login.spec test stays green
 - [ ] **Step 4: Commit** (coordinator, after verdicts)
 
 ```bash
-git add src/app/(auth)/_components/auth-content-skeleton.tsx src/app/(auth)/_components/auth-card-skeleton.tsx src/app/(auth)/loading.tsx src/app/(auth)/login/page.tsx
+git add src/app/(auth)/_components/auth-content-skeleton.tsx src/app/(auth)/_components/auth-card-skeleton.tsx src/app/(auth)/loading.tsx src/app/(auth)/login/page.tsx e2e/instant-navigation.spec.ts
 git commit -m "feat(login): stream session and searchParams reads behind Suspense"
 ```
 

@@ -8,6 +8,11 @@ import { addAuthenticatedSession, E2E_VIEWER } from "./helpers/auth-session";
 // any sibling spec file scheduled into the same worker. Worker processes
 // close their own pools at exit.
 
+// The instant() helper's cookie release is not safe under fullyParallel
+// workers (releaseInstantCookie can race a closed browser context), so
+// these tests run serially in one worker.
+test.describe.configure({ mode: "serial" });
+
 test.describe("instant navigation", () => {
   test("client navigation to /pricing is instant", async ({ page }) => {
     await page.goto("/");

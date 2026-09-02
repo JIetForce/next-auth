@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { CircleAlert, Info, Lock, ShieldCheck } from "lucide-react";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
@@ -9,6 +10,7 @@ import { isGoogleAuthConfigured } from "@/lib/auth/environment";
 import { getCurrentViewer } from "@/lib/auth/session";
 
 import { AuthCardShell } from "../_components/auth-card-shell";
+import { AuthContentSkeleton } from "../_components/auth-content-skeleton";
 import { CredentialsForm } from "./_components/credentials-form";
 import { GoogleSignInForm } from "./_components/google-sign-in-form";
 
@@ -37,13 +39,30 @@ function normalizeLoginError(error: string | string[] | undefined): LoginError {
   return value === "configuration" ? "configuration" : "oauth";
 }
 
-// The page calls getCurrentViewer() (which reads cookies via "use cache:
-// private") and searchParams at the page level, both of which block
-// prerendering under Cache Components. Opt out of instant navigation until
-// the session read is moved behind a <Suspense> boundary.
-export const instant = false;
+export default function LoginPage({ searchParams }: LoginPageProps) {
+  return (
+    <AuthCardShell
+      badge={
+        <>
+          <Lock className="size-3 text-primary" aria-hidden="true" />
+          <span>Single Sign-On</span>
+        </>
+      }
+      title="Welcome back"
+      description="Sign in with your email or Google account to continue."
+    >
+      <Suspense fallback={<AuthContentSkeleton />}>
+        <LoginContent searchParams={searchParams} />
+      </Suspense>
+    </AuthCardShell>
+  );
+}
 
-export default async function LoginPage({ searchParams }: LoginPageProps) {
+async function LoginContent({
+  searchParams,
+}: {
+  searchParams: LoginPageProps["searchParams"];
+}) {
   const viewer = await getCurrentViewer();
   if (viewer) redirect("/");
 
@@ -58,16 +77,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const showOAuthError = configured && loginError === "oauth";
 
   return (
-    <AuthCardShell
-      badge={
-        <>
-          <Lock className="size-3 text-primary" aria-hidden="true" />
-          <span>Single Sign-On</span>
-        </>
-      }
-      title="Welcome back"
-      description="Sign in with your email or Google account to continue."
-    >
+    <>
       {showConfigurationError ? (
         <Alert className="border-amber-500/30 bg-amber-500/10 text-foreground dark:border-amber-500/40 dark:bg-amber-950/20">
           <Info
@@ -134,6 +144,6 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           Create one
         </Link>
       </p>
-    </AuthCardShell>
+    </>
   );
 }
