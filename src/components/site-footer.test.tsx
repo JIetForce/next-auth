@@ -5,6 +5,10 @@ vi.mock("next/font/google", () => ({
   Geist: () => ({ variable: "--font-geist-sans" }),
 }));
 
+vi.mock("@/lib/auth/environment", () => ({
+  getPublicBaseUrl: () => "https://siftloom.com",
+}));
+
 import FeaturesPage from "@/app/(main)/features/page";
 import Home from "@/app/(main)/page";
 import PricingPage from "@/app/(main)/pricing/page";

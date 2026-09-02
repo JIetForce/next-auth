@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
+import { getPublicBaseUrl } from "@/lib/auth/environment";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -9,13 +10,40 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "Siftloom — Curated AI, SaaS & Workflow Tools",
+  metadataBase: new URL(getPublicBaseUrl()),
+  title: {
+    default: "Siftloom — Curated AI, SaaS & Workflow Tools",
+    template: "%s | Siftloom",
+  },
   description:
     "We sift through the noise so you can scale. Curated AI, SaaS, and workflow tools for modern teams and digital professionals.",
   icons: {
     icon: "/siftloom-logo.png",
     shortcut: "/siftloom-logo.png",
     apple: "/siftloom-logo.png",
+  },
+  openGraph: {
+    title: "Siftloom — Curated AI, SaaS & Workflow Tools",
+    description:
+      "We sift through the noise so you can scale. Curated AI, SaaS, and workflow tools for modern teams and digital professionals.",
+    url: "/",
+    siteName: "Siftloom",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Siftloom — Curated AI, SaaS & Workflow Tools",
+      },
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Siftloom — Curated AI, SaaS & Workflow Tools",
+    description:
+      "We sift through the noise so you can scale. Curated AI, SaaS, and workflow tools for modern teams and digital professionals.",
+    images: ["/og-image.png"],
   },
 };
 

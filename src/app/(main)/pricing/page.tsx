@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, BadgeCheck, Check, Megaphone } from "lucide-react";
 
@@ -19,6 +20,12 @@ import {
 import { partnerStats, sharedFaqs } from "@/lib/content";
 import { cn } from "@/lib/utils";
 import { SiteFooter } from "@/components/site-footer";
+
+export const metadata: Metadata = {
+  title: "Pricing",
+  description:
+    "Siftloom is free for every reader. No paywalls, ever. Learn about our newsletter, community access, and sponsorship model.",
+};
 
 const freeFeatures = [
   "Curated weekly newsletter",

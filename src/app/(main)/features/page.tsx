@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -22,6 +23,12 @@ import {
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { SiteFooter } from "@/components/site-footer";
+
+export const metadata: Metadata = {
+  title: "Features",
+  description:
+    "Curated categories for modern builders. Explore vetted tools across productivity, developer tooling, automation, and growth.",
+};
 
 const categories = [
   {

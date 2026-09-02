@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { SiteFooter } from "@/components/site-footer";
 import {
@@ -28,6 +29,12 @@ import {
 } from "@/components/ui/card";
 import { sharedFaqs, partnerStats } from "@/lib/content";
 import { cn } from "@/lib/utils";
+
+export const metadata: Metadata = {
+  title: "Curated AI, SaaS & Workflow Tools",
+  description:
+    "Curated AI, SaaS, and workflow tools for modern teams and digital professionals. Discover practical recommendations across productivity, dev tools, and automation.",
+};
 
 export default function Home() {
   return (
