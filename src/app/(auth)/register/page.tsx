@@ -2,12 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ShieldCheck, Sparkles } from "lucide-react";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 
 import { Separator } from "@/components/ui/separator";
 import { isGoogleAuthConfigured } from "@/lib/auth/environment";
 import { getCurrentViewer } from "@/lib/auth/session";
 
 import { AuthCardShell } from "../_components/auth-card-shell";
+import { AuthContentSkeleton } from "../_components/auth-content-skeleton";
 import { GoogleSignInForm } from "../login/_components/google-sign-in-form";
 import { RegisterForm } from "./_components/register-form";
 
@@ -18,18 +20,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-// The page calls getCurrentViewer() (which reads cookies via "use cache:
-// private") at the page level, which blocks prerendering under Cache
-// Components. Opt out of instant navigation until the session read is
-// moved behind a <Suspense> boundary.
-export const instant = false;
-
-export default async function RegisterPage() {
-  const viewer = await getCurrentViewer();
-  if (viewer) redirect("/");
-
-  const configured = isGoogleAuthConfigured();
-
+export default function RegisterPage() {
   return (
     <AuthCardShell
       badge={
@@ -41,6 +32,21 @@ export default async function RegisterPage() {
       title="Create an account"
       description="Enter your details to create a new Siftloom account."
     >
+      <Suspense fallback={<AuthContentSkeleton />}>
+        <RegisterContent />
+      </Suspense>
+    </AuthCardShell>
+  );
+}
+
+async function RegisterContent() {
+  const viewer = await getCurrentViewer();
+  if (viewer) redirect("/");
+
+  const configured = isGoogleAuthConfigured();
+
+  return (
+    <>
       <RegisterForm />
 
       <div className="relative my-1 flex items-center justify-center">
@@ -76,6 +82,6 @@ export default async function RegisterPage() {
           Sign in
         </Link>
       </p>
-    </AuthCardShell>
+    </>
   );
 }
