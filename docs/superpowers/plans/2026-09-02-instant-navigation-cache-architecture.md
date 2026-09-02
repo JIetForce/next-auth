@@ -38,7 +38,11 @@ Suspense, Playwright + `@next/playwright@16.3.3`, Prisma, Better Auth.
 - `src/lib/auth/session.ts` is not modified by any task.
 - `npm run lint` reports 0 warnings; `npm run format:check` passes.
 - Public routes (`/`, `/features`, `/pricing`, `/terms`, `/privacy`) remain
-  `○` (static) in the `npm run build` route table.
+  `◐` (Partial Prerender: prerendered static shell with streamed dynamic
+  holes) in the `npm run build` route table — the header's session read
+  behind Suspense makes every route `◐` under `cacheComponents` (this was
+  already true before this plan; audit-05 task5 evidence). They must not
+  regress to `ƒ` (Dynamic).
 - Untouched: anti-enumeration timing in `src/auth.ts`, `server-only` imports,
   the CSP/headers block in `next.config.ts`, logout re-validation behavior.
 - The existing 50-test e2e suite stays green throughout.
@@ -145,15 +149,20 @@ test.describe("instant navigation", () => {
   test("initial /profile load shows the shell instantly", async ({
     context,
     page,
+    baseURL,
   }) => {
     await addAuthenticatedSession(context);
 
-    await instant(page, async () => {
-      await page.goto("/profile");
-      await expect(
-        page.getByRole("heading", { level: 1, name: "Profile" }),
-      ).toBeVisible();
-    });
+    await instant(
+      page,
+      async () => {
+        await page.goto("/profile");
+        await expect(
+          page.getByRole("heading", { level: 1, name: "Profile" }),
+        ).toBeVisible();
+      },
+      { baseURL },
+    );
 
     await expect(page.getByText(E2E_VIEWER.email)).toBeVisible();
   });
@@ -187,7 +196,7 @@ flakes, note it and judge it again after Task 3 — its end state is "passes".
 - [ ] **Step 5: Commit** (coordinator, after verdicts)
 
 ```bash
-git add package.json package-lock.json next.config.ts e2e/instant-navigation.spec.ts
+git add package.json package-lock.json next.config.ts e2e/instant-navigation.spec.ts docs/superpowers/plans/2026-09-02-instant-navigation-cache-architecture.md docs/superpowers/specs/2026-09-02-instant-navigation-cache-architecture-design.md
 git commit -m "test(e2e): add instant() navigation specs and enable partialPrefetching"
 ```
 
@@ -941,9 +950,9 @@ Expected: no matches.
 
 Run: `npm run build`
 Expected: succeeds; `/`, `/features`, `/pricing`, `/terms`, `/privacy`
-marked `○` (static); the five restructured routes render shells with
-streaming holes rather than blocking. Paste the route table into
-`.roster/ledger.md`.
+marked `◐` (Partial Prerender — see Global Constraints); the five
+restructured routes render shells with streaming holes rather than blocking.
+Paste the route table into `.roster/ledger.md`.
 
 - [ ] **Step 3: Static suites**
 

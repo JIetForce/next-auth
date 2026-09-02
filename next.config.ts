@@ -18,6 +18,7 @@ const nextConfig: NextConfig = {
   experimental: { turbopackRustReactCompiler: true },
 
   cacheComponents: true,
+  partialPrefetching: true,
 
   // Security response headers, applied at the response layer so they do not
   // affect rendering mode. The CSP is deliberately partial: `script-src` and

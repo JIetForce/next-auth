@@ -138,12 +138,15 @@ navigation. Rule for the future: when a route's shell comes to depend on
 - HTTP-redirect semantics from the private cache scope.
 - The logout form's server-side session re-validation.
 - The public routes (`/`, `/features`, `/pricing`, `/terms`, `/privacy`)
-  remain static (`○`) in the build route table.
+  remain Partial Prerendered (`◐`) in the build route table — the header's
+  session read behind Suspense makes every route `◐` under `cacheComponents`
+  (the steady state since audit-05; they must not regress to `ƒ`).
 
 ## How it is verified
 
-- `npm run build` — succeeds; route table inspected: public routes `○`, the
-  five restructured routes no longer blocking (shell + streaming).
+- `npm run build` — succeeds; route table inspected: public routes `◐`
+  (Partial Prerender, see What must not change), the five restructured
+  routes no longer blocking (shell + streaming).
 - `npx tsc --noEmit`
 - `npm run lint` with 0 warnings
 - `npm run test:unit`
@@ -174,3 +177,8 @@ documented `"use cache: private"` behavior, flagged for the security reviewer).
   and error boundaries were delivered by earlier audits; no evidence of gaps.
 - Removing `loading.tsx` segment fallbacks: they remain useful for full
   document loads.
+- Route-table markers: `◐` (Partial Prerender) is the correct steady state
+  for every page route under `cacheComponents` — an earlier draft of this
+  spec expected `○`, which was a stale reading of audit-05's final checklist
+  (its own task spec and build evidence say `◐`). Decided 2026-09-02 during
+  Task 1 verification.
