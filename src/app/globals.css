@@ -167,6 +167,7 @@
   border-radius: 9999px;
   opacity: 0.7;
   filter: blur(100px);
+  will-change: filter;
   background: radial-gradient(
     ellipse at center,
     rgba(47, 184, 174, 0.2),
@@ -186,6 +187,7 @@
   border-radius: 9999px;
   opacity: 0.6;
   filter: blur(90px);
+  will-change: filter;
   background: radial-gradient(
     circle,
     rgba(203, 227, 124, 0.14),
@@ -203,8 +205,13 @@
     box-shadow 0.3s ease;
 }
 .sl-card:hover {
-  transform: translateY(-4px);
   border-color: var(--border);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .sl-card:hover {
+    transform: translateY(-4px);
+  }
 }
 
 .sl-faq-item {
