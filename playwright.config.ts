@@ -47,6 +47,10 @@ for (const key of forwardedAuthKeys) {
   }
 }
 
+if (!process.env.BETTER_AUTH_URL?.trim()) {
+  process.env.BETTER_AUTH_URL = "http://localhost:3000";
+}
+
 // A key that resolves to nothing is omitted from the child env rather than
 // passed as "" — an empty string is still "defined", which is exactly what
 // broke auth detection in the child `next dev` process before this fix.

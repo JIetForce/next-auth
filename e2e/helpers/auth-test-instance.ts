@@ -21,6 +21,7 @@ const prisma = new PrismaClient({
 });
 
 export const testAuth = betterAuth({
+  baseURL: "http://localhost:3000",
   database: prismaAdapter(prisma, { provider: "postgresql" }),
   plugins: [testUtils()],
 });
