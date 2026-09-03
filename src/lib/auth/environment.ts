@@ -14,6 +14,10 @@ export function isGoogleAuthConfigured() {
   );
 }
 
+export function isAiChatConfigured() {
+  return Boolean(env.GOOGLE_GENERATIVE_AI_API_KEY);
+}
+
 // Resolution order, most to least specific:
 // 1. BETTER_AUTH_URL — an explicit operator override always wins, so a custom
 //    domain (or local dev) keeps working regardless of platform.
