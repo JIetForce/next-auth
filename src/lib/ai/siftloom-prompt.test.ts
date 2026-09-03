@@ -23,11 +23,15 @@ describe("buildSiftloomSystemPrompt", () => {
     expect(prompt).toContain("/pricing");
   });
 
-  it("locks the English-only reply rule", () => {
+  it("locks the reply-to-last-message-language rule", () => {
     const prompt = buildSiftloomSystemPrompt();
 
-    expect(prompt).toContain("ALWAYS reply in English");
-    expect(prompt).toContain("Never reply in Russian");
+    expect(prompt).toContain(
+      "Reply in the same language as the user's most recent message",
+    );
+    expect(prompt).toContain("default to English");
+    expect(prompt).not.toContain("ALWAYS reply in English");
+    expect(prompt).not.toContain("Never reply in Russian");
   });
 
   it("locks the markdown-link rule for internal pages", () => {
