@@ -5,9 +5,10 @@ import { prisma } from "@/lib/db";
 import { logger } from "@/lib/logger";
 
 // A stale rate-limit bucket is a fresh bucket, so it is safe to prune anything
-// older than the widest configured window. One hour comfortably exceeds every
-// window currently in use.
-const RATE_LIMIT_MAX_AGE_MS = 60 * 60 * 1000;
+// older than the widest configured window. The AI chat uses 24-hour windows
+// (guests: 20/day, users: 100/day), so retention must match — a shorter
+// window would reset active users' daily counters early.
+const RATE_LIMIT_MAX_AGE_MS = 24 * 60 * 60 * 1000;
 
 export async function GET(request: Request) {
   // Read a request property before any early return so Cache Components
