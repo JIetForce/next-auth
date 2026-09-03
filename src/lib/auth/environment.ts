@@ -15,7 +15,7 @@ export function isGoogleAuthConfigured() {
 }
 
 export function isAiChatConfigured() {
-  return Boolean(env.GOOGLE_GENERATIVE_AI_API_KEY);
+  return Boolean(env.GROQ_AI_API_KEY || env.GOOGLE_GENERATIVE_AI_API_KEY);
 }
 
 // Resolution order, most to least specific:

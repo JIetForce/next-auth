@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("@/env", () => ({
   env: {
     GOOGLE_GENERATIVE_AI_API_KEY: "test-google-key",
+    GROQ_AI_API_KEY: "test-groq-key",
   },
 }));
 
@@ -31,6 +32,10 @@ vi.mock("@ai-sdk/google", () => ({
   createGoogleGenerativeAI: vi.fn(),
 }));
 
+vi.mock("@ai-sdk/groq", () => ({
+  createGroq: vi.fn(),
+}));
+
 vi.mock("ai", () => ({
   convertToModelMessages: vi.fn(),
   streamText: vi.fn(),
@@ -41,13 +46,13 @@ import { isAiChatConfigured } from "@/lib/auth/environment";
 import { verifyChatAccess } from "@/lib/ai/chat-guard";
 import { buildSiftloomSystemPrompt } from "@/lib/ai/siftloom-prompt";
 import { logger } from "@/lib/logger";
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { createGroq } from "@ai-sdk/groq";
 import { convertToModelMessages, streamText } from "ai";
 
 const mockedIsAiChatConfigured = vi.mocked(isAiChatConfigured);
 const mockedVerifyChatAccess = vi.mocked(verifyChatAccess);
 const mockedBuildPrompt = vi.mocked(buildSiftloomSystemPrompt);
-const mockedCreateGoogle = vi.mocked(createGoogleGenerativeAI);
+const mockedCreateGroq = vi.mocked(createGroq);
 const mockedConvertToModelMessages = vi.mocked(convertToModelMessages);
 const mockedStreamText = vi.mocked(streamText);
 
@@ -84,10 +89,10 @@ describe("POST /api/chat", () => {
         identifier: "127.0.0.1",
       },
     });
-    mockedCreateGoogle.mockReturnValue(
-      mockModel as unknown as ReturnType<typeof createGoogleGenerativeAI>,
+    mockedCreateGroq.mockReturnValue(
+      mockModel as unknown as ReturnType<typeof createGroq>,
     );
-    mockModel.mockReturnValue("gemini-model-instance");
+    mockModel.mockReturnValue("groq-model-instance");
     mockedBuildPrompt.mockReturnValue("system-prompt-text");
     mockedConvertToModelMessages.mockReturnValue([
       { role: "user", content: "Hello Siftloom" },
@@ -205,7 +210,7 @@ describe("POST /api/chat", () => {
       expect.objectContaining({
         system: "system-prompt-text",
         temperature: 0.3,
-        maxOutputTokens: 4000,
+        maxOutputTokens: 2048,
       }),
     );
     expect(mockToUIMessageStreamResponse).toHaveBeenCalled();
@@ -248,9 +253,7 @@ describe("POST /api/chat", () => {
     expect(res.status).toBe(429);
     expect(res.headers.get("Retry-After")).toBe("60");
     const body = await res.json();
-    expect(body.error).toContain(
-      "Google AI Studio request quota has been exceeded",
-    );
+    expect(body.error).toContain("The Groq request quota has been exceeded");
     expect(logger.warn).toHaveBeenCalled();
   });
 
@@ -287,7 +290,7 @@ describe("POST /api/chat", () => {
         callerKind: "guest",
         identifier: "127.0.0.1",
       }),
-      "Gemini 2.5 Flash streamText execution error",
+      "Groq streamText execution error",
     );
 
     // Test toUIMessageStreamResponse onError option

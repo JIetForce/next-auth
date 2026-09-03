@@ -109,6 +109,44 @@ describe("environment helpers", () => {
     });
   });
 
+  describe("isAiChatConfigured", () => {
+    it("returns true when GROQ_AI_API_KEY is set", async () => {
+      vi.doMock("@/env", () => ({
+        env: {
+          GROQ_AI_API_KEY: "mock-groq-key",
+          GOOGLE_GENERATIVE_AI_API_KEY: undefined,
+        },
+      }));
+
+      const { isAiChatConfigured } = await import("./environment");
+      expect(isAiChatConfigured()).toBe(true);
+    });
+
+    it("returns true when GOOGLE_GENERATIVE_AI_API_KEY is set", async () => {
+      vi.doMock("@/env", () => ({
+        env: {
+          GROQ_AI_API_KEY: undefined,
+          GOOGLE_GENERATIVE_AI_API_KEY: "mock-google-key",
+        },
+      }));
+
+      const { isAiChatConfigured } = await import("./environment");
+      expect(isAiChatConfigured()).toBe(true);
+    });
+
+    it("returns false when neither is set", async () => {
+      vi.doMock("@/env", () => ({
+        env: {
+          GROQ_AI_API_KEY: undefined,
+          GOOGLE_GENERATIVE_AI_API_KEY: undefined,
+        },
+      }));
+
+      const { isAiChatConfigured } = await import("./environment");
+      expect(isAiChatConfigured()).toBe(false);
+    });
+  });
+
   describe("getPublicBaseUrl", () => {
     it("returns BETTER_AUTH_URL when set", async () => {
       vi.doMock("@/env", () => ({

@@ -1,6 +1,7 @@
 import "server-only";
 
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
+// import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { createGroq } from "@ai-sdk/groq";
 import { convertToModelMessages, streamText, type UIMessage } from "ai";
 import { z } from "zod";
 
@@ -44,6 +45,7 @@ function isQuotaError(message: string): boolean {
   return (
     message.includes("ResourceExhausted") ||
     message.includes("RESOURCE_EXHAUSTED") ||
+    message.includes("rate_limit_exceeded") ||
     message.includes("quota") ||
     message.includes("429")
   );
@@ -100,8 +102,17 @@ export async function POST(req: Request) {
   const userName = caller.kind === "authenticated" ? caller.viewer.name : null;
 
   // Created after the config guard so the optional env var type-checks.
+  // Google AI Studio integration (gemini-2.5-flash) - fully functional and tested,
+  // can be used if needed, but currently has low free tier limits (20 RPD / 5 RPM).
+  // To re-enable: uncomment this block and set model to google("gemini-2.5-flash").
+  /*
   const google = createGoogleGenerativeAI({
     apiKey: env.GOOGLE_GENERATIVE_AI_API_KEY,
+  });
+  */
+
+  const groq = createGroq({
+    apiKey: env.GROQ_AI_API_KEY,
   });
 
   try {
@@ -116,13 +127,13 @@ export async function POST(req: Request) {
       parsed.data.messages as UIMessage[],
     );
 
-    // 6. Gemini 2.5 Flash via the Vercel AI SDK
+    // 6. Groq (qwen/qwen3.8-27b) via the Vercel AI SDK
     const result = streamText({
-      model: google("gemini-2.5-flash"),
+      model: groq("qwen/qwen3.8-27b"),
       system: systemPrompt,
       messages: modelMessages,
       temperature: 0.3, // low temperature to suppress hallucinations
-      maxOutputTokens: 4000,
+      maxOutputTokens: 2048,
       onError: ({ error }) => {
         logger.error(
           {
@@ -130,7 +141,7 @@ export async function POST(req: Request) {
             callerKind: caller.kind,
             identifier: caller.identifier,
           },
-          "Gemini 2.5 Flash streamText execution error",
+          "Groq streamText execution error",
         );
       },
     });
@@ -141,7 +152,7 @@ export async function POST(req: Request) {
       onError: (err) => {
         const errMsg = err instanceof Error ? err.message : String(err);
         if (isQuotaError(errMsg)) {
-          return "The AI service is temporarily overloaded because the free Google AI Studio request quota has been exhausted. Please try again in a minute.";
+          return "The AI service is temporarily overloaded because the request quota has been reached. Please try again in a minute.";
         }
         return "A temporary error occurred while the Siftloom assistant was replying. Please ask your question again.";
       },
@@ -152,12 +163,12 @@ export async function POST(req: Request) {
     if (isQuotaError(errorStr)) {
       logger.warn(
         { err: error, identifier: caller.identifier },
-        "Google AI Studio 429 quota exhausted on init",
+        "Groq 429 quota exhausted on init",
       );
       return Response.json(
         {
           error:
-            "The Google AI Studio request quota has been exceeded. Please try again in 1 minute.",
+            "The Groq request quota has been exceeded. Please try again in 1 minute.",
         },
         {
           status: 429,

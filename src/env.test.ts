@@ -34,6 +34,8 @@ describe("env", () => {
     process.env.BETTER_AUTH_SECRET = "test-secret-value-12345";
     delete process.env.GOOGLE_CLIENT_ID;
     delete process.env.GOOGLE_CLIENT_SECRET;
+    delete process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+    delete process.env.GROQ_AI_API_KEY;
     delete process.env.SMTP_HOST;
     delete process.env.SMTP_PORT;
     delete process.env.EMAIL_FROM;
@@ -43,6 +45,8 @@ describe("env", () => {
 
     expect(env.GOOGLE_CLIENT_ID).toBeUndefined();
     expect(env.GOOGLE_CLIENT_SECRET).toBeUndefined();
+    expect(env.GOOGLE_GENERATIVE_AI_API_KEY).toBeUndefined();
+    expect(env.GROQ_AI_API_KEY).toBeUndefined();
     expect(env.SMTP_HOST).toBeUndefined();
     expect(env.SMTP_PORT).toBeUndefined();
     expect(env.EMAIL_FROM).toBeUndefined();
