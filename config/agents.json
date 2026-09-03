@@ -21,7 +21,9 @@
         "allowed-tools": ["read", "grep", "glob", "exec", "edit", "write"]
       },
       "role_overrides": {
-        "reviewer": { "model": "swe-1-7" }
+        "reviewer": {
+          "model": "swe-1-7"
+        }
       }
     },
     "antigravity": {
@@ -63,7 +65,9 @@
         "tools": ["Read", "Glob", "Grep", "Bash"],
         "disallowedTools": ["Edit", "Write", "NotebookEdit"]
       },
-      "implementer": { "model": "sonnet" }
+      "implementer": {
+        "model": "sonnet"
+      }
     },
     "cursor": {
       "readonly": {
@@ -87,32 +91,60 @@
         "sandbox_mode": "read-only",
         "model_reasoning_effort": "high"
       },
-      "verifier": { "sandbox_mode": "workspace-write" },
-      "implementer": { "sandbox_mode": "workspace-write" }
+      "verifier": {
+        "sandbox_mode": "workspace-write"
+      },
+      "implementer": {
+        "sandbox_mode": "workspace-write"
+      }
     }
   },
   "tool_meta": {
-    "devin": { "out_dir": ".devin/agents", "ext": ".md", "layout": "flat" },
+    "devin": {
+      "out_dir": ".devin/agents",
+      "ext": ".md",
+      "layout": "flat"
+    },
     "antigravity": {
       "out_dir": ".agent/agents",
       "ext": ".md",
       "layout": "dir",
       "file_name": "agent"
     },
-    "claude": { "out_dir": ".claude/agents", "ext": ".md", "layout": "flat" },
-    "cursor": { "out_dir": ".cursor/agents", "ext": ".md", "layout": "flat" },
-    "codex": { "out_dir": ".codex/agents", "ext": ".toml", "layout": "flat" }
+    "claude": {
+      "out_dir": ".claude/agents",
+      "ext": ".md",
+      "layout": "flat"
+    },
+    "cursor": {
+      "out_dir": ".cursor/agents",
+      "ext": ".md",
+      "layout": "flat"
+    },
+    "codex": {
+      "out_dir": ".codex/agents",
+      "ext": ".toml",
+      "layout": "flat"
+    }
   },
   "skill_meta": {
-    "claude": { "out_dir": ".claude/skills" },
-    "devin": { "out_dir": ".devin/skills" },
-    "antigravity": { "out_dir": ".agent/skills" },
-    "codex": { "out_dir": ".codex/skills" }
+    "claude": {
+      "out_dir": ".claude/skills"
+    },
+    "devin": {
+      "out_dir": ".devin/skills"
+    },
+    "antigravity": {
+      "out_dir": ".agent/skills"
+    },
+    "codex": {
+      "out_dir": ".codex/skills"
+    }
   },
   "dispatch_lines": {
     "claude": "Dispatch each role with the `Agent` tool (`subagent_type: <role>`). Independent roles go in one message; the calls return synchronously.",
     "devin": "Dispatch each role with `run_subagent` using `profile: \"<role>\"` — the five roles are profiles Devin loads from `.devin/agents/`, and the profile is what binds the role's tools and model. Never substitute `subagent_general` or `subagent_explore` for a role: that discards both. The spec (and, for reviewers, the diff path) goes in `task`. **`developer` and `verifier` run with `is_background: true`**, the same as the researcher and both reviewers — Devin allows only one foreground subagent at a time, so background is what gets more than one subagent running at once.",
-    "antigravity": "Dispatch each role with `invoke_subagent` (`TypeName: <role>`, `Workspace: inherit`). The call is **asynchronous** — poll every worker until it is `Idle` before reading anything it produced.",
+    "antigravity": "Dispatch each role with `invoke_subagent` (`TypeName: <role>`, `Workspace: inherit`). The call is **asynchronous** and returns the worker's id. In the step immediately after it — do not end the turn first — arm a timer with that id: `schedule(DurationSeconds: 180, TimerCondition: \"<the worker's id>\")`, and re-arm it on each wake until the worker reports. The condition cancels the timer the moment the worker's message arrives. The timer keeps the coordinator's prompt cache warm across the wait; it is not how you learn the worker finished — see `### Cache discipline`, including the point past which taking the miss is cheaper.",
     "codex": "Ask for each agent by name: \"spawn the `<role>` agent with this spec\". Codex waits for all spawned agents and returns a consolidated result."
   }
 }

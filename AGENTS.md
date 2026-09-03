@@ -428,8 +428,10 @@ Research fans out before step 1 and never overlaps it.
   repository: a background `run_subagent` with `profile: "developer"`, default
   `--permission-mode auto`, ran `exec` with no denial and no tool pre-approved that session — the
   marker file it wrote landed on disk.
-- **Antigravity** — concurrent and **asynchronous**. `invoke_subagent` returns before the work is done. Poll
-  every worker to `Idle` before you read anything it produced. Nesting depth 10.
+- **Antigravity** — concurrent and **asynchronous**. `invoke_subagent` returns before the work is done
+  and hands back the worker's id; arm a timer on it in the step immediately after the dispatch — before
+  the turn ends — with `schedule(DurationSeconds: 180, TimerCondition: "<the worker's id>")`, re-armed on
+  each wake until the worker reports. Nesting depth 10.
 - **Codex** — concurrent; it waits for all spawned agents and returns a consolidated result.
   `agents.max_concurrent_threads_per_session` caps it.
 - **Cursor** — unverified. Dispatch sequentially there until `npm run doctor:agents` reports otherwise.
@@ -518,8 +520,13 @@ you have none, run the loop inline. `<role>` below is any of the five: `develope
   profile's system prompt and does not need to be repeated. All five roles run with
   `is_background: true` — see `### Per-tool concurrency facts`.
 - **Antigravity** — `invoke_subagent` with `TypeName: <role>` and `Workspace: inherit`.
-  **This call is asynchronous.** The subagent starts and you keep running. You must poll every worker's state
-  and wait for `Idle` before reading anything it produced. Do not proceed on the assumption that it blocked.
+  **This call is asynchronous** and returns the worker's id; the subagent starts and you keep running. In
+  the step immediately after it — do not end the turn first — arm a timer with that id:
+  `schedule(DurationSeconds: 180, TimerCondition: "<the worker's id>")`, and re-arm it on each wake until
+  the worker reports. The condition cancels the timer the moment the worker's message arrives. The timer
+  keeps the coordinator's prompt cache warm across the wait; it is not how you learn the worker finished —
+  see `### Cache discipline`, including the point past which taking the miss is cheaper. Do not proceed on
+  the assumption that it blocked.
 - **Codex** — ask for the agent by name: "spawn the `<role>` agent with this spec", then
   "spawn the `reviewer` and `security-reviewer` agents with this spec and diff path".
   Codex waits for all spawned agents and returns one consolidated result.
@@ -583,6 +590,9 @@ repository is.
 - Regenerate → `npm run sync:agents`
 - Verify → `npm run test:agents` (drift, collisions, permissions)
 - Check against the installed CLIs → `npm run doctor:agents`
+- New identifiers → seen in the system first: a binary, a transcript, or a probe run — never memory,
+  never a vendor doc alone. One draft named two identifiers that don't exist
+  (`promptCacheTtl` / `subagentPromptCacheTtl`, commit e1af3dc), caught in research before the loop ran.
 
 `npm test` is reserved for the application's own tests.
 
