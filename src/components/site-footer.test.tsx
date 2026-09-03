@@ -9,6 +9,14 @@ vi.mock("@/lib/auth/environment", () => ({
   getPublicBaseUrl: () => "https://siftloom.com",
 }));
 
+// The root layout mounts the chat widget through an async server gate that
+// reads the viewer via getCurrentViewer (-> @/auth -> Prisma). These tests
+// render the layout's static markup, so the gate is stubbed out to keep the
+// import graph off the database in the unit environment.
+vi.mock("@/components/chat/chat-widget-gate", () => ({
+  ChatWidgetGate: () => null,
+}));
+
 import FeaturesPage from "@/app/(main)/features/page";
 import Home from "@/app/(main)/page";
 import PricingPage from "@/app/(main)/pricing/page";

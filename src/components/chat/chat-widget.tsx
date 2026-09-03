@@ -4,6 +4,7 @@ import * as React from "react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
 import Link from "next/link";
+import ReactMarkdown, { type Components } from "react-markdown";
 import {
   Bot,
   MessageSquare,
@@ -17,7 +18,6 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
 import {
   Sheet,
@@ -54,7 +54,33 @@ function getMessageText(message: UIMessage): string {
   return "";
 }
 
-function ChatWidgetInner() {
+// react-markdown custom components: internal site links render through
+// next/link for client-side routing; external links open in a new tab with
+// the standard safe rel. Never use dangerouslySetInnerHTML — react-markdown
+// parses the Markdown to an AST and renders it as React elements.
+const markdownComponents: Components = {
+  // react-markdown forwards a `node` prop (the HAST element) to custom
+  // components; it is not a valid DOM attribute, so destructure it out
+  // before spreading the rest onto the underlying element.
+  a({ href, node: _node, children, ...props }) {
+    // `node` is react-markdown's HAST element, not a DOM attribute.
+    void _node;
+    if (href && href.startsWith("/")) {
+      return (
+        <Link href={href} {...props}>
+          {children}
+        </Link>
+      );
+    }
+    return (
+      <a href={href} target="_blank" rel="noopener noreferrer" {...props}>
+        {children}
+      </a>
+    );
+  },
+};
+
+function ChatWidgetInner({ isAuthenticated }: { isAuthenticated: boolean }) {
   const [isOpen, setIsOpen] = React.useState(false);
   const [input, setInput] = React.useState("");
   const [isHydrated, setIsHydrated] = React.useState(false);
@@ -167,9 +193,6 @@ function ChatWidgetInner() {
               <div>
                 <SheetTitle className="flex items-center gap-1.5 font-heading text-base font-semibold">
                   Siftloom Assistant
-                  <Badge variant="secondary" className="text-[10px]">
-                    Gemini 2.5
-                  </Badge>
                 </SheetTitle>
                 <SheetDescription className="text-xs text-muted-foreground">
                   Guide to the tool catalog and platform
@@ -193,12 +216,14 @@ function ChatWidgetInner() {
           {/* Context and auth bar */}
           <div className="flex items-center justify-between border-b bg-primary/5 px-4 py-2 text-xs text-muted-foreground">
             <span>AI, SaaS &amp; Workflows catalog</span>
-            <Link
-              href="/login"
-              className="flex items-center gap-1 font-medium text-primary hover:underline"
-            >
-              <User className="h-3 w-3" /> Sign in
-            </Link>
+            {!isAuthenticated && (
+              <Link
+                href="/login"
+                className="flex items-center gap-1 font-medium text-primary hover:underline"
+              >
+                <User className="h-3 w-3" /> Sign in
+              </Link>
+            )}
           </div>
 
           {/* Conversation area */}
@@ -267,7 +292,15 @@ function ChatWidgetInner() {
                           : "rounded-tl-none border bg-muted/70 text-foreground",
                       )}
                     >
-                      <p className="whitespace-pre-wrap">{messageText}</p>
+                      {isUser ? (
+                        <p className="whitespace-pre-wrap">{messageText}</p>
+                      ) : (
+                        <div className="whitespace-pre-wrap [&_a]:font-medium [&_a]:underline [&_p]:m-0 [&_ul]:m-0 [&_ol]:m-0 [&_li]:m-0">
+                          <ReactMarkdown components={markdownComponents}>
+                            {messageText}
+                          </ReactMarkdown>
+                        </div>
+                      )}
                     </div>
                   </div>
                 );
@@ -351,10 +384,10 @@ function ChatWidgetInner() {
   );
 }
 
-export function ChatWidget() {
+export function ChatWidget({ isAuthenticated }: { isAuthenticated: boolean }) {
   return (
     <React.Suspense fallback={null}>
-      <ChatWidgetInner />
+      <ChatWidgetInner isAuthenticated={isAuthenticated} />
     </React.Suspense>
   );
 }
