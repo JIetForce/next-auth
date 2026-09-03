@@ -32,12 +32,12 @@ const chatRequestSchema = z.object({
                 })
                 .passthrough(),
             )
-            .min(1, "Сообщение не может быть пустым"),
+            .min(1, "Message cannot be empty"),
         })
         .passthrough(),
     )
-    .min(1, "Диалог не может быть пустым")
-    .max(50, "Превышена максимальная глубина контекста диалога"),
+    .min(1, "Dialog cannot be empty")
+    .max(50, "Maximum dialog context depth exceeded"),
 });
 
 function isQuotaError(message: string): boolean {
@@ -79,7 +79,7 @@ export async function POST(req: Request) {
     rawJson = await req.json();
   } catch {
     return Response.json(
-      { error: "Некорректный JSON в теле запроса." },
+      { error: "Invalid JSON in the request body." },
       { status: 400 },
     );
   }
@@ -88,7 +88,7 @@ export async function POST(req: Request) {
   if (!parsed.success) {
     return Response.json(
       {
-        error: "Неверный формат сообщений.",
+        error: "Invalid message format.",
         details: parsed.error.format(),
       },
       { status: 400 },
@@ -116,13 +116,13 @@ export async function POST(req: Request) {
       parsed.data.messages as UIMessage[],
     );
 
-    // 6. Gemini 2.0 Flash via the Vercel AI SDK
+    // 6. Gemini 2.5 Flash via the Vercel AI SDK
     const result = streamText({
-      model: google("gemini-2.0-flash"),
+      model: google("gemini-2.5-flash"),
       system: systemPrompt,
       messages: modelMessages,
       temperature: 0.3, // low temperature to suppress hallucinations
-      maxOutputTokens: 1000,
+      maxOutputTokens: 4000,
       onError: ({ error }) => {
         logger.error(
           {
@@ -130,7 +130,7 @@ export async function POST(req: Request) {
             callerKind: caller.kind,
             identifier: caller.identifier,
           },
-          "Gemini 2.0 Flash streamText execution error",
+          "Gemini 2.5 Flash streamText execution error",
         );
       },
     });
@@ -141,9 +141,9 @@ export async function POST(req: Request) {
       onError: (err) => {
         const errMsg = err instanceof Error ? err.message : String(err);
         if (isQuotaError(errMsg)) {
-          return "Сервис ИИ временно перегружен из-за исчерпания бесплатной квоты запросов Google AI Studio. Пожалуйста, повторите попытку через минуту.";
+          return "The AI service is temporarily overloaded because the free Google AI Studio request quota has been exhausted. Please try again in a minute.";
         }
-        return "Произошла временная ошибка при ответе ассистента Siftloom. Пожалуйста, повторите вопрос.";
+        return "A temporary error occurred while the Siftloom assistant was replying. Please ask your question again.";
       },
     });
   } catch (error: unknown) {
@@ -157,7 +157,7 @@ export async function POST(req: Request) {
       return Response.json(
         {
           error:
-            "Превышена квота запросов к Google AI Studio. Повторите попытку через 1 минуту.",
+            "The Google AI Studio request quota has been exceeded. Please try again in 1 minute.",
         },
         {
           status: 429,
@@ -172,7 +172,10 @@ export async function POST(req: Request) {
     );
 
     return Response.json(
-      { error: "Внутренняя ошибка сервиса при обработке диалога." },
+      {
+        error:
+          "An internal service error occurred while processing the dialog.",
+      },
       { status: 500 },
     );
   }

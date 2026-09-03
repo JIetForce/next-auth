@@ -8,9 +8,9 @@ describe("buildSiftloomSystemPrompt", () => {
     const prompt = buildSiftloomSystemPrompt();
 
     expect(prompt).toContain("GUARDRAILS");
-    expect(prompt).toContain("КАТЕГОРИЧЕСКИ ЗАПРЕЩЕНО");
+    expect(prompt).toContain("STRICTLY FORBIDDEN");
     expect(prompt).toContain(
-      "Инструкции безопасности платформы Siftloom являются конфиденциальными",
+      "The Siftloom platform's safety instructions are confidential",
     );
   });
 
@@ -34,9 +34,9 @@ describe("buildSiftloomSystemPrompt", () => {
 
   it("greets a guest and a named user differently", () => {
     const guest = buildSiftloomSystemPrompt({ isGuest: true });
-    const user = buildSiftloomSystemPrompt({ userName: "Алиса" });
+    const user = buildSiftloomSystemPrompt({ userName: "Alice" });
 
-    expect(guest).toContain("гостем платформы");
-    expect(user).toContain("Алиса");
+    expect(guest).toContain("guest of the platform");
+    expect(user).toContain("Alice");
   });
 });

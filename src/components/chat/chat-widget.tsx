@@ -168,7 +168,7 @@ function ChatWidgetInner() {
                 <SheetTitle className="flex items-center gap-1.5 font-heading text-base font-semibold">
                   Siftloom Assistant
                   <Badge variant="secondary" className="text-[10px]">
-                    Gemini 2.0
+                    Gemini 2.5
                   </Badge>
                 </SheetTitle>
                 <SheetDescription className="text-xs text-muted-foreground">

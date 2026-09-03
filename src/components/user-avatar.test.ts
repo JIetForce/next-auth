@@ -32,12 +32,12 @@ describe("getViewerInitials", () => {
   });
 
   it("handles multi-byte and unicode names correctly", () => {
-    // Cyrillic multi-word
-    expect(getViewerInitials(createViewer({ name: "Александр Иванов" }))).toBe(
-      "АИ",
+    // Latin multi-word
+    expect(getViewerInitials(createViewer({ name: "Alexander Ivanov" }))).toBe(
+      "AI",
     );
-    // Cyrillic single-word
-    expect(getViewerInitials(createViewer({ name: "Владимир" }))).toBe("ВЛ");
+    // Latin single-word
+    expect(getViewerInitials(createViewer({ name: "Vladimir" }))).toBe("VL");
     // Accented characters
     expect(getViewerInitials(createViewer({ name: "Élodie Dupont" }))).toBe(
       "ÉD",

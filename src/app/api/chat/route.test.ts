@@ -136,7 +136,7 @@ describe("POST /api/chat", () => {
     const res = await POST(req);
     expect(res.status).toBe(400);
     const body = await res.json();
-    expect(body).toEqual({ error: "Некорректный JSON в теле запроса." });
+    expect(body).toEqual({ error: "Invalid JSON in the request body." });
   });
 
   it("returns 400 when messages array is empty", async () => {
@@ -145,7 +145,7 @@ describe("POST /api/chat", () => {
 
     expect(res.status).toBe(400);
     const body = await res.json();
-    expect(body.error).toBe("Неверный формат сообщений.");
+    expect(body.error).toBe("Invalid message format.");
   });
 
   it("returns 400 when client sends a system role", async () => {
@@ -162,7 +162,7 @@ describe("POST /api/chat", () => {
 
     expect(res.status).toBe(400);
     const body = await res.json();
-    expect(body.error).toBe("Неверный формат сообщений.");
+    expect(body.error).toBe("Invalid message format.");
   });
 
   it("returns 400 when message parts are empty or text exceeds 4000 characters", async () => {
@@ -205,7 +205,7 @@ describe("POST /api/chat", () => {
       expect.objectContaining({
         system: "system-prompt-text",
         temperature: 0.3,
-        maxOutputTokens: 1000,
+        maxOutputTokens: 4000,
       }),
     );
     expect(mockToUIMessageStreamResponse).toHaveBeenCalled();
@@ -248,7 +248,9 @@ describe("POST /api/chat", () => {
     expect(res.status).toBe(429);
     expect(res.headers.get("Retry-After")).toBe("60");
     const body = await res.json();
-    expect(body.error).toContain("Превышена квота запросов");
+    expect(body.error).toContain(
+      "Google AI Studio request quota has been exceeded",
+    );
     expect(logger.warn).toHaveBeenCalled();
   });
 
@@ -262,7 +264,9 @@ describe("POST /api/chat", () => {
 
     expect(res.status).toBe(500);
     const body = await res.json();
-    expect(body.error).toBe("Внутренняя ошибка сервиса при обработке диалога.");
+    expect(body.error).toBe(
+      "An internal service error occurred while processing the dialog.",
+    );
     expect(logger.error).toHaveBeenCalled();
   });
 
@@ -283,7 +287,7 @@ describe("POST /api/chat", () => {
         callerKind: "guest",
         identifier: "127.0.0.1",
       }),
-      "Gemini 2.0 Flash streamText execution error",
+      "Gemini 2.5 Flash streamText execution error",
     );
 
     // Test toUIMessageStreamResponse onError option
@@ -292,11 +296,11 @@ describe("POST /api/chat", () => {
     const quotaMsg = responseInitCall?.onError?.(
       new Error("ResourceExhausted quota 429"),
     );
-    expect(quotaMsg).toContain("Сервис ИИ временно перегружен");
+    expect(quotaMsg).toContain("AI service is temporarily overloaded");
 
     const genericMsg = responseInitCall?.onError?.(
       new Error("Network disconnect"),
     );
-    expect(genericMsg).toContain("Произошла временная ошибка");
+    expect(genericMsg).toContain("A temporary error occurred");
   });
 });
