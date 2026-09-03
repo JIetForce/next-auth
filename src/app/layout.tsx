@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
+import { ChatWidget } from "@/components/chat/chat-widget";
 import { getPublicBaseUrl } from "@/lib/auth/environment";
 
 const geistSans = Geist({
@@ -61,7 +62,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         >
           Skip to content
         </a>
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          <ChatWidget />
+        </Providers>
       </body>
     </html>
   );
