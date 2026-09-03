@@ -286,7 +286,7 @@ function ChatWidgetInner({ isAuthenticated }: { isAuthenticated: boolean }) {
                     </div>
                     <div
                       className={cn(
-                        "rounded-2xl px-3.5 py-2.5 text-xs leading-relaxed break-words",
+                        "rounded-2xl px-3.5 py-2.5 text-xs leading-relaxed wrap-break-word",
                         isUser
                           ? "rounded-tr-none bg-primary text-primary-foreground"
                           : "rounded-tl-none border bg-muted/70 text-foreground",

@@ -23,6 +23,20 @@ describe("buildSiftloomSystemPrompt", () => {
     expect(prompt).toContain("/pricing");
   });
 
+  it("locks the English-only reply rule", () => {
+    const prompt = buildSiftloomSystemPrompt();
+
+    expect(prompt).toContain("ALWAYS reply in English");
+    expect(prompt).toContain("Never reply in Russian");
+  });
+
+  it("locks the markdown-link rule for internal pages", () => {
+    const prompt = buildSiftloomSystemPrompt();
+
+    expect(prompt).toContain("Markdown link with a RELATIVE PATH");
+    expect(prompt).toContain("never a bare path");
+  });
+
   it("injects every shared FAQ", () => {
     const prompt = buildSiftloomSystemPrompt();
 
