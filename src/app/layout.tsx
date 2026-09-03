@@ -20,9 +20,12 @@ export const metadata: Metadata = {
   description:
     "We sift through the noise so you can scale. Curated AI, SaaS, and workflow tools for modern teams and digital professionals.",
   icons: {
-    icon: "/siftloom-logo.png",
-    shortcut: "/siftloom-logo.png",
-    apple: "/siftloom-logo.png",
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/icon.png", sizes: "32x32", type: "image/png" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: "/apple-icon.png",
   },
   openGraph: {
     title: "Siftloom — Curated AI, SaaS & Workflow Tools",

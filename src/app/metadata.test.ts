@@ -17,13 +17,17 @@ vi.mock("@/components/chat/chat-widget-gate", () => ({
 }));
 
 describe("public routes metadata", () => {
-  it("exports root layout metadata with metadataBase, title template, openGraph and twitter", async () => {
+  it("exports root layout metadata with metadataBase, title template, icons, openGraph and twitter", async () => {
     const { metadata } = await import("./layout");
 
     expect(metadata.metadataBase).toEqual(new URL("https://siftloom.com"));
     expect(metadata.title).toEqual({
       default: "Siftloom — Curated AI, SaaS & Workflow Tools",
       template: "%s | Siftloom",
+    });
+    expect(metadata.icons).toMatchObject({
+      shortcut: "/favicon.ico",
+      apple: "/apple-icon.png",
     });
     expect(metadata.openGraph).toMatchObject({
       title: "Siftloom — Curated AI, SaaS & Workflow Tools",
