@@ -42,12 +42,14 @@ const chatRequestSchema = z.object({
 });
 
 function isQuotaError(message: string): boolean {
+  const lower = message.toLowerCase();
   return (
-    message.includes("ResourceExhausted") ||
-    message.includes("RESOURCE_EXHAUSTED") ||
-    message.includes("rate_limit_exceeded") ||
-    message.includes("quota") ||
-    message.includes("429")
+    lower.includes("resourceexhausted") ||
+    lower.includes("rate_limit_exceeded") ||
+    lower.includes("rate limit") ||
+    lower.includes("tokens per minute") ||
+    lower.includes("quota") ||
+    lower.includes("429")
   );
 }
 
@@ -127,9 +129,9 @@ export async function POST(req: Request) {
       parsed.data.messages as UIMessage[],
     );
 
-    // 6. Groq (qwen/qwen3.8-27b) via the Vercel AI SDK
+    // 6. Groq (openai/gpt-oss-120b) via the Vercel AI SDK
     const result = streamText({
-      model: groq("qwen/qwen3.8-27b"),
+      model: groq("openai/gpt-oss-120b"),
       system: systemPrompt,
       messages: modelMessages,
       temperature: 0.3, // low temperature to suppress hallucinations
