@@ -10,10 +10,9 @@ import { cn } from "@/lib/utils";
 export const metadata: Metadata = {
   title: "About",
   description:
-    "Who builds Siftloom, why it exists, where the project stands, and how to get in touch.",
+    "Why Siftloom exists, where the project stands, and how to get in touch.",
 };
 
-const FOUNDER_LINKEDIN = "https://www.linkedin.com/in/ruslan-yashchenko/";
 const X_URL = "https://x.com/siftloom";
 
 export default function AboutPage() {
@@ -61,24 +60,6 @@ export default function AboutPage() {
                     Today it is this website, updates on X, and an assistant
                     that answers questions about the project. Curated picks for
                     each category are being built next.
-                  </p>
-                </section>
-
-                <section className="flex flex-col gap-3">
-                  <h2 className="font-heading text-xl font-bold tracking-tight text-foreground">
-                    Who builds it
-                  </h2>
-                  <p>
-                    Siftloom is founded and built by{" "}
-                    <a
-                      href={FOUNDER_LINKEDIN}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="font-medium text-foreground underline underline-offset-4 hover:text-primary"
-                    >
-                      Ruslan Yashchenko
-                    </a>
-                    , a software developer based in Ukraine.
                   </p>
                 </section>
 
