@@ -43,6 +43,9 @@ jobs:
         run: npm run build
         env:
           DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/apptest"
+          # prisma.config.ts resolves the CLI datasource from DIRECT_URL (or
+          # Neon's DATABASE_URL_UNPOOLED); `prisma generate` fails without one.
+          DIRECT_URL: "postgresql://postgres:postgres@localhost:5432/apptest"
           BETTER_AUTH_SECRET: "ci-secret-value-must-be-long-enough-32char"
 
       - name: Type check
