@@ -12,7 +12,7 @@ import { ForgotPasswordForm } from "./_components/forgot-password-form";
 import { ResetPasswordForm } from "./_components/reset-password-form";
 
 export const metadata: Metadata = {
-  title: "Reset your password | Siftloom",
+  title: "Reset your password",
   description: "Reset your Siftloom account password.",
   robots: { index: false, follow: false },
 };

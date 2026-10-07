@@ -14,7 +14,7 @@ import { GoogleSignInForm } from "../login/_components/google-sign-in-form";
 import { RegisterForm } from "./_components/register-form";
 
 export const metadata: Metadata = {
-  title: "Create an account | Siftloom",
+  title: "Create an account",
   description:
     "Create an account for Siftloom to access curated AI and SaaS tools.",
   robots: { index: false, follow: false },

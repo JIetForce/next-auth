@@ -15,7 +15,7 @@ import { CredentialsForm } from "./_components/credentials-form";
 import { GoogleSignInForm } from "./_components/google-sign-in-form";
 
 export const metadata: Metadata = {
-  title: "Sign in | Siftloom",
+  title: "Sign in",
   description: "Sign in or create an account for Siftloom.",
   robots: {
     index: false,

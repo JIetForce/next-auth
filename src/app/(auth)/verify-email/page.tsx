@@ -12,7 +12,7 @@ import { AuthContentSkeleton } from "../_components/auth-content-skeleton";
 import { ResendForm } from "./_components/resend-form";
 
 export const metadata: Metadata = {
-  title: "Confirm your email | Siftloom",
+  title: "Confirm your email",
   description: "Confirm your email address to access your Siftloom account.",
   robots: { index: false, follow: false },
 };

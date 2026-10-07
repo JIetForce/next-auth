@@ -16,9 +16,9 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
         <div className="sl-ambient-glow-top" aria-hidden="true" />
         <div className="sl-ambient-glow-side" aria-hidden="true" />
 
-        <div className="relative z-10 mx-auto grid w-full max-w-6xl flex-1 grid-cols-1 items-center gap-8 p-4 sm:p-6 lg:grid-cols-12 lg:gap-12 lg:p-8">
+        <div className="relative z-10 mx-auto grid w-full max-w-6xl flex-1 grid-cols-1 content-start items-start gap-8 px-4 pt-12 pb-16 sm:px-6 sm:pt-16 lg:grid-cols-12 lg:gap-12 lg:px-8">
           <AuthShowcase />
-          <div className="flex w-full flex-col items-center justify-center lg:col-span-6 xl:col-span-5">
+          <div className="flex w-full flex-col items-center lg:col-span-6 xl:col-span-5">
             {children}
           </div>
         </div>
