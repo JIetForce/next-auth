@@ -10,13 +10,14 @@ describe("sitemap route handler", () => {
   it("returns public routes including features, pricing, terms, and privacy", () => {
     const entries = sitemap();
 
-    expect(entries).toHaveLength(5);
+    expect(entries).toHaveLength(6);
 
     const urls = entries.map((entry) => entry.url);
     expect(urls).toEqual([
       "https://siftloom.com",
       "https://siftloom.com/features",
       "https://siftloom.com/pricing",
+      "https://siftloom.com/about",
       "https://siftloom.com/terms",
       "https://siftloom.com/privacy",
     ]);

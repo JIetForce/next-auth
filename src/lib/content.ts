@@ -1,3 +1,5 @@
+export const CONTACT_EMAIL = "hello@siftloom.xyz";
+
 export type FaqEntry = Readonly<{
   value: string;
   question: string;
@@ -26,8 +28,7 @@ export const sharedFaqs: readonly FaqEntry[] = [
   {
     value: "faq-submit",
     question: "Can I submit a tool to be featured?",
-    answer:
-      "Yes. Send it to us on X. Every submission is judged against the same criteria as everything else we feature, and sponsorship never buys a spot.",
+    answer: `Yes. Email it to ${CONTACT_EMAIL} or send it to us on X. Every submission is judged against the same criteria as everything else we feature, and sponsorship never buys a spot.`,
   },
   {
     value: "faq-different",

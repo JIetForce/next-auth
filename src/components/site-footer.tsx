@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { CONTACT_EMAIL } from "@/lib/content";
+
 export function SiteFooter() {
   return (
     <footer
@@ -29,6 +31,18 @@ export function SiteFooter() {
         </div>
 
         <nav className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground">
+          <a
+            href={`mailto:${CONTACT_EMAIL}`}
+            className="transition-colors hover:text-foreground"
+          >
+            {CONTACT_EMAIL}
+          </a>
+          <Link
+            href="/about"
+            className="transition-colors hover:text-foreground"
+          >
+            About
+          </Link>
           <a
             href="https://x.com/siftloom"
             target="_blank"

@@ -47,9 +47,10 @@ Every tool Siftloom features has to pass the same three checks:
 - [Home](/) — what Siftloom is, the categories, the selection criteria, FAQ.
 - [Features](/features) — the six categories in detail and the ways to use Siftloom.
 - [Pricing](/pricing) — Siftloom is free; sponsorships are coming later.
+- [About](/about) — who builds Siftloom (founder Ruslan Yashchenko, a software developer based in Ukraine), the project's stage, and contacts.
 - [Privacy Policy](/privacy) and [Terms of Service](/terms).
 - [Sign in](/login) and [create an account](/register) — optional; an account is not needed to read the site or to use this assistant.
-- To suggest a tool or get in touch: message Siftloom on X (https://x.com/siftloom).
+- To suggest a tool or get in touch: email hello@siftloom.xyz or message Siftloom on X (https://x.com/siftloom).
 
 ## 6. FREQUENTLY ASKED QUESTIONS (FAQ)
 ${sharedFaqs

@@ -44,6 +44,8 @@ describe("SiteFooter and Page Landmarks", () => {
     expect(html).toContain('href="/privacy"');
     expect(html).toContain("Privacy Policy");
     expect(html).toContain('href="/terms"');
+    expect(html).toContain('href="/about"');
+    expect(html).toContain('href="mailto:hello@siftloom.xyz"');
     expect(html).toContain("Terms of Service");
   });
 

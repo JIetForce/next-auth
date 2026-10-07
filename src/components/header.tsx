@@ -13,6 +13,7 @@ export const primaryLinks = [
   { href: "/", label: "Home" },
   { href: "/features", label: "Features" },
   { href: "/pricing", label: "Pricing" },
+  { href: "/about", label: "About" },
 ] as const;
 
 export function Header({ className, ...props }: ComponentProps<"header">) {
