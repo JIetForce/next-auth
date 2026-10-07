@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { ArrowRight, BadgeCheck, Check, Megaphone } from "lucide-react";
 
 import {
@@ -24,14 +23,13 @@ import { SiteFooter } from "@/components/site-footer";
 export const metadata: Metadata = {
   title: "Pricing",
   description:
-    "Siftloom is free for every reader. No paywalls, ever. Learn about our newsletter, community access, and sponsorship model.",
+    "Siftloom is free for every reader. No paywalls, ever. Here's how the project will be funded.",
 };
 
 const freeFeatures = [
-  "Curated weekly newsletter",
-  "Active community access",
-  "Early alerts on emerging tools",
-  "All categories: AI, dev, automation, growth",
+  "All six categories: productivity, dev, automation, SaaS, AI, growth",
+  "New finds shared on X",
+  "The Siftloom chat assistant",
   "No paywall, ever",
 ] as const;
 
@@ -44,22 +42,15 @@ export default function PricingPage() {
 
       <main id="main-content">
         {/* Hero */}
-        <section className="relative z-10 mx-auto max-w-5xl px-6 pt-24 pb-12 text-center sm:pt-32 sm:pb-16">
-          <Badge
-            variant="outline"
-            className="h-auto gap-2 rounded-full border-primary/40 bg-primary/10 px-4 py-1.5 text-xs text-primary shadow-xs"
-          >
-            <span className="size-1.5 rounded-full bg-primary shadow-[0_0_0_3px_rgba(47,184,174,0.25)]" />
-            <span>Pricing</span>
-          </Badge>
-
-          <h1 className="mt-8 font-heading text-4xl font-extrabold tracking-tight sm:text-6xl">
+        <section className="relative z-10 mx-auto max-w-5xl px-6 pt-12 pb-12 text-center sm:pt-16 sm:pb-16">
+          <h1 className="font-heading text-4xl font-extrabold tracking-tight sm:text-6xl">
             Free, <span className="text-siftloom-gradient">forever</span>.
           </h1>
 
           <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-            Siftloom is free for every reader. We monetize through careful
-            sponsorships — never a paywall. See the FAQ below for the details.
+            Siftloom is free for every reader. We plan to fund it through
+            clearly labelled sponsorships, never a paywall. See the FAQ below
+            for the details.
           </p>
         </section>
 
@@ -78,7 +69,7 @@ export default function PricingPage() {
                 <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-xs">
                   <BadgeCheck className="size-5" />
                 </div>
-                <div>
+                <div className="flex-1">
                   <CardHeader className="gap-1 p-0">
                     <CardTitle className="font-heading text-2xl font-extrabold tracking-tight">
                       Free
@@ -113,16 +104,18 @@ export default function PricingPage() {
                 </ul>
               </CardContent>
 
-              <Link
-                href="/login"
+              <a
+                href="https://x.com/siftloom"
+                target="_blank"
+                rel="noopener noreferrer"
                 className={cn(
                   buttonVariants({ variant: "default" }),
                   "h-12 w-full gap-2.5 text-base font-bold shadow-siftloom-glow",
                 )}
               >
-                <span>Join for Free</span>
+                <span>Follow updates on X</span>
                 <ArrowRight className="size-4" aria-hidden="true" />
-              </Link>
+              </a>
             </div>
           </Card>
         </section>
@@ -146,24 +139,27 @@ export default function PricingPage() {
                 For Partners &amp; Sponsors
               </Badge>
               <h2 className="mt-4 font-heading text-3xl font-extrabold tracking-tight sm:text-4xl">
-                Reach a highly engaged B2B audience
+                Sponsorships: coming soon
               </h2>
               <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-                Partner with Siftloom to put your SaaS or service in front of
-                founders, marketers, and decision-makers. We drive high-intent
-                traffic through our curated newsletter and active community.
+                We aren&apos;t taking sponsors yet. When we do, sponsored
+                placements will be clearly labelled and limited to tools that
+                pass the same criteria as everything else we feature. Follow us
+                on X to hear when it opens.
               </p>
               <div className="mt-8">
-                <Link
-                  href="/login"
+                <a
+                  href="https://x.com/siftloom"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className={cn(
                     buttonVariants({ variant: "default" }),
                     "h-12 gap-2.5 px-7 text-sm font-bold",
                   )}
                 >
-                  <span>Become a Partner</span>
+                  <span>Follow on X</span>
                   <ArrowRight className="size-4" aria-hidden="true" />
-                </Link>
+                </a>
               </div>
             </div>
           </Card>
@@ -172,13 +168,7 @@ export default function PricingPage() {
         {/* FAQ */}
         <section className="relative z-10 mx-auto max-w-3xl px-6 py-12">
           <div className="text-center">
-            <Badge
-              variant="outline"
-              className="h-auto border-primary/40 bg-primary/10 px-3 py-1 text-xs font-bold uppercase tracking-widest text-primary"
-            >
-              FAQ
-            </Badge>
-            <h2 className="mt-3 font-heading text-3xl font-extrabold tracking-tight sm:text-4xl">
+            <h2 className="font-heading text-3xl font-extrabold tracking-tight sm:text-4xl">
               Frequently asked questions
             </h2>
           </div>

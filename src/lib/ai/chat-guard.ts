@@ -25,9 +25,9 @@ export type RateLimitResult =
   | { allowed: false; retryAfterSeconds: number; reason: string };
 
 /**
- * Two-circle quotas for registered members and guests:
- * - Users: 15 requests per minute, 100 requests per day.
- * - Guests: 3 requests per 5 minutes, 20 requests per day.
+ * Guests and signed-in members get the same quotas; signing in is not
+ * required to chat. Guests are bucketed by IP, members by user id:
+ * - 15 requests per minute, 100 requests per day.
  */
 const LIMITS = {
   user: {
@@ -37,10 +37,10 @@ const LIMITS = {
     dayMax: 100,
   },
   guest: {
-    shortWindowMs: 5 * 60 * 1000, // 5 minutes
-    shortMax: 3,
+    shortWindowMs: 60 * 1000, // 1 minute
+    shortMax: 15,
     dayWindowMs: 24 * 60 * 60 * 1000, // 24 hours
-    dayMax: 20,
+    dayMax: 100,
   },
 } as const;
 
@@ -128,18 +128,17 @@ export async function verifyChatAccess(
   };
 
   const guestShortOk = await consumeRateLimit(
-    `ai:chat:guest:5min:${clientIp}`,
+    `ai:chat:guest:min:${clientIp}`,
     LIMITS.guest.shortMax,
     LIMITS.guest.shortWindowMs,
   );
 
   if (!guestShortOk) {
-    logger.info({ ip: clientIp }, "Chat 5-min limit exceeded for guest");
+    logger.info({ ip: clientIp }, "Chat 1-min limit exceeded for guest");
     return {
       allowed: false,
-      retryAfterSeconds: 300,
-      reason:
-        "You have used up your guest allowance (3 messages per 5 minutes). Sign in to keep chatting without delays.",
+      retryAfterSeconds: 60,
+      reason: "Message limit exceeded (15 per minute). Please wait a moment.",
     };
   }
 
@@ -155,7 +154,7 @@ export async function verifyChatAccess(
       allowed: false,
       retryAfterSeconds: 86400,
       reason:
-        "You have used up your daily guest allowance (20 per day). Register for free to raise your limits.",
+        "Daily message limit exceeded (100 per day). The limit resets in 24 hours.",
     };
   }
 

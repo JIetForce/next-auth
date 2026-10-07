@@ -5,9 +5,10 @@ import {
   ArrowRight,
   Bot,
   Code2,
-  Cpu,
+  Feather,
   Layers,
-  Sparkles,
+  Scale,
+  Target,
   TrendingUp,
   Workflow,
   Zap,
@@ -33,7 +34,7 @@ import { cn } from "@/lib/utils";
 export const metadata: Metadata = {
   title: "Curated AI, SaaS & Workflow Tools",
   description:
-    "Curated AI, SaaS, and workflow tools for modern teams and digital professionals. Discover practical recommendations across productivity, dev tools, and automation.",
+    "Siftloom picks out AI, SaaS, and workflow tools worth your time across productivity, development, automation, and growth.",
 };
 
 export default function Home() {
@@ -46,7 +47,7 @@ export default function Home() {
 
       <main id="main-content">
         {/* ===== HERO SECTION ===== */}
-        <section className="relative z-10 mx-auto max-w-5xl px-6 pt-24 pb-16 text-center sm:pt-32 sm:pb-20">
+        <section className="relative z-10 mx-auto max-w-5xl px-6 pt-16 pb-16 text-center sm:pt-20 sm:pb-20">
           <Badge
             variant="outline"
             className="border-primary/40 bg-primary/10 text-primary gap-2 px-4 py-1.5 text-xs rounded-full shadow-xs h-auto"
@@ -62,55 +63,40 @@ export default function Home() {
           </h1>
 
           <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-            Curated AI, SaaS, and workflow tools for modern teams and digital
-            professionals. Siftloom shares useful discoveries, practical
-            recommendations, and clear updates across productivity, developer,
-            automation, and software categories.
+            Siftloom picks out the AI, SaaS, and workflow tools worth your time,
+            across productivity, development, automation, and growth, and says
+            plainly why each one made the cut.
           </p>
 
           {/* Quick Join Actions */}
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Link
-              href="/login"
+            <a
+              href="https://x.com/siftloom"
+              target="_blank"
+              rel="noopener noreferrer"
               className={cn(
                 buttonVariants({ variant: "default" }),
                 "h-12 px-8 text-base font-bold shadow-siftloom-glow gap-2.5",
               )}
             >
-              <span>Join for Free</span>
+              <span>Follow updates on X</span>
               <ArrowRight className="size-4" aria-hidden="true" />
-            </Link>
+            </a>
             <a
-              href="#tools"
+              href="#categories"
               className={cn(
                 buttonVariants({ variant: "outline" }),
                 "h-12 px-6 text-sm font-medium",
               )}
             >
-              Explore Tools
+              Explore categories
             </a>
-          </div>
-
-          {/* Social proof avatar indicators */}
-          <div className="mt-12 inline-flex items-center gap-3 text-xs text-muted-foreground sm:text-sm">
-            <div className="flex -space-x-2">
-              <span className="inline-block size-7 rounded-full border-2 border-background bg-linear-to-br from-[#3fa1de] to-[#2fb8ae]" />
-              <span className="inline-block size-7 rounded-full border-2 border-background bg-linear-to-br from-[#2fb8ae] to-[#9fd37e]" />
-              <span className="inline-block size-7 rounded-full border-2 border-background bg-linear-to-br from-[#9fd37e] to-[#cbe37c]" />
-            </div>
-            <span>
-              Trusted by{" "}
-              <strong className="font-semibold text-foreground">
-                modern professionals
-              </strong>
-              .
-            </span>
           </div>
         </section>
 
-        {/* ===== WHAT WE DO SECTION ===== */}
+        {/* ===== CATEGORIES SECTION ===== */}
         <section
-          id="tools"
+          id="categories"
           className="relative z-10 mx-auto max-w-6xl px-6 py-20 scroll-mt-20"
         >
           <div className="mx-auto max-w-2xl text-center">
@@ -118,14 +104,14 @@ export default function Home() {
               variant="outline"
               className="border-primary/40 bg-primary/10 text-primary text-xs font-bold uppercase tracking-widest h-auto px-3 py-1"
             >
-              What we do
+              What we cover
             </Badge>
             <h2 className="mt-3 font-heading text-3xl font-extrabold tracking-tight sm:text-4xl">
-              Signal, not noise.
+              Six categories, one filter.
             </h2>
             <p className="mt-3 text-base text-muted-foreground">
-              Every issue is hand-curated by operators who actually ship. No
-              fluff, no affiliate-bait — just what&apos;s worth your attention.
+              The same bar applies everywhere, whether it&apos;s an agent
+              framework or a clipboard manager.
             </p>
           </div>
 
@@ -140,8 +126,7 @@ export default function Home() {
                   Productivity
                 </CardTitle>
                 <CardDescription className="text-sm leading-relaxed text-muted-foreground">
-                  Increase your output with modern workflows. We sift through
-                  the noise to find tools that actually save you time.
+                  Tools that give you back hours, not more tabs.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -156,8 +141,7 @@ export default function Home() {
                   Developer Tools
                 </CardTitle>
                 <CardDescription className="text-sm leading-relaxed text-muted-foreground">
-                  Libraries, frameworks, and utilities for engineers who ship
-                  fast. Practical recommendations without the fluff.
+                  Frameworks and utilities that make shipping faster.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -172,8 +156,7 @@ export default function Home() {
                   Automation
                 </CardTitle>
                 <CardDescription className="text-sm leading-relaxed text-muted-foreground">
-                  Eliminate manual work and scale your operations. Discover
-                  Zapier alternatives, AI agents, and custom workflows.
+                  Ways to take repetitive work off your plate.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -188,8 +171,7 @@ export default function Home() {
                   SaaS &amp; Software
                 </CardTitle>
                 <CardDescription className="text-sm leading-relaxed text-muted-foreground">
-                  Hand-picked apps for digital professionals. We track clear
-                  updates across the entire software ecosystem.
+                  Apps for running projects, sales, and design.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -204,8 +186,7 @@ export default function Home() {
                   AI &amp; Agents
                 </CardTitle>
                 <CardDescription className="text-sm leading-relaxed text-muted-foreground">
-                  Stay ahead of the curve. We review the latest LLMs, autonomous
-                  agents, and AI tools for real-world use.
+                  Models, agents, and AI tools that hold up in real work.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -220,68 +201,79 @@ export default function Home() {
                   Growth &amp; Marketing
                 </CardTitle>
                 <CardDescription className="text-sm leading-relaxed text-muted-foreground">
-                  Analytics, SEO, and acquisition channels. Tools to help you
-                  distribute your work and grow your audience.
+                  Tools that get your work in front of the right people.
                 </CardDescription>
               </CardHeader>
             </Card>
           </div>
+
+          <div className="mt-10 text-center">
+            <Link
+              href="/features"
+              className={cn(
+                buttonVariants({ variant: "outline" }),
+                "h-11 gap-2 px-6 text-sm font-medium",
+              )}
+            >
+              <span>See all categories</span>
+              <ArrowRight className="size-4" aria-hidden="true" />
+            </Link>
+          </div>
         </section>
 
-        {/* ===== SNEAK PEEK SECTION ===== */}
+        {/* ===== WHAT WE LOOK FOR SECTION ===== */}
         <section className="relative z-10 mx-auto max-w-6xl px-6 py-20">
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="font-heading text-3xl font-extrabold tracking-tight sm:text-4xl">
-              What you&apos;ll find inside
+              What we look for
             </h2>
             <p className="mt-3 text-base text-muted-foreground">
-              A sneak peek at the types of tools and workflows we curate every
-              week.
+              Every tool we feature has to pass the same three checks.
             </p>
           </div>
 
           <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-3">
             <Card className="sl-card flex-row items-start gap-4 rounded-2xl border border-border/70 bg-card/50 p-6 backdrop-blur-md">
               <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-[#3fa1de] to-[#2fb8ae] text-black">
-                <Cpu className="size-5" />
+                <Target className="size-5" />
               </div>
               <div>
                 <CardTitle className="font-heading text-base font-bold text-foreground">
-                  AI Workflows
+                  Solves a real problem
                 </CardTitle>
                 <CardDescription className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                  How to connect tools like Claude, Zapier, and Notion to
-                  automate your content pipeline.
+                  It removes a concrete pain point instead of adding one more
+                  dashboard to check.
                 </CardDescription>
               </div>
             </Card>
 
             <Card className="sl-card flex-row items-start gap-4 rounded-2xl border border-border/70 bg-card/50 p-6 backdrop-blur-md">
               <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-[#9fd37e] to-[#cbe37c] text-black">
-                <Zap className="size-5" />
+                <Feather className="size-5" />
               </div>
               <div>
                 <CardTitle className="font-heading text-base font-bold text-foreground">
-                  Productivity Hacks
+                  No unnecessary bloat
                 </CardTitle>
                 <CardDescription className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                  Deep dives into modern text expanders, clipboard managers, and
-                  local LLMs.
+                  It does its job well without forcing you to rebuild your
+                  workflow around it.
                 </CardDescription>
               </div>
             </Card>
 
             <Card className="sl-card flex-row items-start gap-4 rounded-2xl border border-border/70 bg-card/50 p-6 backdrop-blur-md">
               <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-[#2fb8ae] to-[#9fd37e] text-black">
-                <Sparkles className="size-5" />
+                <Scale className="size-5" />
               </div>
               <div>
                 <CardTitle className="font-heading text-base font-bold text-foreground">
-                  SaaS Alerts
+                  Worth the price
                 </CardTitle>
                 <CardDescription className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                  Early access to emerging tools and hidden gems before they go
-                  mainstream.
+                  Free or paid, the value has to be clear next to the
+                  alternatives you already know.
                 </CardDescription>
               </div>
             </Card>
@@ -291,13 +283,7 @@ export default function Home() {
         {/* ===== FAQ SECTION ===== */}
         <section className="relative z-10 mx-auto max-w-3xl px-6 py-20">
           <div className="text-center">
-            <Badge
-              variant="outline"
-              className="border-primary/40 bg-primary/10 text-primary text-xs font-bold uppercase tracking-widest h-auto px-3 py-1"
-            >
-              FAQ
-            </Badge>
-            <h2 className="mt-3 font-heading text-3xl font-extrabold tracking-tight sm:text-4xl">
+            <h2 className="font-heading text-3xl font-extrabold tracking-tight sm:text-4xl">
               Frequently Asked Questions
             </h2>
           </div>
@@ -320,59 +306,6 @@ export default function Home() {
               ))}
             </Accordion>
           </div>
-        </section>
-
-        {/* ===== PARTNERS SECTION ===== */}
-        <section
-          id="partners"
-          className="relative z-10 mx-auto max-w-6xl px-6 py-20 scroll-mt-20"
-        >
-          <Card className="relative overflow-hidden rounded-3xl border border-border/80 bg-linear-to-br from-[#0c1118] to-[#0a1014] p-8 shadow-2xl sm:p-14">
-            <div
-              className="pointer-events-none absolute inset-0 opacity-60"
-              style={{
-                background:
-                  "radial-gradient(circle at 88% 8%, rgba(47,184,174,0.18), transparent 46%), radial-gradient(circle at 8% 96%, rgba(63,161,222,0.14), transparent 50%)",
-              }}
-            />
-
-            <div className="relative max-w-2xl">
-              <Badge
-                variant="outline"
-                className="border-border/80 bg-muted/50 text-muted-foreground gap-2 px-3.5 py-1 text-xs font-semibold h-auto rounded-full"
-              >
-                For Partners &amp; Sponsors
-              </Badge>
-              <h2 className="mt-4 font-heading text-3xl font-extrabold tracking-tight sm:text-4xl">
-                Reach a Highly Engaged B2B Audience
-              </h2>
-              <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-                Partner with Siftloom to put your SaaS or service in front of
-                founders, marketers, and decision-makers. We drive high-intent
-                traffic through our curated newsletter and active community.
-              </p>
-              <div className="mt-8 flex flex-wrap gap-4">
-                <Link
-                  href="/login"
-                  className={cn(
-                    buttonVariants({ variant: "default" }),
-                    "h-12 px-7 font-bold text-sm",
-                  )}
-                >
-                  Become a Partner
-                </Link>
-                <Link
-                  href="/login"
-                  className={cn(
-                    buttonVariants({ variant: "outline" }),
-                    "h-12 px-6 text-sm font-medium border-border/80 bg-card/60 hover:bg-card/80",
-                  )}
-                >
-                  View Media Kit
-                </Link>
-              </div>
-            </div>
-          </Card>
         </section>
       </main>
 

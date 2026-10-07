@@ -8,12 +8,10 @@ vi.mock("@/lib/auth/environment", () => ({
   getPublicBaseUrl: vi.fn(() => "https://siftloom.com"),
 }));
 
-// The root layout mounts the chat widget through an async server gate that
-// reads the viewer via getCurrentViewer (-> @/auth -> Prisma). The metadata
-// test only inspects static metadata, so the gate is stubbed out to keep the
-// import graph off the database in the unit environment.
-vi.mock("@/components/chat/chat-widget-gate", () => ({
-  ChatWidgetGate: () => null,
+// The root layout mounts the client chat widget. The metadata test only
+// inspects static metadata, so the widget is stubbed out.
+vi.mock("@/components/chat/chat-widget", () => ({
+  ChatWidget: () => null,
 }));
 
 describe("public routes metadata", () => {

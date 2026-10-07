@@ -13,7 +13,6 @@ import {
   Trash2,
   AlertCircle,
   RotateCcw,
-  User,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -36,7 +35,7 @@ const QUICK_PROMPTS = [
   "What is Siftloom?",
   "Which tool categories are there?",
   "Suggest free Zapier alternatives",
-  "How do I add my tool to the catalog?",
+  "How can I suggest a tool?",
 ];
 
 /**
@@ -80,7 +79,7 @@ const markdownComponents: Components = {
   },
 };
 
-function ChatWidgetInner({ isAuthenticated }: { isAuthenticated: boolean }) {
+function ChatWidgetInner() {
   const [isOpen, setIsOpen] = React.useState(false);
   const [input, setInput] = React.useState("");
   const [isHydrated, setIsHydrated] = React.useState(false);
@@ -195,7 +194,7 @@ function ChatWidgetInner({ isAuthenticated }: { isAuthenticated: boolean }) {
                   Siftloom Assistant
                 </SheetTitle>
                 <SheetDescription className="text-xs text-muted-foreground">
-                  Guide to the tool catalog and platform
+                  Ask about Siftloom or finding a tool
                 </SheetDescription>
               </div>
             </div>
@@ -215,15 +214,8 @@ function ChatWidgetInner({ isAuthenticated }: { isAuthenticated: boolean }) {
 
           {/* Context and auth bar */}
           <div className="flex items-center justify-between border-b bg-primary/5 px-4 py-2 text-xs text-muted-foreground">
-            <span>AI, SaaS &amp; Workflows catalog</span>
-            {!isAuthenticated && (
-              <Link
-                href="/login"
-                className="flex items-center gap-1 font-medium text-primary hover:underline"
-              >
-                <User className="h-3 w-3" /> Sign in
-              </Link>
-            )}
+            <span>AI, SaaS &amp; workflow tools</span>
+            <span>Early version</span>
           </div>
 
           {/* Conversation area */}
@@ -236,8 +228,9 @@ function ChatWidgetInner({ isAuthenticated }: { isAuthenticated: boolean }) {
                 <div className="space-y-1">
                   <h3 className="text-sm font-medium">How can I help?</h3>
                   <p className="max-w-xs text-xs text-muted-foreground">
-                    Ask about the Siftloom tool catalog, find services for your
-                    task, or learn what the platform offers.
+                    Ask what Siftloom is, how it picks tools, or get a few
+                    pointers for your task. Siftloom is in early development,
+                    and more is on the way.
                   </p>
                 </div>
 
@@ -373,8 +366,8 @@ function ChatWidgetInner({ isAuthenticated }: { isAuthenticated: boolean }) {
             </form>
             <div className="mt-1.5 text-center">
               <span className="text-[10px] text-muted-foreground">
-                The assistant only answers questions about the Siftloom catalog
-                and platform.
+                The assistant answers questions about Siftloom and AI, SaaS, and
+                workflow tools.
               </span>
             </div>
           </div>
@@ -384,10 +377,10 @@ function ChatWidgetInner({ isAuthenticated }: { isAuthenticated: boolean }) {
   );
 }
 
-export function ChatWidget({ isAuthenticated }: { isAuthenticated: boolean }) {
+export function ChatWidget() {
   return (
     <React.Suspense fallback={null}>
-      <ChatWidgetInner isAuthenticated={isAuthenticated} />
+      <ChatWidgetInner />
     </React.Suspense>
   );
 }

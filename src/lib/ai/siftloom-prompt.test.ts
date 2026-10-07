@@ -50,6 +50,23 @@ describe("buildSiftloomSystemPrompt", () => {
     }
   });
 
+  it("states the early-development stage and does not claim channels that are not live", () => {
+    const prompt = buildSiftloomSystemPrompt();
+
+    expect(prompt).toContain("early development");
+    expect(prompt).toContain("more is coming");
+    expect(prompt).toContain("https://x.com/siftloom");
+    expect(prompt).not.toContain("weekly, condensed email digest");
+    expect(prompt).not.toContain("affiliate integrations");
+  });
+
+  it("allows tool suggestions only with the not-vetted caveat", () => {
+    const prompt = buildSiftloomSystemPrompt();
+
+    expect(prompt).toContain("not vetted Siftloom picks");
+    expect(prompt).toContain("Do not invent tools");
+  });
+
   it("greets a guest and a named user differently", () => {
     const guest = buildSiftloomSystemPrompt({ isGuest: true });
     const user = buildSiftloomSystemPrompt({ userName: "Alice" });

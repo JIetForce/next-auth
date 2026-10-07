@@ -38,8 +38,9 @@ describe("Content consolidation and statistics removal (Task 7 / D4)", () => {
     expect(html).not.toContain("10,000+");
     expect(html).not.toContain("5,000+");
     expect(html).not.toContain("48%");
-    expect(html).toContain("Trusted by");
-    expect(html).toContain("modern professionals");
+    expect(html).not.toContain("Trusted by");
+    expect(html).not.toContain("For Partners");
+    expect(html).toContain("What we look for");
   });
 
   it("renders all sharedFaqs on Pricing page and contains no placeholder statistics", () => {
@@ -52,7 +53,9 @@ describe("Content consolidation and statistics removal (Task 7 / D4)", () => {
     expect(html).not.toContain("10,000+");
     expect(html).not.toContain("5,000+");
     expect(html).not.toContain("48%");
-    expect(html).toContain("Active community access");
+    expect(html).not.toContain("Active community access");
+    expect(html).not.toContain("weekly newsletter");
+    expect(html).toContain("Sponsorships: coming soon");
     expect(html).not.toContain("5,000+ members");
   });
 
@@ -62,10 +65,8 @@ describe("Content consolidation and statistics removal (Task 7 / D4)", () => {
     expect(html).not.toContain("10,000+");
     expect(html).not.toContain("5,000+");
     expect(html).not.toContain("48%");
-    expect(html).toContain("Connect with operators, founders, and makers");
-    expect(html).toContain(
-      "Join modern professionals getting curated tools and workflows",
-    );
+    expect(html).not.toContain("active community");
+    expect(html).toContain("Ways to use Siftloom");
   });
 
   it("AuthShowcase renders qualitative value propositions with no unverified numbers", () => {
@@ -75,7 +76,8 @@ describe("Content consolidation and statistics removal (Task 7 / D4)", () => {
     expect(html).not.toContain("5,000+");
     expect(html).not.toContain("48%");
     expect(html).toContain("Curated Signal");
-    expect(html).toContain("Vetted Tooling");
-    expect(html).toContain("Active Community");
+    expect(html).toContain("Clear Criteria");
+    expect(html).not.toContain("Active Community");
+    expect(html).not.toContain("Reader Community");
   });
 });

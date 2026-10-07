@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { SiteFooter } from "@/components/site-footer";
@@ -22,17 +21,9 @@ export default function PrivacyPage() {
       <div className="sl-ambient-glow-side" aria-hidden="true" />
 
       <main id="main-content">
-        <section className="relative z-10 mx-auto max-w-4xl px-6 pt-24 pb-16 sm:pt-32 sm:pb-20">
+        <section className="relative z-10 mx-auto max-w-4xl px-6 pt-12 pb-16 sm:pt-16 sm:pb-20">
           <div className="flex flex-col items-center text-center">
-            <Badge
-              variant="outline"
-              className="h-auto gap-2 rounded-full border-primary/40 bg-primary/10 px-4 py-1.5 text-xs text-primary shadow-xs"
-            >
-              <span className="size-1.5 rounded-full bg-primary shadow-[0_0_0_3px_rgba(47,184,174,0.25)]" />
-              <span>Privacy Policy</span>
-            </Badge>
-
-            <h1 className="mt-8 font-heading text-4xl font-extrabold tracking-tight sm:text-5xl">
+            <h1 className="font-heading text-4xl font-extrabold tracking-tight sm:text-5xl">
               Privacy <span className="text-siftloom-gradient">Policy</span>
             </h1>
 

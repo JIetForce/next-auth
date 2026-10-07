@@ -42,18 +42,18 @@ export function AuthShowcase() {
           </div>
           <div className="flex flex-col gap-1 border-r border-border/60 px-2">
             <span className="font-heading text-sm font-bold tracking-tight text-foreground sm:text-base">
-              Vetted Tooling
+              Clear Criteria
             </span>
             <span className="text-xs text-muted-foreground">
-              Tested by operators
+              Same checks for every pick
             </span>
           </div>
           <div className="flex flex-col gap-1 pl-2">
             <span className="font-heading text-sm font-bold tracking-tight text-foreground sm:text-base">
-              Active Community
+              Free to Read
             </span>
             <span className="text-xs text-muted-foreground">
-              Makers and builders
+              No paywall, ever
             </span>
           </div>
         </div>
@@ -103,7 +103,7 @@ export function AuthShowcase() {
         </div>
       </div>
 
-      {/* Social Proof / Customer Testimonial Quote */}
+      {/* Editorial principle */}
       <div className="relative overflow-hidden rounded-xl border border-border/80 bg-card/60 p-5 shadow-xs backdrop-blur-md">
         <Quote
           className="pointer-events-none absolute right-3 top-3 size-12 text-foreground/5 dark:text-foreground/10"
@@ -111,8 +111,8 @@ export function AuthShowcase() {
         />
         <div className="flex flex-col gap-3">
           <p className="text-sm italic text-foreground/90">
-            &ldquo;Siftloom gives our team the curated signal on modern AI and
-            developer workflows without any fluff.&rdquo;
+            &ldquo;We&apos;d rather recommend five tools that hold up than fifty
+            that don&apos;t.&rdquo;
           </p>
           <div className="flex items-center gap-2.5">
             <div className="flex size-7 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-white/10 bg-black">
@@ -126,10 +126,10 @@ export function AuthShowcase() {
             </div>
             <div className="flex flex-col">
               <span className="text-xs font-semibold text-foreground">
-                Growth Operator &amp; Founder
+                Siftloom
               </span>
               <span className="text-[10px] text-muted-foreground">
-                Siftloom Reader Community
+                How we pick tools
               </span>
             </div>
           </div>

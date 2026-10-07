@@ -9,30 +9,30 @@ export const sharedFaqs: readonly FaqEntry[] = [
     value: "faq-free",
     question: "Is Siftloom really free?",
     answer:
-      "Yes, 100% free. We monetize through careful, relevant sponsorships with tools we actually like and use. We will never hide our core content behind a paywall.",
+      "Yes. Siftloom is free to read and always will be. We plan to fund it through clearly labelled sponsorships, never a paywall.",
   },
   {
-    value: "faq-frequency",
-    question: "How often do you send updates?",
+    value: "faq-follow",
+    question: "Where can I follow Siftloom?",
     answer:
-      "We typically post high-signal updates on our Telegram channel a few times a week, and send a consolidated email newsletter weekly. We respect your inbox and only send when we have something truly valuable to share.",
+      "On X at @siftloom. That's where new finds are shared first, along with a short note on why each one made the cut.",
   },
   {
     value: "faq-tools",
     question: "What kind of tools do you feature?",
     answer:
-      "We feature everything from emerging AI agents and developer utilities to proven marketing platforms and no-code builders. If it saves time, reduces friction, or creates leverage for digital professionals, it's on our radar.",
+      "Anything that saves time or removes friction for people who build and sell online: AI agents, developer utilities, automation platforms, SaaS apps and growth tools.",
   },
   {
     value: "faq-submit",
     question: "Can I submit a tool to be featured?",
     answer:
-      "Absolutely. We have a dedicated submission process for founders and makers. Reach out to us directly via email and we'll evaluate if your product is a good fit for our audience.",
+      "Yes. Send it to us on X. Every submission is judged against the same criteria as everything else we feature, and sponsorship never buys a spot.",
   },
   {
     value: "faq-different",
     question: "How is this different from other directories?",
     answer:
-      "We don't just list tools; we curate them. Every tool we mention has been tested or rigorously vetted by our team to ensure it actually solves a problem without unnecessary bloat.",
+      "We don't try to list everything. A tool is featured only when it solves a concrete problem, does it without unnecessary bloat, and is worth what it costs.",
   },
 ];

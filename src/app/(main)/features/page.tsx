@@ -2,18 +2,16 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import {
   ArrowRight,
-  Bell,
   Bot,
   Code2,
   Layers,
+  Send,
   Sparkles,
   TrendingUp,
-  Users,
   Workflow,
   Zap,
 } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import {
   Card,
@@ -27,7 +25,7 @@ import { SiteFooter } from "@/components/site-footer";
 export const metadata: Metadata = {
   title: "Features",
   description:
-    "Curated categories for modern builders. Explore vetted tools across productivity, developer tooling, automation, and growth.",
+    "The six categories Siftloom covers, from productivity and developer tools to AI agents and growth, and what we look at in each.",
 };
 
 const categories = [
@@ -36,7 +34,7 @@ const categories = [
     title: "Productivity",
     color: "#3fa1de",
     description:
-      "Increase your output with modern workflows. We sift through the noise to find tools that actually save you time.",
+      "Apps and workflows that cut busywork, so more of your day goes to the work itself.",
     items: [
       "Text expanders & clipboard managers",
       "Note-taking & PKM systems",
@@ -72,7 +70,7 @@ const categories = [
     title: "SaaS & Software",
     color: "#cbe37c",
     description:
-      "Hand-picked apps for digital professionals. We track clear updates across the entire software ecosystem.",
+      "Hand-picked apps for running projects, selling, and collaborating with a team.",
     items: [
       "Project & task management",
       "CRM & sales enablement",
@@ -84,7 +82,7 @@ const categories = [
     title: "AI & Agents",
     color: "#2fb8ae",
     description:
-      "Stay ahead of the curve. We review the latest LLMs, autonomous agents, and AI tools for real-world use.",
+      "LLMs, autonomous agents, and AI tools, judged by how they hold up in real work rather than in demos.",
     items: [
       "LLM benchmarks & comparisons",
       "Autonomous agent frameworks",
@@ -108,21 +106,21 @@ const categories = [
 const benefits = [
   {
     icon: Sparkles,
-    title: "Curated Updates",
+    title: "Follow on X",
     description:
-      "High-signal updates a few times a week. No filler, no affiliate-bait — just what's worth your attention.",
+      "New finds are posted on X, each with a short note on what it does well and who it's for.",
   },
   {
-    icon: Users,
-    title: "Community Access",
+    icon: Bot,
+    title: "Ask the assistant",
     description:
-      "Connect with operators, founders, and makers in an active community sharing real workflows and discoveries.",
+      "The chat assistant on this site answers questions about Siftloom and how it works.",
   },
   {
-    icon: Bell,
-    title: "Early Alerts",
+    icon: Send,
+    title: "Suggest a tool",
     description:
-      "Early access to emerging tools and hidden gems before they go mainstream. Be first, not last.",
+      "Built or found something useful? Send it to us on X and we'll weigh it against the same criteria.",
   },
 ] as const;
 
@@ -135,37 +133,30 @@ export default function FeaturesPage() {
 
       <main id="main-content">
         {/* Hero */}
-        <section className="relative z-10 mx-auto max-w-5xl px-6 pt-24 pb-12 text-center sm:pt-32 sm:pb-16">
-          <Badge
-            variant="outline"
-            className="h-auto gap-2 rounded-full border-primary/40 bg-primary/10 px-4 py-1.5 text-xs text-primary shadow-xs"
-          >
-            <span className="size-1.5 rounded-full bg-primary shadow-[0_0_0_3px_rgba(47,184,174,0.25)]" />
-            <span>Features</span>
-          </Badge>
-
-          <h1 className="mt-8 font-heading text-4xl font-extrabold tracking-tight sm:text-6xl">
+        <section className="relative z-10 mx-auto max-w-5xl px-6 pt-12 pb-12 text-center sm:pt-16 sm:pb-16">
+          <h1 className="font-heading text-4xl font-extrabold tracking-tight sm:text-6xl">
             Everything we track,{" "}
             <span className="text-siftloom-gradient">curated</span>.
           </h1>
 
           <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-            Six categories. One signal. Siftloom covers the tools modern teams
-            and digital professionals actually use — from AI agents to growth
-            stacks — with practical, tested recommendations.
+            Six categories, one set of criteria. Here&apos;s what Siftloom
+            covers and what we look at in each, from AI agents to growth stacks.
           </p>
 
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Link
-              href="/login"
+            <a
+              href="https://x.com/siftloom"
+              target="_blank"
+              rel="noopener noreferrer"
               className={cn(
                 buttonVariants({ variant: "default" }),
                 "h-12 gap-2.5 px-8 text-base font-bold shadow-siftloom-glow",
               )}
             >
-              <span>Join for Free</span>
+              <span>Follow updates on X</span>
               <ArrowRight className="size-4" aria-hidden="true" />
-            </Link>
+            </a>
             <Link
               href="/pricing"
               className={cn(
@@ -181,14 +172,8 @@ export default function FeaturesPage() {
         {/* Category grid */}
         <section className="relative z-10 mx-auto max-w-6xl px-6 py-16">
           <div className="mx-auto max-w-2xl text-center">
-            <Badge
-              variant="outline"
-              className="h-auto px-3 py-1 text-xs font-bold uppercase tracking-widest border-primary/40 bg-primary/10 text-primary"
-            >
-              Categories
-            </Badge>
-            <h2 className="mt-3 font-heading text-3xl font-extrabold tracking-tight sm:text-4xl">
-              Six areas, constantly watched
+            <h2 className="font-heading text-3xl font-extrabold tracking-tight sm:text-4xl">
+              Six areas we cover
             </h2>
           </div>
 
@@ -238,10 +223,10 @@ export default function FeaturesPage() {
         <section className="relative z-10 mx-auto max-w-6xl px-6 py-16">
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="font-heading text-3xl font-extrabold tracking-tight sm:text-4xl">
-              What you get inside
+              Ways to use Siftloom
             </h2>
             <p className="mt-3 text-base text-muted-foreground">
-              More than a list — a working advantage.
+              All of it free.
             </p>
           </div>
 
@@ -282,19 +267,21 @@ export default function FeaturesPage() {
                 Ready to <span className="text-siftloom-gradient">scale</span>?
               </h2>
               <p className="max-w-lg text-base leading-relaxed text-muted-foreground">
-                Join modern professionals getting curated tools and workflows
-                every week. Free, forever.
+                Follow Siftloom on X to see new finds as they&apos;re posted.
+                Free, forever.
               </p>
-              <Link
-                href="/login"
+              <a
+                href="https://x.com/siftloom"
+                target="_blank"
+                rel="noopener noreferrer"
                 className={cn(
                   buttonVariants({ variant: "default" }),
                   "h-12 gap-2.5 px-8 font-bold shadow-siftloom-glow",
                 )}
               >
-                <span>Join for Free</span>
+                <span>Follow on X</span>
                 <ArrowRight className="size-4" aria-hidden="true" />
-              </Link>
+              </a>
             </div>
           </Card>
         </section>

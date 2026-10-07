@@ -56,24 +56,25 @@ describe("verifyChatAccess — guests", () => {
     });
     expect(mockedConsume).toHaveBeenNthCalledWith(
       1,
-      "ai:chat:guest:5min:203.0.113.7",
-      3,
-      5 * 60 * 1000,
+      "ai:chat:guest:min:203.0.113.7",
+      15,
+      60 * 1000,
     );
     expect(mockedConsume).toHaveBeenNthCalledWith(
       2,
       "ai:chat:guest:day:203.0.113.7",
-      20,
+      100,
       24 * 60 * 60 * 1000,
     );
   });
 
-  it("blocks after the 5-minute guest budget with retryAfterSeconds 300", async () => {
+  it("blocks after the 1-minute guest budget with retryAfterSeconds 60", async () => {
     mockedConsume.mockResolvedValueOnce(false);
 
     const result = await verifyChatAccess(guestHeaders());
 
-    expect(result).toMatchObject({ allowed: false, retryAfterSeconds: 300 });
+    expect(result).toMatchObject({ allowed: false, retryAfterSeconds: 60 });
+    expect(!result.allowed && result.reason).not.toMatch(/sign in|register/i);
     expect(mockedConsume).toHaveBeenCalledTimes(1);
   });
 

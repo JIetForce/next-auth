@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import { Geist } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
-import { ChatWidgetGate } from "@/components/chat/chat-widget-gate";
+import { ChatWidget } from "@/components/chat/chat-widget";
 import { getPublicBaseUrl } from "@/lib/auth/environment";
 
 const geistSans = Geist({
@@ -68,9 +67,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         </a>
         <Providers>
           {children}
-          <Suspense fallback={null}>
-            <ChatWidgetGate />
-          </Suspense>
+          <ChatWidget />
         </Providers>
       </body>
     </html>
