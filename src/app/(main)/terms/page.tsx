@@ -214,17 +214,17 @@ export default function TermsPage() {
                     If you have questions or concerns regarding these Terms of
                     Service, please contact us at{" "}
                     <a
-                      href="mailto:legal@siftloom.com"
+                      href="mailto:legal@siftloom.xyz"
                       className="text-primary underline underline-offset-4 hover:text-foreground"
                     >
-                      legal@siftloom.com
+                      legal@siftloom.xyz
                     </a>{" "}
                     or{" "}
                     <a
-                      href="mailto:privacy@siftloom.com"
+                      href="mailto:privacy@siftloom.xyz"
                       className="text-primary underline underline-offset-4 hover:text-foreground"
                     >
-                      privacy@siftloom.com
+                      privacy@siftloom.xyz
                     </a>
                     .
                   </p>

@@ -231,10 +231,10 @@ export default function PrivacyPage() {
                       <li>
                         Send an email to{" "}
                         <a
-                          href="mailto:privacy@siftloom.com"
+                          href="mailto:privacy@siftloom.xyz"
                           className="text-primary underline underline-offset-4 hover:text-foreground"
                         >
-                          privacy@siftloom.com
+                          privacy@siftloom.xyz
                         </a>{" "}
                         from the email address associated with your Siftloom
                         account, with the subject line &ldquo;Account Deletion
@@ -266,10 +266,10 @@ export default function PrivacyPage() {
                   <p>
                     Email:{" "}
                     <a
-                      href="mailto:privacy@siftloom.com"
+                      href="mailto:privacy@siftloom.xyz"
                       className="text-primary underline underline-offset-4 hover:text-foreground"
                     >
-                      privacy@siftloom.com
+                      privacy@siftloom.xyz
                     </a>
                   </p>
                 </section>
