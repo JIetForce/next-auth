@@ -24,6 +24,7 @@ export const metadata: Metadata = {
   title: "Pricing",
   description:
     "Siftloom is free for every reader. No paywalls, ever. Here's how the project will be funded.",
+  alternates: { canonical: "/pricing" },
 };
 
 const freeFeatures = [

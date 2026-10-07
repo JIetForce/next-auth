@@ -11,6 +11,7 @@ export const metadata: Metadata = {
   title: "About",
   description:
     "Why Siftloom exists, where the project stands, and how to get in touch.",
+  alternates: { canonical: "/about" },
 };
 
 const X_URL = "https://x.com/siftloom";

@@ -35,6 +35,7 @@ export const metadata: Metadata = {
   title: "Curated AI, SaaS & Workflow Tools",
   description:
     "Siftloom picks out AI, SaaS, and workflow tools worth your time across productivity, development, automation, and growth.",
+  alternates: { canonical: "/" },
 };
 
 export default function Home() {

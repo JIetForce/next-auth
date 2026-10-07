@@ -11,6 +11,7 @@ export const metadata: Metadata = {
   title: "Privacy Policy",
   description:
     "Privacy Policy for Siftloom. Learn how we handle your personal data, sessions, authentication, and data deletion requests.",
+  alternates: { canonical: "/privacy" },
 };
 
 export default function PrivacyPage() {

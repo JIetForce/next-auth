@@ -11,6 +11,7 @@ export const metadata: Metadata = {
   title: "Terms of Service",
   description:
     "Terms of Service for Siftloom. Learn about our free directory service, user accounts, and acceptable use policies.",
+  alternates: { canonical: "/terms" },
 };
 
 export default function TermsPage() {

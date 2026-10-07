@@ -26,6 +26,7 @@ export const metadata: Metadata = {
   title: "Features",
   description:
     "The six categories Siftloom covers, from productivity and developer tools to AI agents and growth, and what we look at in each.",
+  alternates: { canonical: "/features" },
 };
 
 const categories = [
